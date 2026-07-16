@@ -1,0 +1,315 @@
+<?xml version="1.0"?>
+<mavlink>
+  <!-- =====================================================================
+       cc_dialect.xml — FC (PX4 / CUAV V6X) <-> CC (Jetson Orin Nano) dialect
+       =====================================================================
+       Single source of truth. Generated into:
+         - C headers for PX4 (mavgen, vendored into src/modules/mavlink)
+         - Rust bindings for the Jetson (rust-mavlink build-time generation,
+           wrapped by the cc-protocol crate)
+       Rules:
+         - Message IDs live in the private block 54000-54099 and are NEVER
+           reused or renumbered. 54008 is reserved for a future
+           CC_TELEMETRY_ESC (telemetry-capable ESCs are not fitted).
+         - New fields go in <extensions> sections only (MAVLink 2
+           zero-truncation keeps old parsers compatible); semantic changes
+           bump schema_version.
+         - Every payload must stay <= 253 bytes (one MAVLink 2 frame).
+         - Regenerate BOTH bindings from the SAME commit of this file;
+           CRC_EXTRA divergence silently kills messages.
+       ===================================================================== -->
+  <include>common.xml</include>
+  <version>3</version>
+
+  <enums>
+
+    <enum name="CC_SEVERITY">
+      <description>Severity of a companion health report.</description>
+      <entry value="0" name="CC_SEVERITY_OK">
+        <description>All monitored subsystems nominal.</description>
+      </entry>
+      <entry value="1" name="CC_SEVERITY_WARN">
+        <description>Anomaly detected; informational, no automatic action expected.</description>
+      </entry>
+      <entry value="2" name="CC_SEVERITY_CRITICAL">
+        <description>Serious anomaly; companion recommends a protective action.</description>
+      </entry>
+      <entry value="3" name="CC_SEVERITY_STALE">
+        <description>Companion self-declares its own data too old/degraded to judge.</description>
+      </entry>
+    </enum>
+
+    <enum name="CC_RECOMMENDED_ACTION">
+      <description>Action recommended by the companion. Advisory only: PX4's
+        cc_safety_monitor policy table (parameterized) decides the actual
+        action and it can only ever be conservative (reduce authority).</description>
+      <entry value="0" name="CC_ACTION_NONE"><description>No action.</description></entry>
+      <entry value="1" name="CC_ACTION_WARN_ONLY"><description>Surface a warning to pilot/GCS only.</description></entry>
+      <entry value="2" name="CC_ACTION_BLOCK_OFFBOARD"><description>Block or exit Offboard mode.</description></entry>
+      <entry value="3" name="CC_ACTION_HOLD"><description>Request Hold/Loiter.</description></entry>
+      <entry value="4" name="CC_ACTION_LAND"><description>Request Land.</description></entry>
+      <entry value="5" name="CC_ACTION_RTL"><description>Request Return-To-Launch.</description></entry>
+    </enum>
+
+    <enum name="CC_COMPANION_STATE">
+      <description>Companion state as judged by PX4 cc_safety_monitor.</description>
+      <entry value="0" name="CC_STATE_UNKNOWN"><description>No valid report received since FC boot.</description></entry>
+      <entry value="1" name="CC_STATE_OK"><description>Fresh valid reports, severity OK.</description></entry>
+      <entry value="2" name="CC_STATE_WARN"><description>Fresh valid reports, severity WARN.</description></entry>
+      <entry value="3" name="CC_STATE_CRITICAL"><description>Fresh valid reports, severity CRITICAL.</description></entry>
+      <entry value="4" name="CC_STATE_STALE"><description>No valid report within CC_MON_TIMEOUT_MS.</description></entry>
+    </enum>
+
+    <enum name="CC_SUBSYSTEM">
+      <description>Subsystem a finding or diagnostic refers to.</description>
+      <entry value="0" name="CC_SUBSYS_NONE"><description>Unspecified.</description></entry>
+      <entry value="1" name="CC_SUBSYS_BATTERY"><description>Battery / power model.</description></entry>
+      <entry value="2" name="CC_SUBSYS_MOTOR"><description>Motor / actuator balance.</description></entry>
+      <entry value="3" name="CC_SUBSYS_VIBRATION"><description>Vibration / structural.</description></entry>
+      <entry value="4" name="CC_SUBSYS_GPS"><description>GNSS quality.</description></entry>
+      <entry value="5" name="CC_SUBSYS_ESTIMATOR"><description>State estimator consistency.</description></entry>
+      <entry value="6" name="CC_SUBSYS_THERMAL"><description>Thermal.</description></entry>
+      <entry value="7" name="CC_SUBSYS_LINK"><description>FC-CC link quality.</description></entry>
+      <entry value="8" name="CC_SUBSYS_MISSION"><description>Mission-level risk.</description></entry>
+      <entry value="9" name="CC_SUBSYS_STORAGE"><description>Companion storage / logging.</description></entry>
+      <entry value="10" name="CC_SUBSYS_TIMESYNC"><description>Clock synchronization quality.</description></entry>
+      <entry value="11" name="CC_SUBSYS_SOFTWARE"><description>Companion software self-health.</description></entry>
+    </enum>
+
+    <enum name="CC_HEALTH_FLAGS" bitmask="true">
+      <description>Bitmask of currently-active health concerns (one bit per
+        domain). A set bit means the domain has an active WARN-or-worse
+        finding; details travel in detail_code / CC_AI_DIAGNOSTIC.</description>
+      <entry value="1"    name="CC_HF_BATTERY"><description>Battery anomaly active.</description></entry>
+      <entry value="2"    name="CC_HF_MOTOR"><description>Motor/actuator anomaly active.</description></entry>
+      <entry value="4"    name="CC_HF_VIBRATION"><description>Vibration anomaly active.</description></entry>
+      <entry value="8"    name="CC_HF_GPS"><description>GNSS quality degraded.</description></entry>
+      <entry value="16"   name="CC_HF_ESTIMATOR"><description>Estimator consistency degraded.</description></entry>
+      <entry value="32"   name="CC_HF_THERMAL"><description>Thermal concern active.</description></entry>
+      <entry value="64"   name="CC_HF_LINK"><description>FC-CC link degraded.</description></entry>
+      <entry value="128"  name="CC_HF_MISSION"><description>Mission risk elevated.</description></entry>
+      <entry value="256"  name="CC_HF_STORAGE"><description>Companion storage low / logging shedding.</description></entry>
+      <entry value="512"  name="CC_HF_AI_DEGRADED"><description>One or more health algorithms UNAVAILABLE/DEGRADED.</description></entry>
+      <entry value="1024" name="CC_HF_TIMESYNC"><description>Timesync DEGRADED/UNLOCKED.</description></entry>
+    </enum>
+
+    <enum name="CC_REJECT_REASON">
+      <description>Why PX4 rejected the most recent inbound companion message
+        (echoed in CC_SAFETY_STATUS for observability).</description>
+      <entry value="0" name="CC_REJECT_NONE"><description>Nothing rejected.</description></entry>
+      <entry value="1" name="CC_REJECT_BAD_SOURCE"><description>Wrong sysid/compid.</description></entry>
+      <entry value="2" name="CC_REJECT_BAD_SCHEMA"><description>Unsupported schema_version.</description></entry>
+      <entry value="3" name="CC_REJECT_BAD_RANGE"><description>Field out of range / invalid enum.</description></entry>
+      <entry value="4" name="CC_REJECT_DUP_SEQ"><description>Duplicate or regressed sequence.</description></entry>
+      <entry value="5" name="CC_REJECT_FLOOD"><description>Rate limit exceeded; excess dropped.</description></entry>
+      <entry value="6" name="CC_REJECT_MONITOR_DISABLED"><description>CC_MON_EN = 0.</description></entry>
+    </enum>
+
+    <enum name="CC_LOG_PROFILE">
+      <description>Telemetry/logging profile (mirrors PX4 param CC_TEL_PROFILE).</description>
+      <entry value="0" name="CC_PROFILE_MINIMAL"><description>Heartbeat + safety only.</description></entry>
+      <entry value="1" name="CC_PROFILE_AI_UART"><description>Mission AI rates sized for UART (default).</description></entry>
+      <entry value="2" name="CC_PROFILE_AI_ETH"><description>Elevated rates; Ethernet only, post soak-test.</description></entry>
+      <entry value="3" name="CC_PROFILE_DEBUG"><description>Development: full rates + full PX4 ULog.</description></entry>
+    </enum>
+
+  </enums>
+
+  <messages>
+
+    <!-- ================= FC -> CC telemetry (Classes A-G) ================= -->
+
+    <message id="54000" name="CC_TELEMETRY_STATE">
+      <description>Class A vehicle state for AI context, flight-phase detection
+        and event alignment. Nominal 25 Hz (UART) / 50 Hz (Ethernet).</description>
+      <field type="uint64_t" name="fc_timestamp_us" units="us">FC monotonic time since PX4 boot.</field>
+      <field type="uint32_t" name="sequence">Per-stream monotonic counter (wraps 2^32).</field>
+      <field type="uint32_t" name="px4_boot_id">FC boot identity (constant per boot).</field>
+      <field type="uint32_t" name="mission_id">Mission identity echoed from CC_MISSION_CONTEXT (0 if none).</field>
+      <field type="uint32_t" name="failsafe_flags">PX4 failsafe flags bitfield (as in failsafe_flags uORB).</field>
+      <field type="float[4]" name="q">Attitude quaternion (w, x, y, z), body to NED.</field>
+      <field type="float[3]" name="angular_velocity" units="rad/s">Body angular rates (x, y, z).</field>
+      <field type="float[3]" name="position_ned" units="m">Local position NED.</field>
+      <field type="float[3]" name="velocity_ned" units="m/s">Local velocity NED.</field>
+      <field type="float" name="heading" units="rad">Heading (yaw), NED, [-pi, pi].</field>
+      <field type="uint8_t" name="nav_state">PX4 nav_state (vehicle_status).</field>
+      <field type="uint8_t" name="arming_state">PX4 arming_state (vehicle_status).</field>
+      <field type="uint8_t" name="vehicle_type">PX4 vehicle type.</field>
+      <field type="uint8_t" name="estimator_valid">1 if local position/attitude estimates valid.</field>
+      <field type="uint8_t" name="control_mode_flags">Compact vehicle_control_mode bitfield.</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54001" name="CC_TELEMETRY_IMU">
+      <description>Class B IMU/vibration summary. Nominal 50 Hz on UART;
+        100-200 Hz only on Ethernet after a measured soak test. Raw full-rate
+        IMU stays in PX4 ULog.</description>
+      <field type="uint64_t" name="fc_timestamp_us" units="us">FC monotonic time since PX4 boot.</field>
+      <field type="uint32_t" name="sequence">Per-stream monotonic counter.</field>
+      <field type="uint32_t" name="clipping_count">Cumulative accel clipping events since boot.</field>
+      <field type="float[3]" name="accel" units="m/s/s">Filtered specific force (x, y, z).</field>
+      <field type="float[3]" name="gyro" units="rad/s">Filtered angular rate (x, y, z).</field>
+      <field type="float[3]" name="delta_angle" units="rad">Integrated delta angle over the sample interval.</field>
+      <field type="float[3]" name="delta_velocity" units="m/s">Integrated delta velocity over the sample interval.</field>
+      <field type="float[3]" name="vibration_metric">Per-axis vibration metric (PX4 accel vibration levels).</field>
+      <field type="float" name="temperature" units="degC">IMU temperature.</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54002" name="CC_TELEMETRY_POWER">
+      <description>Class C power/battery. Nominal 10 Hz (UART) / 20 Hz (Ethernet).</description>
+      <field type="uint64_t" name="fc_timestamp_us" units="us">FC monotonic time since PX4 boot.</field>
+      <field type="uint32_t" name="sequence">Per-stream monotonic counter.</field>
+      <field type="float" name="voltage" units="V">Pack voltage.</field>
+      <field type="float" name="current" units="A">Pack current (positive = discharge).</field>
+      <field type="float" name="power" units="W">Instantaneous power.</field>
+      <field type="float" name="consumed_mah" units="mAh">Consumed charge since boot.</field>
+      <field type="float" name="remaining">Remaining fraction [0..1] (NaN if unknown).</field>
+      <field type="float" name="temperature" units="degC">Battery temperature (NaN if unknown).</field>
+      <field type="uint8_t" name="cell_count">Detected/configured cell count (0 if unknown).</field>
+      <field type="uint8_t" name="warning">PX4 battery warning level.</field>
+      <field type="uint8_t" name="connected">1 if battery telemetry valid.</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54003" name="CC_TELEMETRY_GPS">
+      <description>Class D GNSS/navigation quality. Nominal 5 Hz (UART) / 10 Hz (Ethernet).</description>
+      <field type="uint64_t" name="fc_timestamp_us" units="us">FC monotonic time since PX4 boot.</field>
+      <field type="uint32_t" name="sequence">Per-stream monotonic counter.</field>
+      <field type="int32_t" name="lat" units="degE7">Latitude, WGS-84, degrees * 1e7.</field>
+      <field type="int32_t" name="lon" units="degE7">Longitude, WGS-84, degrees * 1e7.</field>
+      <field type="int32_t" name="alt" units="mm">Altitude AMSL, millimeters.</field>
+      <field type="float" name="eph" units="m">Horizontal position uncertainty.</field>
+      <field type="float" name="epv" units="m">Vertical position uncertainty.</field>
+      <field type="float" name="ground_speed" units="m/s">Ground speed.</field>
+      <field type="float" name="heading" units="rad">Course over ground, [-pi, pi] (NaN if unknown).</field>
+      <field type="uint16_t" name="noise_per_ms">GPS noise indicator (receiver-specific; 0 if unavailable).</field>
+      <field type="uint16_t" name="jamming_indicator">GPS jamming indicator (receiver-specific; 0 if unavailable).</field>
+      <field type="uint8_t" name="fix_type">GNSS fix type (as PX4 sensor_gps fix_type).</field>
+      <field type="uint8_t" name="satellites_used">Satellites used in solution.</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54004" name="CC_TELEMETRY_ESTIMATOR">
+      <description>Class E estimator health. Nominal 10 Hz (UART) / 20 Hz
+        (Ethernet). More valuable to health AI than raw sensor spam.</description>
+      <field type="uint64_t" name="fc_timestamp_us" units="us">FC monotonic time since PX4 boot.</field>
+      <field type="uint32_t" name="sequence">Per-stream monotonic counter.</field>
+      <field type="uint32_t" name="status_flags">EKF status/fault flags (compacted from estimator_status).</field>
+      <field type="uint16_t" name="innovation_check_flags">EKF innovation check failure bitfield.</field>
+      <field type="uint16_t" name="solution_status_flags">EKF solution status bitfield.</field>
+      <field type="float" name="velocity_test_ratio">Velocity innovation test ratio (&lt;1 = passing).</field>
+      <field type="float" name="position_test_ratio">Horizontal position innovation test ratio.</field>
+      <field type="float" name="height_test_ratio">Height innovation test ratio.</field>
+      <field type="float" name="mag_test_ratio">Magnetometer innovation test ratio.</field>
+      <field type="float" name="airspeed_test_ratio">Airspeed innovation test ratio (NaN if not applicable).</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54005" name="CC_TELEMETRY_ACTUATOR">
+      <description>Class F commanded actuator outputs. Nominal 20 Hz (UART) /
+        50 Hz (Ethernet). NOTE: the fitted ESCs provide NO telemetry, so this
+        message intentionally carries commanded outputs only. Per-motor
+        RPM/current/temperature would be a separate CC_TELEMETRY_ESC
+        (ID 54008, reserved, undefined) if telemetry-capable ESCs are ever
+        fitted. Unused array slots beyond motor_count are NaN.</description>
+      <field type="uint64_t" name="fc_timestamp_us" units="us">FC monotonic time since PX4 boot.</field>
+      <field type="uint32_t" name="sequence">Per-stream monotonic counter.</field>
+      <field type="float[8]" name="actuator_output">Commanded outputs, normalized [-1..1] or [0..1] per PX4 output function.</field>
+      <field type="uint8_t" name="motor_count">Number of valid entries in actuator_output.</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54006" name="CC_EVENT">
+      <description>Class G event-driven notifications. Events beat re-logging
+        static status fields.</description>
+      <field type="uint64_t" name="fc_timestamp_us" units="us">FC monotonic time since PX4 boot.</field>
+      <field type="uint32_t" name="sequence">Per-stream monotonic counter.</field>
+      <field type="uint32_t" name="event_id">Event identifier (PX4 events namespace or CC-defined block).</field>
+      <field type="uint32_t" name="argument0">Event argument 0 (meaning defined per event_id).</field>
+      <field type="uint32_t" name="argument1">Event argument 1 (meaning defined per event_id).</field>
+      <field type="uint8_t" name="severity" enum="CC_SEVERITY">Event severity.</field>
+      <field type="uint8_t" name="subsystem" enum="CC_SUBSYSTEM">Related subsystem.</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54007" name="CC_SAFETY_STATUS">
+      <description>PX4 cc_safety_monitor state echo and report acknowledgement.
+        Sent on every state change plus 1 Hz keepalive.
+        last_report_sequence IS the ack that stops the companion's 5 Hz
+        CRITICAL repeat.</description>
+      <field type="uint64_t" name="fc_timestamp_us" units="us">FC monotonic time since PX4 boot.</field>
+      <field type="uint32_t" name="last_report_sequence">Highest CC_HEALTH_REPORT sequence accepted by the monitor.</field>
+      <field type="uint32_t" name="active_health_flags" enum="CC_HEALTH_FLAGS" display="bitmask">Health flags of the last accepted report.</field>
+      <field type="uint32_t" name="report_age_ms" units="ms">Age of the last accepted report.</field>
+      <field type="uint32_t" name="missed_reports">Cumulative sequence gaps detected since boot.</field>
+      <field type="uint8_t" name="companion_state" enum="CC_COMPANION_STATE">Monitor-judged companion state.</field>
+      <field type="uint8_t" name="action_taken" enum="CC_RECOMMENDED_ACTION">Action the monitor actually executed (may differ from recommendation; parameter policy wins).</field>
+      <field type="uint8_t" name="reject_reason" enum="CC_REJECT_REASON">Reason the most recent inbound message was rejected (CC_REJECT_NONE if none).</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <!-- ================= CC -> FC (companion originated) ================= -->
+
+    <message id="54010" name="CC_HEALTH_REPORT">
+      <description>Compact companion health conclusion. THE ONLY message that
+        can influence PX4 behavior, and only via the deterministic
+        cc_safety_monitor policy table. Rates: OK 1 Hz; WARN 2-5 Hz;
+        CRITICAL immediate on transition then 5 Hz until acknowledged via
+        CC_SAFETY_STATUS.last_report_sequence. Source component must be
+        MAV_COMP_ID_ONBOARD_COMPUTER (191).</description>
+      <field type="uint64_t" name="companion_timestamp_us" units="us">CC monotonic time at report creation.</field>
+      <field type="uint32_t" name="sequence">Report sequence, monotonic per cc_boot_id.</field>
+      <field type="uint32_t" name="mission_id">Current mission identity.</field>
+      <field type="uint32_t" name="companion_boot_id">companiond process boot identity.</field>
+      <field type="uint32_t" name="health_flags" enum="CC_HEALTH_FLAGS" display="bitmask">Active health concern bitmask.</field>
+      <field type="uint16_t" name="detail_code">Dominant evidence code (joins to CC_AI_DIAGNOSTIC / ai_health.parquet).</field>
+      <field type="uint16_t" name="link_rtt_ms" units="ms">Companion-measured link round-trip time.</field>
+      <field type="uint16_t" name="telemetry_age_ms" units="ms">Age of newest FC telemetry at report time.</field>
+      <field type="uint16_t" name="companion_loop_ms" units="ms">Health evaluation loop duration (self-telemetry).</field>
+      <field type="uint16_t" name="dropped_rx_count">Frames dropped by companion since boot (self-telemetry).</field>
+      <field type="uint8_t" name="severity" enum="CC_SEVERITY">Worst-case merged severity.</field>
+      <field type="uint8_t" name="recommended_action" enum="CC_RECOMMENDED_ACTION">Advisory recommended action.</field>
+      <field type="uint8_t" name="confidence_percent" units="%">Confidence in the conclusion [0..100].</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54011" name="CC_AI_DIAGNOSTIC">
+      <description>Low-rate detailed finding, LOG-ONLY on the PX4 side (stored
+        in ULog for evidence; never drives policy). Max 2 Hz sustained.</description>
+      <field type="uint64_t" name="companion_timestamp_us" units="us">CC monotonic time at finding creation.</field>
+      <field type="uint32_t" name="sequence">Diagnostic sequence, monotonic per cc_boot_id.</field>
+      <field type="float" name="value">Measured value that triggered the finding.</field>
+      <field type="float" name="limit">Threshold/limit the value was compared against.</field>
+      <field type="uint16_t" name="detail_code">Evidence code (same namespace as CC_HEALTH_REPORT.detail_code).</field>
+      <field type="uint8_t" name="subsystem" enum="CC_SUBSYSTEM">Subsystem of the finding.</field>
+      <field type="uint8_t" name="severity" enum="CC_SEVERITY">Severity of this individual finding.</field>
+      <field type="uint8_t" name="confidence_percent" units="%">Confidence [0..100].</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54012" name="CC_MISSION_CONTEXT">
+      <description>Session handshake from companion after link-up and timesync
+        lock. Repeated at 1 Hz until PX4's CC_SAFETY_STATUS leaves
+        CC_STATE_UNKNOWN. PX4 validates vehicle_id and dialect compatibility;
+        mismatch is a configuration error (mission refused).</description>
+      <field type="uint32_t" name="mission_id">Mission identity minted by the companion (persisted monotonic counter).</field>
+      <field type="uint32_t" name="cc_boot_id">companiond process boot identity.</field>
+      <field type="uint32_t" name="vehicle_id">Static vehicle identity; must match PX4-side configuration.</field>
+      <field type="uint32_t" name="dialect_hash">Hash of cc_dialect.xml this binary was generated from.</field>
+      <field type="char[24]" name="sw_version">Companion software version string (git describe, NUL padded).</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+    <message id="54013" name="CC_LOG_CONTROL">
+      <description>OPTIONAL, development only, gated by PX4 parameter: request
+        a PX4 logging/telemetry profile change. Ignored (with
+        CC_REJECT_MONITOR_DISABLED-style rejection) unless explicitly enabled.</description>
+      <field type="uint64_t" name="companion_timestamp_us" units="us">CC monotonic time.</field>
+      <field type="uint32_t" name="sequence">Monotonic per cc_boot_id.</field>
+      <field type="uint8_t" name="requested_profile" enum="CC_LOG_PROFILE">Requested profile.</field>
+      <field type="uint8_t" name="schema_version">Payload schema version.</field>
+    </message>
+
+  </messages>
+</mavlink>

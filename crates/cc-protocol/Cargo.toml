@@ -1,0 +1,26 @@
+[package]
+name = "cc-protocol"
+description = "cc_dialect MAVLink 2 bindings wrapper: build-time generated dialect, envelope validation, framing foundations (spec §5.1)"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[features]
+# mavlink-bindgen emits the generated module behind this cfg gate (one per
+# dialect); it must exist and be on by default for the include! in lib.rs.
+default = ["dialect-cc_dialect"]
+dialect-cc_dialect = []
+
+[dependencies]
+mavlink-core.workspace = true
+# Used by the generated bindings (bitmask enums, FromPrimitive derives).
+bitflags.workspace = true
+num-derive.workspace = true
+num-traits.workspace = true
+
+[build-dependencies]
+# build.rs regenerates the dialect bindings from ../../cc-dialect on every
+# build — the Rust bindings are never vendored, so they cannot drift from
+# the XML (dev plan Phase 0.3 gen_rust.sh / Phase 1.1).
+mavlink-bindgen.workspace = true
+sha2.workspace = true

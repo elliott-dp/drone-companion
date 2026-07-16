@@ -1,0 +1,18 @@
+# Rust build output (workspace + per-crate)
+/target/
+**/target/
+
+# macOS
+.DS_Store
+
+# JetBrains / editor local files (user-specific, not part of the project)
+.idea/
+*.iml
+*.swp
+
+# NOTE: intentionally COMMITTED (they are the contract / evidence, not build junk):
+#   cc-dialect/generated/**  cc-dialect/golden/golden_frames.bin + golden_manifest.txt
+#   tools/phase2/last_run.log  tools/phase2/px4_server_last.log
+# Local toolchain/scratch dirs are ignored by cc-dialect/.gitignore
+# (.venv-mavgen/, build/). The PX4 fork lives in a SEPARATE repo
+# (../PX4-Autopilot-CCFC) and is not part of this tree.

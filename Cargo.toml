@@ -1,0 +1,31 @@
+# drone-companion — Jetson-side Rust workspace (spec §5.1)
+#
+# Members are added as their phase implements them (dev plan):
+#   Phase 1 : crates/cc-protocol
+#   Phase 4 : crates/cc-link, crates/cc-timesync, crates/cc-ingest, apps/companiond
+#   Phase 5 : crates/cc-mission-log, crates/cc-config, apps/log-inspect
+#   Phase 6 : crates/cc-health-tx
+#   Phase 7 : crates/cc-ai-health, crates/cc-replay, apps/replay-mission
+[workspace]
+resolver = "2"
+members = [
+    "crates/cc-protocol",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+# Wire-contract-critical dependencies are pinned EXACTLY (=x.y.z): a silent
+# minor bump of the MAVLink implementation must never change the bytes we
+# emit. Bump them deliberately, re-running the golden round-trip suite.
+mavlink-core = { version = "=0.18.0", default-features = false, features = ["std"] }
+mavlink-bindgen = "=0.18.0"
+sha2 = "0.10"
+# Required by the mavlink-bindgen-generated code (same set the official
+# `mavlink` facade crate declares for its generated dialects).
+bitflags = "2.9"
+num-derive = "0.4"
+num-traits = "0.2"

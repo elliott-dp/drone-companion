@@ -1,0 +1,4 @@
+# local mavgen toolchain + scratch build dirs (never committed;
+# generated/ and golden/ outputs ARE committed — they are the contract)
+.venv-mavgen/
+build/
