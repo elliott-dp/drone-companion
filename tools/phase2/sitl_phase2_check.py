@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # ============================================================================
 # sitl_phase2_check.py — Phase 2 SITL verification harness (dev plan Phase 2
-# exit criteria; assertion design in docs/phase2_px4_telemetry.md §A.4).
+# exit criteria; assertion design in docs/phase2/phase2_px4_telemetry.md §A.4).
 #
 # Runs PX4 SITL **headless** with the built-in SIH simulator (airframe
 # 10040_sihsim_quadx — no Gazebo/jMAVSim needed) and drives it through the
@@ -42,16 +42,15 @@
 
 import argparse
 import math
-import os
-import pty
 import re
 import shutil
-import subprocess
 import sys
 import tempfile
-import threading
 import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "common"))
+from pxh import Pxh, parse_samples, sample, status_counts  # noqa: E402  (shared plumbing — see tools/common/pxh.py)
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_PX4 = (SCRIPT_DIR / "../../../../PX4-Autopilot-CCFC").resolve()
@@ -59,8 +58,6 @@ DEFAULT_PX4 = (SCRIPT_DIR / "../../../../PX4-Autopilot-CCFC").resolve()
 AIRFRAME = "10040"  # sihsim_quadx
 TICK_HZ = 50        # AI_UART base tick (spec §4.2)
 RATE_TOL = 0.20     # ±20% per the dev plan
-
-ANSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
 
 results = []
 log_lines = []
@@ -97,173 +94,6 @@ STREAMS = [
     ("cc_telemetry_estimator", 10),
     ("cc_telemetry_actuator", 20),
 ]
-
-
-class Pxh:
-    """Interactive PX4 SITL shell on a pseudo-terminal: one command at a time."""
-
-    def __init__(self, px4_dir: Path, rootfs: Path):
-        self.build = px4_dir / "build/px4_sitl_default"
-        self.rootfs = rootfs
-        self.proc = None
-        self._master = None
-        self._buf = []
-        self._lock = threading.Lock()
-
-    # -- raw stream handling ------------------------------------------------
-    def _reader(self):
-        while True:
-            try:
-                chunk = os.read(self._master, 65536)
-            except OSError:  # EIO when the child side closes — normal at exit
-                return
-            if not chunk:
-                return
-            with self._lock:
-                self._buf.append(chunk.decode(errors="replace"))
-
-    def _text(self):
-        with self._lock:
-            return ANSI_RE.sub("", "".join(self._buf))
-
-    def _mark(self):
-        with self._lock:
-            return len("".join(self._buf))
-
-    def _since(self, mark):
-        with self._lock:
-            return ANSI_RE.sub("", "".join(self._buf)[mark:])
-
-    # -- lifecycle -----------------------------------------------------------
-    def start(self):
-        if self.rootfs.exists():
-            shutil.rmtree(self.rootfs)
-        self.rootfs.mkdir(parents=True)
-        env = os.environ.copy()
-        env["PX4_SYS_AUTOSTART"] = AIRFRAME
-        env.pop("PX4_SIM_SPEED_FACTOR", None)
-
-        # pty: line-buffered stdout for listener's raw prints, tty stdin for
-        # its abort-key poll — see I/O DESIGN in the header
-        self._master, slave = pty.openpty()
-        self.proc = subprocess.Popen(
-            [str(self.build / "bin/px4"), str(self.build / "etc"),
-             "-s", "etc/init.d-posix/rcS"],
-            cwd=self.rootfs, env=env,
-            stdin=slave, stdout=slave, stderr=slave,
-            close_fds=True,
-        )
-        os.close(slave)
-        threading.Thread(target=self._reader, daemon=True).start()
-
-        deadline = time.time() + 90
-        while time.time() < deadline:
-            if self.proc.poll() is not None:
-                raise RuntimeError("px4 exited during startup — see px4_server_last.log")
-            t = self._text()
-            if "Startup script returned successfully" in t or t.rstrip().endswith("pxh>"):
-                log("pxh shell up (pty)")
-                return
-            time.sleep(0.5)
-        raise RuntimeError("pxh not ready within 90 s")
-
-    def _write(self, data: bytes):
-        os.write(self._master, data)
-
-    def run(self, cmd, timeout=30.0, quiet=0.5):
-        """Send ONE command; return its output once the stream goes quiet
-        and ends at a fresh prompt (or timeout). On timeout, a bare newline
-        is sent to abort a possibly-stuck stdin-polling command (listener)
-        so the session stays usable."""
-        mark = self._mark()
-        self._write((cmd + "\n").encode())
-        deadline = time.time() + timeout
-        last_len, last_change = -1, time.time()
-        timed_out = True
-        while time.time() < deadline:
-            out = self._since(mark)
-            if len(out) != last_len:
-                last_len, last_change = len(out), time.time()
-            elif time.time() - last_change >= quiet and out.rstrip().endswith("pxh>"):
-                timed_out = False
-                break
-            time.sleep(0.05)
-        if timed_out:
-            log(f"WARN: command timed out after {timeout:.0f}s: {cmd}")
-            self._write(b"\n")  # abort a stuck listener; harmless at prompt
-            time.sleep(0.5)
-        out = self._since(mark)
-        # drop the echoed command line and the trailing prompt
-        lines = [ln for ln in out.splitlines()
-                 if not ln.strip().endswith(cmd) and ln.strip() != "pxh>"]
-        return "\n".join(lines)
-
-    def stop(self):
-        if self.proc and self.proc.poll() is None:
-            try:
-                self._write(b"shutdown\n")
-                self.proc.wait(timeout=15)
-            except Exception:
-                self.proc.kill()
-                try:
-                    self.proc.wait(timeout=10)
-                except Exception:
-                    pass
-        # preserve the full transcript for diagnosis/docs
-        (SCRIPT_DIR / "px4_server_last.log").write_text(self._text())
-
-
-# -- output parsing -------------------------------------------------------
-
-
-def _num(s):
-    s = s.strip().rstrip(",")
-    try:
-        if s.lower() in ("nan", "-nan"):
-            return float("nan")
-        if "." in s or "e" in s.lower():
-            return float(s)
-        return int(s)
-    except ValueError:
-        return s
-
-
-def parse_samples(listener_output: str):
-    samples, cur = [], None
-    for line in listener_output.splitlines():
-        if line.lstrip().startswith("pxh>"):
-            continue  # command echo (per-char on a pty)
-        m = re.match(r"^\s*(\w+):\s*(.+?)\s*$", line)
-        if not m:
-            continue
-        key, val = m.group(1), m.group(2)
-        if key == "timestamp":
-            cur = {}
-            samples.append(cur)
-        if cur is None:
-            continue
-        arr = re.match(r"\[(.*?)\]", val)  # listener may decorate after the ]
-        if arr:
-            cur[key] = [_num(x) for x in arr.group(1).split(",") if x.strip()]
-        else:
-            cur[key] = _num(val.split()[0])
-    return samples
-
-
-def status_counts(status_txt):
-    return {m.group(1): int(m.group(2))
-            for m in re.finditer(r"(\w+)\s+rate:.*published:\s*(\d+)", status_txt)}
-
-
-def sample(pxh, topic, retries=2):
-    """Latest sample via SINGLE-SHOT listener (the only mode that works on
-    SITL — see I/O DESIGN)."""
-    for _ in range(retries + 1):
-        got = parse_samples(pxh.run(f"listener {topic}", timeout=15))
-        if got:
-            return got[-1]
-        time.sleep(0.5)
-    return {}
 
 
 def stream_rate_check(pxh, topic, requested_hz, label="", span=3.0):
@@ -432,7 +262,7 @@ def main():
     except Exception as e:
         check("harness completed without exception", False, repr(e))
     finally:
-        pxh.stop()
+        pxh.stop(SCRIPT_DIR / "px4_server_last.log")
         if args.keep_rootfs:
             log(f"rootfs kept at {rootfs}")
         else:

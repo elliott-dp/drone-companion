@@ -6,7 +6,7 @@
 **Status:** Design specification / Interface Control Document (ICD)
 **PX4 base:** `PX4-Autopilot-CCFC` pinned to release tag **v1.17.0**
 (commit `d6f12ad1c4`; latest stable per dev plan Phase 0.1 — recorded here
-2026-07-15, rationale in `phase2_px4_telemetry.md` §A.1)
+2026-07-15, rationale in `phase2/phase2_px4_telemetry.md` §A.1)
 
 ---
 

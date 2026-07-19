@@ -2,7 +2,7 @@
 
 Companion tooling for **dev plan Phase 2** (uORB topics +
 `cc_telemetry_publisher` in the `PX4-Autopilot-CCFC` fork, pinned v1.17.0).
-Full design + results: [../../docs/phase2_px4_telemetry.md](../../docs/phase2_px4_telemetry.md).
+Full design + results: [../../docs/phase2/phase2_px4_telemetry.md](../../docs/phase2/phase2_px4_telemetry.md).
 
 | File | Purpose |
 |---|---|

@@ -37,35 +37,36 @@ INFO  [commander] LED: open /dev/led0 failed (22)
 ERROR [param] Parameter UXRCE_DDS_DOM_ID not found.
 etc/init.d-posix/rcS: line 328: uxrce_dds_client: command not found
 INFO  [mavlink] mode: Normal, data rate: 4000000 B/s on udp port 18570 remote port 14550
+INFO  [tone_alarm] home set
 INFO  [mavlink] mode: Onboard, data rate: 4000000 B/s on udp port 14580 remote port 14540
 INFO  [mavlink] mode: Onboard, data rate: 4000 B/s on udp port 14280 remote port 14030
 INFO  [mavlink] mode: Gimbal, data rate: 400000 B/s on udp port 13030 remote port 13280
+INFO  [mavlink] mode: Onboard, data rate: 400000 B/s on udp port 24540 remote port 24040
 INFO  [mavlink] mode: Custom, data rate: 400000 B/s on udp port 19450 remote port 19410
 INFO  [logger] logger started (mode=all)
 INFO  [logger] Start file log (type: full)
-INFO  [logger] [logger] ./log/2026-07-15/07_57_20.ulg	
-INFO  [logger] Opened full log file: ./log/2026-07-15/07_57_20.ulg
+INFO  [logger] [logger] ./log/2026-07-16/17_15_28.ulg	
+INFO  [logger] Opened full log file: ./log/2026-07-16/17_15_28.ulg
 INFO  [mavlink] MAVLink only on localhost (set param MAV_{i}_BROADCAST = 1 to enable network)
 INFO  [mavlink] MAVLink only on localhost (set param MAV_{i}_BROADCAST = 1 to enable network)
 INFO  [mavlink] MAVLink only on localhost (set param MAV_{i}_BROADCAST = 1 to enable network)
 INFO  [px4] Startup script returned successfully
 pxh> INFO  [mavlink] partner IP: 127.0.0.1
-INFO  [tone_alarm] home set
 INFO  [commander] Ready for takeoff!
 pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh> listenerpxh> listener pxh> listener cpxh> listener ccpxh> listener cc_pxh> listener cc_tpxh> listener cc_tepxh> listener cc_telpxh> listener cc_telepxh> listener cc_telempxh> listener cc_telemepxh> listener cc_telemetpxh> listener cc_telemetrpxh> listener cc_telemetrypxh> listener cc_telemetry_pxh> listener cc_telemetry_spxh> listener cc_telemetry_stpxh> listener cc_telemetry_stapxh> listener cc_telemetry_statpxh> listener cc_telemetry_state
 
 TOPIC: cc_telemetry_state
  cc_telemetry_state
-    timestamp: 7204000 (0.036000 seconds ago)
-    sequence: 178
-    px4_boot_id: 1784064799
+    timestamp: 7692000 (0.024000 seconds ago)
+    sequence: 190
+    px4_boot_id: 1784194096
     mission_id: 0
     failsafe_flags: 1025 (0b100'0000'0001)
-    q: [1.00000, 0.00060, 0.00064, -0.00189] (Roll: 0.1 deg, Pitch: 0.1 deg, Yaw: -0.2 deg)
-    angular_velocity: [0.00018, 0.00760, -0.00099]
-    position_ned: [-0.22286, -0.17020, 0.01526]
-    velocity_ned: [-0.08053, -0.04704, 0.00623]
-    heading: -0.00377
+    q: [1.00000, 0.00067, 0.00046, -0.00208] (Roll: 0.1 deg, Pitch: 0.1 deg, Yaw: -0.2 deg)
+    angular_velocity: [-0.00189, 0.01092, 0.00576]
+    position_ned: [-0.25025, -0.18621, 0.01755]
+    velocity_ned: [-0.07576, -0.02719, 0.00074]
+    heading: -0.00417
     nav_state: 4
     arming_state: 1
     vehicle_type: 2
@@ -77,16 +78,16 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_state
  cc_telemetry_state
-    timestamp: 10164000 (0.036000 seconds ago)
-    sequence: 252
-    px4_boot_id: 1784064799
+    timestamp: 10932000 (0.028000 seconds ago)
+    sequence: 271
+    px4_boot_id: 1784194096
     mission_id: 0
     failsafe_flags: 1025 (0b100'0000'0001)
-    q: [0.99998, 0.00052, -0.00080, -0.00619] (Roll: 0.1 deg, Pitch: -0.1 deg, Yaw: -0.7 deg)
-    angular_velocity: [-0.00016, 0.00753, 0.00360]
-    position_ned: [-0.21371, -0.21433, 0.02591]
-    velocity_ned: [-0.00344, -0.01094, 0.00073]
-    heading: -0.01238
+    q: [0.99998, 0.00081, -0.00127, -0.00629] (Roll: 0.1 deg, Pitch: -0.1 deg, Yaw: -0.7 deg)
+    angular_velocity: [0.00551, 0.00031, 0.01146]
+    position_ned: [-0.28594, -0.22620, 0.01758]
+    velocity_ned: [-0.01376, -0.00116, -0.00838]
+    heading: -0.01264
     nav_state: 4
     arming_state: 1
     vehicle_type: 2
@@ -98,14 +99,14 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_imu
  cc_telemetry_imu
-    timestamp: 10664000 (0.016000 seconds ago)
-    sequence: 530
+    timestamp: 11492000 (0.000000 seconds ago)
+    sequence: 571
     clipping_count: 0
-    accel: [0.03755, -0.00027, -9.91834]
-    gyro: [-0.00205, -0.01224, -0.00315]
-    delta_angle: [0.00000, -0.00005, -0.00001]
-    delta_velocity: [-0.00012, 0.00007, -0.03956]
-    vibration_metric: [0.10843, 0.01161, 0.00000]
+    accel: [0.03976, -0.09160, -9.87122]
+    gyro: [0.01010, -0.01122, 0.01553]
+    delta_angle: [0.00004, -0.00004, 0.00006]
+    delta_velocity: [0.00016, -0.00037, -0.03948]
+    vibration_metric: [0.11716, 0.01114, 0.00000]
     temperature: 15.00000
     schema_version: 1
 
@@ -113,14 +114,14 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_imu
  cc_telemetry_imu
-    timestamp: 13644000 (0.012000 seconds ago)
-    sequence: 679
+    timestamp: 14692000 (0.008000 seconds ago)
+    sequence: 731
     clipping_count: 0
-    accel: [0.06901, -0.00814, -9.72397]
-    gyro: [0.00104, -0.00760, 0.00684]
-    delta_angle: [0.00000, -0.00003, 0.00003]
-    delta_velocity: [0.00028, -0.00003, -0.03890]
-    vibration_metric: [0.11805, 0.01107, 0.00000]
+    accel: [-0.07647, -0.04069, -9.77099]
+    gyro: [-0.00697, 0.00161, -0.00111]
+    delta_angle: [-0.00003, 0.00001, -0.00000]
+    delta_velocity: [-0.00031, -0.00016, -0.03908]
+    vibration_metric: [0.11843, 0.01142, 0.00000]
     temperature: 15.00000
     schema_version: 1
 
@@ -128,8 +129,8 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_power
  cc_telemetry_power
-    timestamp: 14044000 (0.092000 seconds ago)
-    sequence: 139
+    timestamp: 15152000 (0.080000 seconds ago)
+    sequence: 150
     voltage: 16.20000
     current: nan
     power: nan
@@ -144,8 +145,8 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_power
  cc_telemetry_power
-    timestamp: 17044000 (0.072000 seconds ago)
-    sequence: 169
+    timestamp: 18352000 (0.096000 seconds ago)
+    sequence: 182
     voltage: 16.20000
     current: nan
     power: nan
@@ -160,15 +161,15 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_gps
  cc_telemetry_gps
-    timestamp: 17444000 (0.148000 seconds ago)
-    sequence: 86
-    lat: 473977414
-    lon: 85455942
-    alt: 489173
+    timestamp: 18852000 (0.124000 seconds ago)
+    sequence: 93
+    lat: 473977433
+    lon: 85455967
+    alt: 489554
     eph: 0.90000
     epv: 1.78000
-    ground_speed: 0.00496
-    heading: -0.08509
+    ground_speed: 0.07531
+    heading: 2.98193
     noise_per_ms: 0
     jamming_indicator: 0
     fix_type: 3
@@ -179,15 +180,15 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_gps
  cc_telemetry_gps
-    timestamp: 20444000 (0.104000 seconds ago)
-    sequence: 101
-    lat: 473977441
-    lon: 85455948
-    alt: 489627
+    timestamp: 22052000 (0.168000 seconds ago)
+    sequence: 109
+    lat: 473977426
+    lon: 85455932
+    alt: 489854
     eph: 0.90000
     epv: 1.78000
-    ground_speed: 0.11450
-    heading: -0.69770
+    ground_speed: 0.10809
+    heading: -1.01244
     noise_per_ms: 0
     jamming_indicator: 0
     fix_type: 3
@@ -198,13 +199,13 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_estimator
  cc_telemetry_estimator
-    timestamp: 20944000 (0.084000 seconds ago)
-    sequence: 208
+    timestamp: 22752000 (0.004000 seconds ago)
+    sequence: 226
     status_flags: 0
-    velocity_test_ratio: 0.03562
-    position_test_ratio: 0.05608
-    height_test_ratio: 0.01289
-    mag_test_ratio: 0.04563
+    velocity_test_ratio: 0.03760
+    position_test_ratio: 0.02841
+    height_test_ratio: 0.01659
+    mag_test_ratio: 0.07052
     airspeed_test_ratio: nan
     innovation_check_flags: 0
     solution_status_flags: 1023 (0b11'1111'1111)
@@ -214,13 +215,13 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_estimator
  cc_telemetry_estimator
-    timestamp: 23944000 (0.076000 seconds ago)
-    sequence: 238
+    timestamp: 25952000 (0.044000 seconds ago)
+    sequence: 258
     status_flags: 0
-    velocity_test_ratio: 0.03577
-    position_test_ratio: 0.02160
-    height_test_ratio: 0.00772
-    mag_test_ratio: 0.05351
+    velocity_test_ratio: 0.01984
+    position_test_ratio: 0.02610
+    height_test_ratio: 0.00939
+    mag_test_ratio: 0.07540
     airspeed_test_ratio: nan
     innovation_check_flags: 0
     solution_status_flags: 1023 (0b11'1111'1111)
@@ -230,9 +231,9 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_actuator
  cc_telemetry_actuator
-    timestamp: 24464000 (0.032000 seconds ago)
-    sequence: 406
-    actuator_output: [0.00200, 0.00000, 0.00200, 0.00000, nan, nan, nan, nan]
+    timestamp: 26512000 (0.024000 seconds ago)
+    sequence: 440
+    actuator_output: [0.00105, 0.00056, 0.00019, 0.00219, nan, nan, nan, nan]
     motor_count: 4
     schema_version: 1
 
@@ -240,8 +241,8 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_actuator
  cc_telemetry_actuator
-    timestamp: 27464000 (0.000000 seconds ago)
-    sequence: 456
+    timestamp: 29752000 (0.040000 seconds ago)
+    sequence: 494
     actuator_output: [0.00200, 0.00000, 0.00200, 0.00000, nan, nan, nan, nan]
     motor_count: 4
     schema_version: 1
@@ -252,14 +253,14 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_imu
  cc_telemetry_imu
-    timestamp: 29224000 (0.012000 seconds ago)
-    sequence: 1407
+    timestamp: 31732000 (0.008000 seconds ago)
+    sequence: 1527
     clipping_count: 0
-    accel: [-0.09770, 0.10529, -9.76267]
-    gyro: [0.00721, 0.00685, -0.00045]
-    delta_angle: [0.00003, 0.00003, -0.00000]
-    delta_velocity: [-0.00039, 0.00042, -0.03905]
-    vibration_metric: [0.11498, 0.01099, 0.00000]
+    accel: [-0.05375, -0.06540, -9.73942]
+    gyro: [0.02050, 0.00545, 0.00624]
+    delta_angle: [0.00008, 0.00002, 0.00002]
+    delta_velocity: [-0.00021, -0.00026, -0.03896]
+    vibration_metric: [0.11187, 0.01218, 0.00000]
     temperature: 15.00000
     schema_version: 1
 
@@ -267,14 +268,14 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_imu
  cc_telemetry_imu
-    timestamp: 32224000 (0.004000 seconds ago)
-    sequence: 1437
+    timestamp: 34932000 (0.052000 seconds ago)
+    sequence: 1559
     clipping_count: 0
-    accel: [0.08206, 0.09313, -9.82819]
-    gyro: [0.00364, 0.00467, 0.00044]
-    delta_angle: [0.00001, 0.00002, 0.00000]
-    delta_velocity: [0.00033, 0.00037, -0.03931]
-    vibration_metric: [0.11580, 0.01231, 0.00000]
+    accel: [-0.02092, -0.14343, -9.96074]
+    gyro: [0.00437, 0.00964, 0.00225]
+    delta_angle: [0.00002, 0.00004, 0.00001]
+    delta_velocity: [-0.00008, -0.00057, -0.03984]
+    vibration_metric: [0.11120, 0.01172, 0.00000]
     temperature: 15.00000
     schema_version: 1
 
@@ -284,14 +285,14 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_imu
  cc_telemetry_imu
-    timestamp: 34024000 (0.008000 seconds ago)
-    sequence: 1508
+    timestamp: 36932000 (0.012000 seconds ago)
+    sequence: 1637
     clipping_count: 0
-    accel: [-0.10035, 0.09598, -9.87654]
-    gyro: [-0.00207, -0.00256, 0.00713]
-    delta_angle: [-0.00001, -0.00001, 0.00003]
-    delta_velocity: [-0.00040, 0.00038, -0.03951]
-    vibration_metric: [0.11386, 0.01161, 0.00000]
+    accel: [0.03186, -0.14146, -9.72742]
+    gyro: [0.00687, -0.00241, 0.00411]
+    delta_angle: [0.00003, -0.00001, 0.00002]
+    delta_velocity: [0.00013, -0.00057, -0.03891]
+    vibration_metric: [0.10917, 0.01087, 0.00000]
     temperature: 15.00000
     schema_version: 1
 
@@ -299,55 +300,55 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_imu
  cc_telemetry_imu
-    timestamp: 36964000 (0.012000 seconds ago)
-    sequence: 1655
+    timestamp: 40152000 (0.008000 seconds ago)
+    sequence: 1798
     clipping_count: 0
-    accel: [-0.09184, -0.04073, -9.91511]
-    gyro: [-0.00313, -0.00911, 0.00461]
-    delta_angle: [-0.00001, -0.00004, 0.00002]
-    delta_velocity: [-0.00037, -0.00016, -0.03966]
-    vibration_metric: [0.10889, 0.01089, 0.00000]
+    accel: [-0.09742, 0.03867, -9.85428]
+    gyro: [0.00790, -0.00129, 0.00536]
+    delta_angle: [0.00003, -0.00001, 0.00002]
+    delta_velocity: [-0.00039, 0.00015, -0.03942]
+    vibration_metric: [0.11593, 0.01068, 0.00000]
     temperature: 15.00000
     schema_version: 1
 
 pxh> pxh> ppxh> papxh> parpxh> parapxh> parampxh> param pxh> param spxh> param sepxh> param setpxh> param set pxh> param set Cpxh> param set CCpxh> param set CC_pxh> param set CC_Tpxh> param set CC_TEpxh> param set CC_TELpxh> param set CC_TEL_pxh> param set CC_TEL_Ppxh> param set CC_TEL_PRpxh> param set CC_TEL_PROpxh> param set CC_TEL_PROFpxh> param set CC_TEL_PROFIpxh> param set CC_TEL_PROFILpxh> param set CC_TEL_PROFILEpxh> param set CC_TEL_PROFILE pxh> param set CC_TEL_PROFILE 0
   CC_TEL_PROFILE: curr: 1 -> new: 0
 pxh> pxh> cpxh> ccpxh> cc_pxh> cc_tpxh> cc_tepxh> cc_telpxh> cc_telepxh> cc_telempxh> cc_telemepxh> cc_telemetpxh> cc_telemetrpxh> cc_telemetrypxh> cc_telemetry_pxh> cc_telemetry_ppxh> cc_telemetry_pupxh> cc_telemetry_pubpxh> cc_telemetry_publpxh> cc_telemetry_publipxh> cc_telemetry_publispxh> cc_telemetry_publishpxh> cc_telemetry_publishepxh> cc_telemetry_publisherpxh> cc_telemetry_publisher pxh> cc_telemetry_publisher spxh> cc_telemetry_publisher stpxh> cc_telemetry_publisher stapxh> cc_telemetry_publisher statpxh> cc_telemetry_publisher statupxh> cc_telemetry_publisher status
-INFO  [cc_telemetry_publisher] profile: 0, tick: 50 Hz, px4_boot_id: 1784064799
-INFO  [cc_telemetry_publisher]   state     rate:   0.0 Hz  divider:  0  seq:        936  published: 936
-INFO  [cc_telemetry_publisher]   imu       rate:   0.0 Hz  divider:  0  seq:       1680  published: 1680
-INFO  [cc_telemetry_publisher]   power     rate:   0.0 Hz  divider:  0  seq:        374  published: 374
-INFO  [cc_telemetry_publisher]   gps       rate:   0.0 Hz  divider:  0  seq:        187  published: 187
-INFO  [cc_telemetry_publisher]   estimator rate:   0.0 Hz  divider:  0  seq:        374  published: 374
-INFO  [cc_telemetry_publisher]   actuator  rate:   0.0 Hz  divider:  0  seq:        624  published: 624
-cc_telemetry_publisher: cycle: 1930 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
-cc_telemetry_publisher: interval: 1930 events, 19937.82us avg, min 4000us max 20000us 838.058us rms
+INFO  [cc_telemetry_publisher] profile: 0, tick: 50 Hz, px4_boot_id: 1784194096
+INFO  [cc_telemetry_publisher]   state     rate:   0.0 Hz  divider:  0  seq:       1016  published: 1016
+INFO  [cc_telemetry_publisher]   imu       rate:   0.0 Hz  divider:  0  seq:       1825  published: 1825
+INFO  [cc_telemetry_publisher]   power     rate:   0.0 Hz  divider:  0  seq:        406  published: 406
+INFO  [cc_telemetry_publisher]   gps       rate:   0.0 Hz  divider:  0  seq:        203  published: 203
+INFO  [cc_telemetry_publisher]   estimator rate:   0.0 Hz  divider:  0  seq:        406  published: 406
+INFO  [cc_telemetry_publisher]   actuator  rate:   0.0 Hz  divider:  0  seq:        677  published: 677
+cc_telemetry_publisher: cycle: 2093 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
+cc_telemetry_publisher: interval: 2093 events, 19942.67us avg, min 4000us max 20000us 804.867us rms
 pxh> pxh> cpxh> ccpxh> cc_pxh> cc_tpxh> cc_tepxh> cc_telpxh> cc_telepxh> cc_telempxh> cc_telemepxh> cc_telemetpxh> cc_telemetrpxh> cc_telemetrypxh> cc_telemetry_pxh> cc_telemetry_ppxh> cc_telemetry_pupxh> cc_telemetry_pubpxh> cc_telemetry_publpxh> cc_telemetry_publipxh> cc_telemetry_publispxh> cc_telemetry_publishpxh> cc_telemetry_publishepxh> cc_telemetry_publisherpxh> cc_telemetry_publisher pxh> cc_telemetry_publisher spxh> cc_telemetry_publisher stpxh> cc_telemetry_publisher stapxh> cc_telemetry_publisher statpxh> cc_telemetry_publisher statupxh> cc_telemetry_publisher status
-INFO  [cc_telemetry_publisher] profile: 0, tick: 50 Hz, px4_boot_id: 1784064799
-INFO  [cc_telemetry_publisher]   state     rate:   0.0 Hz  divider:  0  seq:        936  published: 936
-INFO  [cc_telemetry_publisher]   imu       rate:   0.0 Hz  divider:  0  seq:       1680  published: 1680
-INFO  [cc_telemetry_publisher]   power     rate:   0.0 Hz  divider:  0  seq:        374  published: 374
-INFO  [cc_telemetry_publisher]   gps       rate:   0.0 Hz  divider:  0  seq:        187  published: 187
-INFO  [cc_telemetry_publisher]   estimator rate:   0.0 Hz  divider:  0  seq:        374  published: 374
-INFO  [cc_telemetry_publisher]   actuator  rate:   0.0 Hz  divider:  0  seq:        624  published: 624
-cc_telemetry_publisher: cycle: 2120 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
-cc_telemetry_publisher: interval: 2120 events, 19943.40us avg, min 4000us max 20000us 799.740us rms
+INFO  [cc_telemetry_publisher] profile: 0, tick: 50 Hz, px4_boot_id: 1784194096
+INFO  [cc_telemetry_publisher]   state     rate:   0.0 Hz  divider:  0  seq:       1016  published: 1016
+INFO  [cc_telemetry_publisher]   imu       rate:   0.0 Hz  divider:  0  seq:       1825  published: 1825
+INFO  [cc_telemetry_publisher]   power     rate:   0.0 Hz  divider:  0  seq:        406  published: 406
+INFO  [cc_telemetry_publisher]   gps       rate:   0.0 Hz  divider:  0  seq:        203  published: 203
+INFO  [cc_telemetry_publisher]   estimator rate:   0.0 Hz  divider:  0  seq:        406  published: 406
+INFO  [cc_telemetry_publisher]   actuator  rate:   0.0 Hz  divider:  0  seq:        677  published: 677
+cc_telemetry_publisher: cycle: 2299 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
+cc_telemetry_publisher: interval: 2299 events, 19947.80us avg, min 4000us max 20000us 768.066us rms
 pxh> pxh> ppxh> papxh> parpxh> parapxh> parampxh> param pxh> param spxh> param sepxh> param setpxh> param set pxh> param set Cpxh> param set CCpxh> param set CC_pxh> param set CC_Tpxh> param set CC_TEpxh> param set CC_TELpxh> param set CC_TEL_pxh> param set CC_TEL_Ppxh> param set CC_TEL_PRpxh> param set CC_TEL_PROpxh> param set CC_TEL_PROFpxh> param set CC_TEL_PROFIpxh> param set CC_TEL_PROFILpxh> param set CC_TEL_PROFILEpxh> param set CC_TEL_PROFILE pxh> param set CC_TEL_PROFILE 1
 + CC_TEL_PROFILE: curr: 0 -> new: 1
 pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh> listenerpxh> listener pxh> listener cpxh> listener ccpxh> listener cc_pxh> listener cc_tpxh> listener cc_tepxh> listener cc_telpxh> listener cc_telepxh> listener cc_telempxh> listener cc_telemepxh> listener cc_telemetpxh> listener cc_telemetrpxh> listener cc_telemetrypxh> listener cc_telemetry_pxh> listener cc_telemetry_spxh> listener cc_telemetry_stpxh> listener cc_telemetry_stapxh> listener cc_telemetry_statpxh> listener cc_telemetry_state
 
 TOPIC: cc_telemetry_state
  cc_telemetry_state
-    timestamp: 44364000 (0.008000 seconds ago)
-    sequence: 969
-    px4_boot_id: 1784064799
+    timestamp: 48172000 (0.028000 seconds ago)
+    sequence: 1051
+    px4_boot_id: 1784194096
     mission_id: 0
     failsafe_flags: 1025 (0b100'0000'0001)
-    q: [0.99962, -0.00024, 0.00014, -0.02761] (Roll: -0.0 deg, Pitch: 0.0 deg, Yaw: -3.2 deg)
-    angular_velocity: [0.00887, 0.00707, 0.00169]
-    position_ned: [-0.16259, -0.17170, 0.01578]
-    velocity_ned: [-0.00567, 0.00253, -0.00399]
-    heading: -0.05523
+    q: [0.99962, -0.00082, -0.00002, -0.02758] (Roll: -0.1 deg, Pitch: -0.0 deg, Yaw: -3.2 deg)
+    angular_velocity: [0.00282, 0.00021, -0.00827]
+    position_ned: [-0.17246, -0.21005, 0.01355]
+    velocity_ned: [0.02142, -0.03318, -0.00700]
+    heading: -0.05515
     nav_state: 4
     arming_state: 1
     vehicle_type: 2
@@ -359,16 +360,16 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_state
  cc_telemetry_state
-    timestamp: 47364000 (0.004000 seconds ago)
-    sequence: 1044
-    px4_boot_id: 1784064799
+    timestamp: 51412000 (0.028000 seconds ago)
+    sequence: 1132
+    px4_boot_id: 1784194096
     mission_id: 0
     failsafe_flags: 1025 (0b100'0000'0001)
-    q: [0.99964, -0.00061, -0.00033, -0.02692] (Roll: -0.1 deg, Pitch: -0.0 deg, Yaw: -3.1 deg)
-    angular_velocity: [0.00198, -0.00098, -0.00419]
-    position_ned: [-0.17629, -0.21995, 0.01938]
-    velocity_ned: [0.02323, -0.02967, -0.00234]
-    heading: -0.05385
+    q: [0.99967, -0.00029, -0.00016, -0.02550] (Roll: -0.0 deg, Pitch: -0.0 deg, Yaw: -2.9 deg)
+    angular_velocity: [-0.00045, 0.00436, 0.00404]
+    position_ned: [-0.27901, -0.23866, 0.01511]
+    velocity_ned: [-0.00737, -0.03977, -0.00325]
+    heading: -0.05102
     nav_state: 4
     arming_state: 1
     vehicle_type: 2
@@ -381,38 +382,38 @@ pxh> INFO  [commander] Armed by internal command
 INFO  [tone_alarm] arming warning
 INFO  [commander] Disarmed by auto preflight disarming	
 INFO  [tone_alarm] notify neutral
-INFO  [logger] closed logfile, bytes written: 13467530
+INFO  [logger] closed logfile, bytes written: 14393517
 
 pxh> pxh> cpxh> copxh> compxh> commpxh> commapxh> commanpxh> commandpxh> commandepxh> commanderpxh> commander pxh> commander spxh> commander stpxh> commander stapxh> commander statpxh> commander statupxh> commander status
 INFO  [commander] Disarmed
 INFO  [commander] navigation mode: Hold
 INFO  [commander] user intended navigation mode: Hold
 INFO  [commander] in failsafe: no
-commander: cycle: 5032 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
-commander: preflight check: 562 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
+commander: cycle: 5459 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
+commander: preflight check: 609 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
 pxh> pxh> cpxh> copxh> compxh> commpxh> commapxh> commanpxh> commandpxh> commandepxh> commanderpxh> commander pxh> commander tpxh> commander tapxh> commander takpxh> commander takepxh> commander takeopxh> commander takeofpxh> commander takeoff
-pxh> INFO  [commander] Armed by internal command	
-INFO  [navigator] Using default takeoff altitude: 2.5 m	
+INFO  [commander] Armed by internal command	
+pxh> INFO  [logger] Start file log (type: full)
 INFO  [tone_alarm] arming warning
-INFO  [logger] Start file log (type: full)
-INFO  [logger] [logger] ./log/2026-07-15/07_58_33.ulg	
-INFO  [logger] Opened full log file: ./log/2026-07-15/07_58_33.ulg
+INFO  [navigator] Using default takeoff altitude: 2.5 m	
+INFO  [logger] [logger] ./log/2026-07-16/17_16_42.ulg	
+INFO  [logger] Opened full log file: ./log/2026-07-16/17_16_42.ulg
 INFO  [commander] Takeoff detected	
 
 pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh> listenerpxh> listener pxh> listener cpxh> listener ccpxh> listener cc_pxh> listener cc_tpxh> listener cc_tepxh> listener cc_telpxh> listener cc_telepxh> listener cc_telempxh> listener cc_telemepxh> listener cc_telemetpxh> listener cc_telemetrpxh> listener cc_telemetrypxh> listener cc_telemetry_pxh> listener cc_telemetry_spxh> listener cc_telemetry_stpxh> listener cc_telemetry_stapxh> listener cc_telemetry_statpxh> listener cc_telemetry_state
 
 TOPIC: cc_telemetry_state
  cc_telemetry_state
-    timestamp: 83924000 (0.000000 seconds ago)
-    sequence: 1958
-    px4_boot_id: 1784064799
+    timestamp: 91132000 (0.004000 seconds ago)
+    sequence: 2125
+    px4_boot_id: 1784194096
     mission_id: 0
     failsafe_flags: 1025 (0b100'0000'0001)
-    q: [0.99970, 0.00913, -0.00600, 0.02199] (Roll: 1.0 deg, Pitch: -0.7 deg, Yaw: 2.5 deg)
-    angular_velocity: [-0.01836, 0.08750, 0.00738]
-    position_ned: [-0.08584, -0.22665, -2.51340]
-    velocity_ned: [-0.18954, -0.11202, 0.08063]
-    heading: 0.04387
+    q: [0.99885, -0.04251, 0.01475, -0.01665] (Roll: -4.9 deg, Pitch: 1.6 deg, Yaw: -2.0 deg)
+    angular_velocity: [-0.00019, -0.02419, -0.00470]
+    position_ned: [-0.18318, 0.16403, -2.45248]
+    velocity_ned: [-0.00371, -0.21258, -0.05184]
+    heading: -0.03460
     nav_state: 4
     arming_state: 2
     vehicle_type: 2
@@ -424,9 +425,9 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_actuator
  cc_telemetry_actuator
-    timestamp: 84384000 (0.012000 seconds ago)
-    sequence: 1313
-    actuator_output: [0.51641, 0.43067, 0.45034, 0.50303, nan, nan, nan, nan]
+    timestamp: 91652000 (0.016000 seconds ago)
+    sequence: 1425
+    actuator_output: [0.48863, 0.51314, 0.47942, 0.52469, nan, nan, nan, nan]
     motor_count: 4
     schema_version: 1
 
@@ -434,13 +435,13 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_power
  cc_telemetry_power
-    timestamp: 84864000 (0.004000 seconds ago)
-    sequence: 792
-    voltage: 15.48881
+    timestamp: 92172000 (0.032000 seconds ago)
+    sequence: 860
+    voltage: 15.42750
     current: nan
     power: nan
     consumed_mah: nan
-    remaining: 0.62156
+    remaining: 0.58753
     temperature: nan
     cell_count: 4
     warning: 0
@@ -450,15 +451,15 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_gps
  cc_telemetry_gps
-    timestamp: 85164000 (0.180000 seconds ago)
-    sequence: 397
-    lat: 473977428
-    lon: 85455950
-    alt: 492649
+    timestamp: 92572000 (0.168000 seconds ago)
+    sequence: 432
+    lat: 473977424
+    lon: 85456015
+    alt: 491394
     eph: 0.90000
     epv: 1.78000
-    ground_speed: 0.06648
-    heading: 3.02202
+    ground_speed: 0.15068
+    heading: 2.09987
     noise_per_ms: 0
     jamming_indicator: 0
     fix_type: 3
@@ -469,13 +470,13 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_telemetry_estimator
  cc_telemetry_estimator
-    timestamp: 85764000 (0.044000 seconds ago)
-    sequence: 801
+    timestamp: 93272000 (0.004000 seconds ago)
+    sequence: 871
     status_flags: 0
-    velocity_test_ratio: 0.06969
-    position_test_ratio: 0.04734
-    height_test_ratio: 0.02215
-    mag_test_ratio: 0.05740
+    velocity_test_ratio: 0.22810
+    position_test_ratio: 0.05574
+    height_test_ratio: 0.01883
+    mag_test_ratio: 0.14576
     airspeed_test_ratio: nan
     innovation_check_flags: 0
     solution_status_flags: 895 (0b11'0111'1111)
@@ -486,28 +487,28 @@ pxh> INFO  [commander] Landing at current position
 INFO  [commander] Landing detected	
 INFO  [commander] Disarmed by landing	
 INFO  [tone_alarm] notify neutral
-INFO  [logger] closed logfile, bytes written: 8312534
+INFO  [logger] closed logfile, bytes written: 8830748
 
 pxh> pxh> cpxh> ccpxh> cc_pxh> cc_tpxh> cc_tepxh> cc_telpxh> cc_telepxh> cc_telempxh> cc_telemepxh> cc_telemetpxh> cc_telemetrpxh> cc_telemetrypxh> cc_telemetry_pxh> cc_telemetry_ppxh> cc_telemetry_pupxh> cc_telemetry_pubpxh> cc_telemetry_publpxh> cc_telemetry_publipxh> cc_telemetry_publispxh> cc_telemetry_publishpxh> cc_telemetry_publishepxh> cc_telemetry_publisherpxh> cc_telemetry_publisher pxh> cc_telemetry_publisher spxh> cc_telemetry_publisher stpxh> cc_telemetry_publisher stapxh> cc_telemetry_publisher statpxh> cc_telemetry_publisher statupxh> cc_telemetry_publisher status
-INFO  [cc_telemetry_publisher] profile: 1, tick: 50 Hz, px4_boot_id: 1784064799
-INFO  [cc_telemetry_publisher]   state     rate:  25.0 Hz  divider:  2  seq:       2548  published: 2548
-INFO  [cc_telemetry_publisher]   imu       rate:  50.0 Hz  divider:  1  seq:       4903  published: 4903
-INFO  [cc_telemetry_publisher]   power     rate:  10.0 Hz  divider:  5  seq:       1019  published: 1019
-INFO  [cc_telemetry_publisher]   gps       rate:   5.0 Hz  divider: 10  seq:        509  published: 509
-INFO  [cc_telemetry_publisher]   estimator rate:  10.0 Hz  divider:  5  seq:       1019  published: 1019
-INFO  [cc_telemetry_publisher]   actuator  rate:  16.7 Hz  divider:  3  seq:       1699  published: 1699
-cc_telemetry_publisher: cycle: 2318 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
-cc_telemetry_publisher: interval: 2318 events, 19991.37us avg, min 20000us max 20000us 0.000us rms
+INFO  [cc_telemetry_publisher] profile: 1, tick: 50 Hz, px4_boot_id: 1784194096
+INFO  [cc_telemetry_publisher]   state     rate:  25.0 Hz  divider:  2  seq:       2766  published: 2766
+INFO  [cc_telemetry_publisher]   imu       rate:  50.0 Hz  divider:  1  seq:       5326  published: 5326
+INFO  [cc_telemetry_publisher]   power     rate:  10.0 Hz  divider:  5  seq:       1106  published: 1106
+INFO  [cc_telemetry_publisher]   gps       rate:   5.0 Hz  divider: 10  seq:        553  published: 553
+INFO  [cc_telemetry_publisher]   estimator rate:  10.0 Hz  divider:  5  seq:       1106  published: 1106
+INFO  [cc_telemetry_publisher]   actuator  rate:  16.7 Hz  divider:  3  seq:       1844  published: 1844
+cc_telemetry_publisher: cycle: 2517 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
+cc_telemetry_publisher: interval: 2517 events, 19992.05us avg, min 20000us max 20000us 0.000us rms
 pxh> pxh> cpxh> ccpxh> cc_pxh> cc_tpxh> cc_tepxh> cc_telpxh> cc_telepxh> cc_telempxh> cc_telemepxh> cc_telemetpxh> cc_telemetrpxh> cc_telemetrypxh> cc_telemetry_pxh> cc_telemetry_ppxh> cc_telemetry_pupxh> cc_telemetry_pubpxh> cc_telemetry_publpxh> cc_telemetry_publipxh> cc_telemetry_publispxh> cc_telemetry_publishpxh> cc_telemetry_publishepxh> cc_telemetry_publisherpxh> cc_telemetry_publisher pxh> cc_telemetry_publisher spxh> cc_telemetry_publisher stpxh> cc_telemetry_publisher stapxh> cc_telemetry_publisher statpxh> cc_telemetry_publisher statupxh> cc_telemetry_publisher status
-INFO  [cc_telemetry_publisher] profile: 1, tick: 50 Hz, px4_boot_id: 1784064799
-INFO  [cc_telemetry_publisher]   state     rate:  25.0 Hz  divider:  2  seq:       2601  published: 2601
-INFO  [cc_telemetry_publisher]   imu       rate:  50.0 Hz  divider:  1  seq:       5009  published: 5009
-INFO  [cc_telemetry_publisher]   power     rate:  10.0 Hz  divider:  5  seq:       1040  published: 1040
-INFO  [cc_telemetry_publisher]   gps       rate:   5.0 Hz  divider: 10  seq:        520  published: 520
-INFO  [cc_telemetry_publisher]   estimator rate:  10.0 Hz  divider:  5  seq:       1040  published: 1040
-INFO  [cc_telemetry_publisher]   actuator  rate:  16.7 Hz  divider:  3  seq:       1734  published: 1734
-cc_telemetry_publisher: cycle: 2424 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
-cc_telemetry_publisher: interval: 2424 events, 19991.75us avg, min 20000us max 20000us 0.000us rms
+INFO  [cc_telemetry_publisher] profile: 1, tick: 50 Hz, px4_boot_id: 1784194096
+INFO  [cc_telemetry_publisher]   state     rate:  25.0 Hz  divider:  2  seq:       2825  published: 2825
+INFO  [cc_telemetry_publisher]   imu       rate:  50.0 Hz  divider:  1  seq:       5443  published: 5443
+INFO  [cc_telemetry_publisher]   power     rate:  10.0 Hz  divider:  5  seq:       1130  published: 1130
+INFO  [cc_telemetry_publisher]   gps       rate:   5.0 Hz  divider: 10  seq:        565  published: 565
+INFO  [cc_telemetry_publisher]   estimator rate:  10.0 Hz  divider:  5  seq:       1130  published: 1130
+INFO  [cc_telemetry_publisher]   actuator  rate:  16.7 Hz  divider:  3  seq:       1883  published: 1883
+cc_telemetry_publisher: cycle: 2634 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
+cc_telemetry_publisher: interval: 2634 events, 19992.41us avg, min 20000us max 20000us 0.000us rms
 pxh> pxh> wpxh> wopxh> worpxh> workpxh> work_pxh> work_qpxh> work_qupxh> work_quepxh> work_queupxh> work_queuepxh> work_queue pxh> work_queue spxh> work_queue stpxh> work_queue stapxh> work_queue statpxh> work_queue statupxh> work_queue status
 
 Work Queue: 5  threads                          RATE        INTERVAL
@@ -517,35 +518,35 @@ Work Queue: 5  threads                          RATE        INTERVAL
 |   |__ 3) pwm_out_sim                      249.8 Hz         4003 us
 |   \__ 4) vehicle_angular_velocity         250.0 Hz         4000 us
 |__ 2) wq:nav_and_controllers
-|   |__ 1) flight_mode_manager               50.0 Hz        19995 us
-|   |__ 2) land_detector                    124.8 Hz         8012 us
+|   |__ 1) flight_mode_manager               50.0 Hz        19997 us
+|   |__ 2) land_detector                    124.8 Hz         8010 us
 |   |__ 3) mc_att_control                   250.0 Hz         4000 us
 |   |__ 4) mc_hover_thrust_estimator        125.0 Hz         8000 us
-|   |__ 5) mc_pos_control                   124.7 Hz         8016 us
+|   |__ 5) mc_pos_control                   124.8 Hz         8014 us
 |   |__ 6) sensors                          250.0 Hz         4000 us
 |   |__ 7) vehicle_acceleration             250.0 Hz         4000 us
-|   |__ 8) vehicle_air_data                  29.8 Hz        33517 us
-|   |__ 9) vehicle_gps_position               8.0 Hz       124899 us
-|   \__10) vehicle_magnetometer              50.0 Hz        19996 us
+|   |__ 8) vehicle_air_data                  29.0 Hz        34452 us
+|   |__ 9) vehicle_gps_position               8.0 Hz       124957 us
+|   \__10) vehicle_magnetometer              50.0 Hz        19994 us
 |__ 3) wq:INS0         
 |   |__ 1) ekf2                             250.0 Hz         4000 us
 |   \__ 2) vehicle_imu                      250.0 Hz         4000 us
 |__ 4) wq:hp_default   
 |   |__ 1) battery_simulator                100.0 Hz         9999 us (10000 us)
 |   |__ 2) gyro_fft                          62.5 Hz        15999 us
-|   |__ 3) manual_control                     5.0 Hz       199717 us
-|   |__ 4) mc_autotune_attitude_control       0.0 Hz     20956000 us
+|   |__ 3) manual_control                     5.0 Hz       199993 us
+|   |__ 4) mc_autotune_attitude_control       0.0 Hz     22865600 us
 |   |__ 5) rc_update                          0.0 Hz            0 us
 |   |__ 6) sensor_baro_sim                   20.0 Hz        49989 us (50000 us)
-|   |__ 7) sensor_gps_sim                     8.0 Hz       124940 us (125000 us)
-|   |__ 8) sensor_mag_sim                    50.0 Hz        19998 us (20000 us)
+|   |__ 7) sensor_gps_sim                     8.0 Hz       124995 us (125000 us)
+|   |__ 8) sensor_mag_sim                    50.0 Hz        19996 us (20000 us)
 |   |__ 9) system_power_simulator           100.0 Hz         9999 us (10000 us)
-|   \__10) tone_alarm                         0.2 Hz      4585500 us
+|   \__10) tone_alarm                         0.2 Hz      5200174 us
 \__ 5) wq:lp_default   
-    |__ 1) cc_telemetry_publisher            50.1 Hz        19975 us (20000 us)
-    |__ 2) gyro_calibration                  27.3 Hz        36582 us (20000 us)
-    |__ 3) load_mon                           2.0 Hz       498027 us (500000 us)
-    |__ 4) parameters                         0.1 Hz     13511500 us
-    \__ 5) payload_deliverer                 10.1 Hz        98981 us (100000 us)
+    |__ 1) cc_telemetry_publisher            50.1 Hz        19977 us (20000 us)
+    |__ 2) gyro_calibration                  25.0 Hz        40047 us (20000 us)
+    |__ 3) load_mon                           2.0 Hz       498367 us (500000 us)
+    |__ 4) parameters                         0.1 Hz     14705000 us
+    \__ 5) payload_deliverer                 10.1 Hz        99006 us (100000 us)
 pxh> pxh> spxh> shpxh> shupxh> shutpxh> shutdpxh> shutdopxh> shutdowpxh> shutdown
 Exiting NOW.

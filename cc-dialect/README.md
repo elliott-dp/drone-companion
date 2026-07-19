@@ -21,9 +21,9 @@ golden/               COMMITTED golden vectors + their C generator
 .venv-mavgen/, build/  local scratch (gitignored)
 ```
 
-Docs: [toolchain details](../docs/phase0_dialect_toolchain.md) ·
-[golden mechanism & fuzz suite](../docs/phase1_protocol_layer.md) ·
-[Rust wrapper crate](../docs/cc_protocol_crate.md)
+Docs: [toolchain details](../docs/phase1/phase0_dialect_toolchain.md) ·
+[golden mechanism & fuzz suite](../docs/phase1/phase1_protocol_layer.md) ·
+[Rust wrapper crate](../docs/phase1/cc_protocol_crate.md)
 
 ---
 
@@ -70,4 +70,4 @@ Needs: python3, a C compiler, Rust. Network is used once to create
 All three must end green with **zero diffs** under `generated/` and
 `golden/` — if regeneration changes committed files on an untouched
 checkout, a toolchain drifted (see the determinism notes in
-[phase0_dialect_toolchain.md](../docs/phase0_dialect_toolchain.md) §5).
+[phase0_dialect_toolchain.md](../docs/phase1/phase0_dialect_toolchain.md) §5).

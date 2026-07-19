@@ -2,7 +2,7 @@
 
 **Scope:** development plan Phase 0, point 3 only (points 1, 2, 4 — repo
 layout, toolchain installs, CI — are handled separately). Everything here
-lives in [`cc-dialect/`](../cc-dialect/) and was run and verified on this
+lives in [`cc-dialect/`](../../cc-dialect/) and was run and verified on this
 machine on 2026-07-14.
 
 ---
@@ -36,7 +36,7 @@ content is part of the wire contract (CRC_EXTRA of standard messages moves
 between upstream revisions). Fetching them at build time would make the
 build non-reproducible; pinning them next to the dialect makes every
 generation input content-addressed. Provenance and upgrade rules:
-[`upstream/PROVENANCE.md`](../cc-dialect/upstream/PROVENANCE.md).
+[`upstream/PROVENANCE.md`](../../cc-dialect/upstream/PROVENANCE.md).
 
 ## 3. `gen_c.sh` — C bindings, vendored
 
@@ -151,4 +151,4 @@ Mapping the dev plan's four jobs onto these scripts:
 Notes: job 1 needs `python3` + network for the first venv creation (or cache
 `.venv-mavgen`); jobs 2/4 need only Rust + the committed artifacts. Keep the
 XML edit → regenerate → commit flow in **one commit** (checklist in
-[`cc-dialect/README.md`](../cc-dialect/README.md)).
+[`cc-dialect/README.md`](../../cc-dialect/README.md)).

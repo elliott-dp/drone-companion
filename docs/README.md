@@ -11,10 +11,11 @@
 
 | Document | Covers |
 |---|---|
-| [phase0_dialect_toolchain.md](phase0_dialect_toolchain.md) | **Phase 0.3** — dialect generation scripts (`gen_c.sh`, `gen_rust.sh`, `hash.sh`), pinned upstream definitions, determinism guarantees, CI wiring guidance |
-| [phase1_protocol_layer.md](phase1_protocol_layer.md) | **Phase 1** — golden-vector mechanism (the CRC_EXTRA drift detector), the 16-frame golden set, fuzz/property suite, exit-criteria status, decisions & deviations log |
-| [phase2_px4_telemetry.md](phase2_px4_telemetry.md) | **Phase 2** — PX4 v1.17.0 pin, the eight `Cc*.msg` uORB topics, `cc_telemetry_publisher` design + mappings, SIH SITL verification harness, results |
-| [cc_protocol_crate.md](cc_protocol_crate.md) | `crates/cc-protocol` reference — module layout, build-time binding generation, `FrameDecoder` semantics and counters, validation helpers, guidance for Phase 4 consumers |
+| [phase0_dialect_toolchain.md](phase1/phase0_dialect_toolchain.md) | **Phase 0.3** — dialect generation scripts (`gen_c.sh`, `gen_rust.sh`, `hash.sh`), pinned upstream definitions, determinism guarantees, CI wiring guidance |
+| [phase1_protocol_layer.md](phase1/phase1_protocol_layer.md) | **Phase 1** — golden-vector mechanism (the CRC_EXTRA drift detector), the 16-frame golden set, fuzz/property suite, exit-criteria status, decisions & deviations log |
+| [phase2_px4_telemetry.md](phase2/phase2_px4_telemetry.md) | **Phase 2** — PX4 v1.17.0 pin, the eight `Cc*.msg` uORB topics, `cc_telemetry_publisher` design + mappings, SIH SITL verification harness, results |
+| [phase3_mavlink_link.md](phase3/phase3_mavlink_link.md) | **Phase 3** — dialect switch (`CONFIG_MAVLINK_DIALECT="cc_dialect"`), the 8 CC_* stream classes, receiver validation gauntlet + `mavlink status` counters, mission handshake + echo, pymavlink harness, results |
+| [cc_protocol_crate.md](phase1/cc_protocol_crate.md) | `crates/cc-protocol` reference — module layout, build-time binding generation, `FrameDecoder` semantics and counters, validation helpers, guidance for Phase 4 consumers |
 | [../cc-dialect/README.md](../cc-dialect/README.md) | The dialect directory itself — layout, contract rules, the change workflow ("edit the XML" checklist) |
 
 ## Status at a glance (2026-07-15)
@@ -30,4 +31,7 @@
 | Phase 1 test suite | ✅ 29/29 green, clippy clean (`cargo test --workspace`) |
 | Phase 2 PX4 base | ✅ `PX4-Autopilot-CCFC` pinned to **v1.17.0** (latest stable; was on `main`/v1.18-beta) |
 | Phase 2 uORB topics + `cc_telemetry_publisher` | ✅ built into `px4_sitl_default`, zero warnings |
-| Phase 2 SITL verification (SIH, headless) | ✅ **37/37 checks green** (`tools/phase2/sitl_phase2_check.py`; results in the phase 2 doc Part C) |
+| Phase 2 SITL verification (SIH, headless) | ✅ **37/37 checks green** (`tools/phase2/sitl_phase2_check.py`; results in the phase 2 doc Part C) — re-verified after the Phase 3 dialect switch |
+| Phase 3 dialect switch + 8 CC_* streams | ✅ mavlink module builds `cc_dialect`; streams registered, zero CCFC warnings |
+| Phase 3 receiver gauntlet | ✅ source/schema/range/sequence/flood + mission handshake, counters in `mavlink status` |
+| Phase 3 SITL verification (UDP, pymavlink) | ✅ **50/50 checks green** (`tools/phase3/sitl_phase3_check.py`; results in the phase 3 doc Part C) |

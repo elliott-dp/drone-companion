@@ -1,42 +1,38 @@
-[09:57:19] === Phase 2 SITL verification (SIH quadx, headless pxh) ===
-[09:57:20] pxh shell up (pty)
-[09:57:32] PASS  rate cc_telemetry_state — measured 25.0 Hz, expect 25.0 ±20% (requested 25)
-[09:57:32] PASS  sequence/timestamp monotonic cc_telemetry_state — seq 178→252, ts 7204000→10164000
-[09:57:36] PASS  rate cc_telemetry_imu — measured 50.0 Hz, expect 50.0 ±20% (requested 50)
-[09:57:36] PASS  sequence/timestamp monotonic cc_telemetry_imu — seq 530→679, ts 10664000→13644000
-[09:57:40] PASS  rate cc_telemetry_power — measured 10.0 Hz, expect 10.0 ±20% (requested 10)
-[09:57:40] PASS  sequence/timestamp monotonic cc_telemetry_power — seq 139→169, ts 14044000→17044000
-[09:57:45] PASS  rate cc_telemetry_gps — measured 5.0 Hz, expect 5.0 ±20% (requested 5)
-[09:57:45] PASS  sequence/timestamp monotonic cc_telemetry_gps — seq 86→101, ts 17444000→20444000
-[09:57:49] PASS  rate cc_telemetry_estimator — measured 10.0 Hz, expect 10.0 ±20% (requested 10)
-[09:57:49] PASS  sequence/timestamp monotonic cc_telemetry_estimator — seq 208→238, ts 20944000→23944000
-[09:57:53] PASS  rate cc_telemetry_actuator — measured 16.7 Hz, expect 16.7 ±20% (requested 20)
-[09:57:53] PASS  sequence/timestamp monotonic cc_telemetry_actuator — seq 406→456, ts 24464000→27464000
-[09:57:53] PASS  px4_boot_id nonzero+constant — seen: [1784064799]
-[09:57:59] PASS  rate cc_telemetry_imu @10Hz — measured 10.0 Hz, expect 10.0 ±20% (requested 10)
-[09:57:59] PASS  sequence/timestamp monotonic cc_telemetry_imu @10Hz — seq 1407→1437, ts 29224000→32224000
-[09:58:04] PASS  rate cc_telemetry_imu @50Hz-restored — measured 50.0 Hz, expect 50.0 ±20% (requested 50)
-[09:58:04] PASS  sequence/timestamp monotonic cc_telemetry_imu @50Hz-restored — seq 1508→1655, ts 34024000→36964000
-[09:58:11] PASS  MINIMAL profile freezes all streams — {'state': 936, 'imu': 1680, 'power': 374, 'gps': 187, 'estimator': 374, 'actuator': 624} -> {'state': 936, 'imu': 1680, 'power': 374, 'gps': 187, 'estimator': 374, 'actuator': 624}
-[09:58:17] PASS  rate cc_telemetry_state restored — measured 25.0 Hz, expect 25.0 ±20% (requested 25)
-[09:58:17] PASS  sequence/timestamp monotonic cc_telemetry_state restored — seq 969→1044, ts 44364000→47364000
-[09:58:32] WARN: command timed out after 15s: commander arm
-[09:58:33] PASS  commander arm — after 1 attempt(s)
-[09:58:48] WARN: command timed out after 15s: commander takeoff
-[09:59:01] PASS  flight: estimator_valid
-[09:59:01] PASS  flight: quaternion normalized — |q|=1.000
-[09:59:01] PASS  flight: climbed (NED z < -0.5) — z=-2.5134
-[09:59:01] PASS  flight: armed bit in control_mode_flags
-[09:59:02] PASS  flight: motor_count==4 — got 4
-[09:59:02] PASS  flight: 4 finite outputs in [0..1] — [0.51641, 0.43067, 0.45034, 0.50303]
-[09:59:02] PASS  flight: unused slots NaN — [nan, nan, nan, nan]
-[09:59:02] PASS  flight: battery connected + sane voltage — connected=1 V=15.48881
-[09:59:03] PASS  flight: GPS 3D fix + sats — fix=3 sats=10
-[09:59:03] PASS  flight: GPS position nonzero
-[09:59:03] PASS  flight: velocity_test_ratio finite & sane — 0.06969
-[09:59:03] PASS  flight: airspeed_test_ratio NaN on quad — nan
-[09:59:18] WARN: command timed out after 15s: commander land
-[09:59:32] print_status:
+[19:15:27] === Phase 2 SITL verification (SIH quadx, headless pxh) ===
+[19:15:41] PASS  rate cc_telemetry_state — measured 25.0 Hz, expect 25.0 ±20% (requested 25)
+[19:15:41] PASS  sequence/timestamp monotonic cc_telemetry_state — seq 190→271, ts 7692000→10932000
+[19:15:45] PASS  rate cc_telemetry_imu — measured 50.0 Hz, expect 50.0 ±20% (requested 50)
+[19:15:45] PASS  sequence/timestamp monotonic cc_telemetry_imu — seq 571→731, ts 11492000→14692000
+[19:15:49] PASS  rate cc_telemetry_power — measured 10.0 Hz, expect 10.0 ±20% (requested 10)
+[19:15:49] PASS  sequence/timestamp monotonic cc_telemetry_power — seq 150→182, ts 15152000→18352000
+[19:15:53] PASS  rate cc_telemetry_gps — measured 5.0 Hz, expect 5.0 ±20% (requested 5)
+[19:15:53] PASS  sequence/timestamp monotonic cc_telemetry_gps — seq 93→109, ts 18852000→22052000
+[19:15:57] PASS  rate cc_telemetry_estimator — measured 10.0 Hz, expect 10.0 ±20% (requested 10)
+[19:15:57] PASS  sequence/timestamp monotonic cc_telemetry_estimator — seq 226→258, ts 22752000→25952000
+[19:16:02] PASS  rate cc_telemetry_actuator — measured 16.7 Hz, expect 16.7 ±20% (requested 20)
+[19:16:02] PASS  sequence/timestamp monotonic cc_telemetry_actuator — seq 440→494, ts 26512000→29752000
+[19:16:02] PASS  px4_boot_id nonzero+constant — seen: [1784194096]
+[19:16:07] PASS  rate cc_telemetry_imu @10Hz — measured 10.0 Hz, expect 10.0 ±20% (requested 10)
+[19:16:07] PASS  sequence/timestamp monotonic cc_telemetry_imu @10Hz — seq 1527→1559, ts 31732000→34932000
+[19:16:13] PASS  rate cc_telemetry_imu @50Hz-restored — measured 50.0 Hz, expect 50.0 ±20% (requested 50)
+[19:16:13] PASS  sequence/timestamp monotonic cc_telemetry_imu @50Hz-restored — seq 1637→1798, ts 36932000→40152000
+[19:16:20] PASS  MINIMAL profile freezes all streams — {'state': 1016, 'imu': 1825, 'power': 406, 'gps': 203, 'estimator': 406, 'actuator': 677} -> {'state': 1016, 'imu': 1825, 'power': 406, 'gps': 203, 'estimator': 406, 'actuator': 677}
+[19:16:26] PASS  rate cc_telemetry_state restored — measured 25.0 Hz, expect 25.0 ±20% (requested 25)
+[19:16:26] PASS  sequence/timestamp monotonic cc_telemetry_state restored — seq 1051→1132, ts 48172000→51412000
+[19:16:42] PASS  commander arm — after 1 attempt(s)
+[19:17:10] PASS  flight: estimator_valid
+[19:17:10] PASS  flight: quaternion normalized — |q|=1.000
+[19:17:10] PASS  flight: climbed (NED z < -0.5) — z=-2.45248
+[19:17:10] PASS  flight: armed bit in control_mode_flags
+[19:17:10] PASS  flight: motor_count==4 — got 4
+[19:17:10] PASS  flight: 4 finite outputs in [0..1] — [0.48863, 0.51314, 0.47942, 0.52469]
+[19:17:10] PASS  flight: unused slots NaN — [nan, nan, nan, nan]
+[19:17:11] PASS  flight: battery connected + sane voltage — connected=1 V=15.4275
+[19:17:12] PASS  flight: GPS 3D fix + sats — fix=3 sats=10
+[19:17:12] PASS  flight: GPS position nonzero
+[19:17:12] PASS  flight: velocity_test_ratio finite & sane — 0.2281
+[19:17:12] PASS  flight: airspeed_test_ratio NaN on quad — nan
+[19:17:41] print_status:
 
 pxh> c
 pxh> cc
@@ -66,17 +62,17 @@ pxh> cc_telemetry_publisher st
 pxh> cc_telemetry_publisher sta
 pxh> cc_telemetry_publisher stat
 pxh> cc_telemetry_publisher statu
-INFO  [cc_telemetry_publisher] profile: 1, tick: 50 Hz, px4_boot_id: 1784064799
-INFO  [cc_telemetry_publisher]   state     rate:  25.0 Hz  divider:  2  seq:       2601  published: 2601
-INFO  [cc_telemetry_publisher]   imu       rate:  50.0 Hz  divider:  1  seq:       5009  published: 5009
-INFO  [cc_telemetry_publisher]   power     rate:  10.0 Hz  divider:  5  seq:       1040  published: 1040
-INFO  [cc_telemetry_publisher]   gps       rate:   5.0 Hz  divider: 10  seq:        520  published: 520
-INFO  [cc_telemetry_publisher]   estimator rate:  10.0 Hz  divider:  5  seq:       1040  published: 1040
-INFO  [cc_telemetry_publisher]   actuator  rate:  16.7 Hz  divider:  3  seq:       1734  published: 1734
-cc_telemetry_publisher: cycle: 2424 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
-cc_telemetry_publisher: interval: 2424 events, 19991.75us avg, min 20000us max 20000us 0.000us rms
-[09:59:32] PASS  print_status lists all six streams
-[09:59:32] PASS  print_status counts advance — {'state': 2548, 'imu': 4903, 'power': 1019, 'gps': 509, 'estimator': 1019, 'actuator': 1699} -> {'state': 2601, 'imu': 5009, 'power': 1040, 'gps': 520, 'estimator': 1040, 'actuator': 1734}
-[09:59:32] PASS  print_status boot id matches stream field — status=1784064799 stream=[1784064799]
-[09:59:33] PASS  module on wq:lp_default
-[09:59:33] wq:     |__ 1) cc_telemetry_publisher            50.1 Hz        19975 us (20000 us)
+INFO  [cc_telemetry_publisher] profile: 1, tick: 50 Hz, px4_boot_id: 1784194096
+INFO  [cc_telemetry_publisher]   state     rate:  25.0 Hz  divider:  2  seq:       2825  published: 2825
+INFO  [cc_telemetry_publisher]   imu       rate:  50.0 Hz  divider:  1  seq:       5443  published: 5443
+INFO  [cc_telemetry_publisher]   power     rate:  10.0 Hz  divider:  5  seq:       1130  published: 1130
+INFO  [cc_telemetry_publisher]   gps       rate:   5.0 Hz  divider: 10  seq:        565  published: 565
+INFO  [cc_telemetry_publisher]   estimator rate:  10.0 Hz  divider:  5  seq:       1130  published: 1130
+INFO  [cc_telemetry_publisher]   actuator  rate:  16.7 Hz  divider:  3  seq:       1883  published: 1883
+cc_telemetry_publisher: cycle: 2634 events, 0us elapsed, 0.00us avg, min 0us max 0us 0.000us rms
+cc_telemetry_publisher: interval: 2634 events, 19992.41us avg, min 20000us max 20000us 0.000us rms
+[19:17:41] PASS  print_status lists all six streams
+[19:17:41] PASS  print_status counts advance — {'state': 2766, 'imu': 5326, 'power': 1106, 'gps': 553, 'estimator': 1106, 'actuator': 1844} -> {'state': 2825, 'imu': 5443, 'power': 1130, 'gps': 565, 'estimator': 1130, 'actuator': 1883}
+[19:17:41] PASS  print_status boot id matches stream field — status=1784194096 stream=[1784194096]
+[19:17:42] PASS  module on wq:lp_default
+[19:17:42] wq:     |__ 1) cc_telemetry_publisher            50.1 Hz        19977 us (20000 us)

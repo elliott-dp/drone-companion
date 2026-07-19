@@ -260,3 +260,14 @@ wall clock at times; all rate measurements are sim-time-based by design, so
 this does not affect the results. The `listener -n` upstream bug (B.3) cost
 most of the harness iterations — the committed harness avoids that mode
 entirely.
+
+**Phase 3 addendum:** `cc_telemetry_publisher` now subscribes
+`cc_mission_context` (published by the extended receiver after a validated
+handshake) and echoes `mission_id` into `cc_telemetry_state` — previously
+hardcoded 0 (spec §4.4 echo requirement; see
+[../phase3/phase3_mavlink_link.md](../phase3/phase3_mavlink_link.md) D9).
+The harness's pxh/pty plumbing moved to `tools/common/pxh.py` (shared with
+Phase 3), and `build_px4.sh` now runs the fork's `ccfc_dialect/install.sh`
+so the mavlink module builds against the CC dialect
+(`CONFIG_MAVLINK_DIALECT="cc_dialect"`). The full Phase 2 suite re-ran
+green (37/37) after those changes.

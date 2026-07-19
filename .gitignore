@@ -16,3 +16,5 @@
 # Local toolchain/scratch dirs are ignored by cc-dialect/.gitignore
 # (.venv-mavgen/, build/). The PX4 fork lives in a SEPARATE repo
 # (../PX4-Autopilot-CCFC) and is not part of this tree.
+__pycache__/
+*.pyc

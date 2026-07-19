@@ -11,7 +11,7 @@
 #                               value independently at build time, and the
 #                               golden round-trip test proves all copies agree)
 #
-# Definition (see docs/phase0_dialect_toolchain.md):
+# Definition (see docs/phase1/phase0_dialect_toolchain.md):
 #   CC_DIALECT_SHA256  = SHA-256 over the raw bytes of cc_dialect.xml
 #   CC_DIALECT_HASH    = first 4 bytes of the digest read as a big-endian
 #                        u32 (i.e. the first 8 hex characters of the digest)
