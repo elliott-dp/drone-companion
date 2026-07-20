@@ -40,4 +40,4 @@
 | Phase 4 MAVLink 1 timesync-reply fix | ✅ decoder accepts v1+v2 framing (D25); PX4 emits `TIMESYNC` replies as MAVLink 1 uncontrollably — diagnosed in phase 4 doc §C.1 |
 | Phase 4 SITL integration + fault drills | ✅ **36/36 checks green** (`tools/phase4/sitl_phase4_check.py`; timesync LOCK ≤ 5 s, rates ±20%, garbage/pause/reboot drills; results in the phase 4 doc Part C) |
 | Phase 4 fork edit | ✅ CC instance `-m custom` + explicit `HEARTBEAT` + `MAV_PROTO_VER 2`; **no PX4 C/C++ changed** (fork stays pinned to v1.17.0) |
-| Phase 4 soak (1 h unattended, exit criterion) | ⏳ in progress (`--soak 3600`) |
+| Phase 4 soak (1 h unattended, exit criterion) | ✅ **47/47 incl. soak** — 1 h, Δ0 gaps / 0 crc / 0 stale, timesync held LOCKED (305 716 frames); **exit criterion met** |

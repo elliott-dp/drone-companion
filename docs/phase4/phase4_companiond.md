@@ -317,4 +317,25 @@ reply (§C.1). No PX4 C/C++ was changed — the fork stays pinned to v1.17.0.
 
 ### C.6 Soak (dev-plan exit criterion: 1 h unattended, clean counters)
 
-*(recorded on completion — `tools/phase4/sitl_phase4_check.py --soak 3600`)*
+`tools/phase4/sitl_phase4_check.py --soak 3600` — **47/47 checks passed** (the
+36 integration/drill checks + 11 soak assertions). One full hour, sampled
+every 10 s:
+
+| Soak assertion | Result |
+|---|---|
+| companiond alive at end | PASS |
+| no sustained gap loss (post-warm-up delta, tolerance 5) | PASS — **Δ0 gaps** |
+| zero CRC errors end-to-end (delta, drill-A garbage baselined out) | PASS — Δ0 |
+| no stale intervals | PASS — 0 of ~360 samples had any stale stream |
+| P0 never stalled | PASS |
+
+Final status after 3600 s: `link UP`, `timesync LOCKED` (window 32, RTT
+≈ 0.18 ms), **305 716 frames OK**, `p0_stalls 0`, `bad_source 0`,
+`bad_schema 0`, `bad_payloads 0`, `rx_drops 0`, boot-id stable, all six
+streams at rate and never stale. Steady-state sequence continuity was
+**exactly clean** across the whole hour (Δ0), confirming §C.2: the only loss
+is the boot transient. The residual `crc_errors 70` / `garbage_bytes 34421`
+are drill A's injected garbage from the pre-soak phase (baselined out of the
+soak deltas). Evidence: `tools/phase4/last_run.log`.
+
+**Phase 4 exit criterion met.**
