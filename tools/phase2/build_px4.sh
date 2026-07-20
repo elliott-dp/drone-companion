@@ -32,11 +32,11 @@ PX4_DIR="${1:-$(cd "$SCRIPT_DIR/../../../../PX4-Autopilot-CCFC" && pwd)}"
 source "$PX4_DIR/.venv-px4/bin/activate"
 export GIT_SUBMODULES_ARE_EVIL=1
 
-# Phase 3: the mavlink module builds against cc_dialect
-# (CONFIG_MAVLINK_DIALECT in the board config); the fork's installer copies
-# the vendored XML into the mavlink submodule and verifies it against the
-# committed dialect-hash header before every build.
-"$PX4_DIR/ccfc_dialect/install.sh"
+# Phase 3: the mavlink module builds against cc_dialect (CONFIG_MAVLINK_DIALECT
+# in the board config). The fork's mavlink CMakeLists installs the vendored XML
+# into the mavlink submodule at configure time and hash-gates it against
+# src/include/ccfc/cc_dialect_hash.h — no separate install step (an external
+# installer script broke CI, which never ran it).
 
 # Protobuf is disabled for the same reason as the gz packages: it is only
 # consumed by simulation/gz_msgs (gated on `if (Protobuf_FOUND)`), and the

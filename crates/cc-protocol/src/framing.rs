@@ -1,16 +1,31 @@
-//! Incremental MAVLink 2 frame decoder with exact fault accounting.
+//! Incremental MAVLink frame decoder with exact fault accounting.
 //!
 //! This is the protocol-layer foundation `cc-link` (spec §5.3 RX path) and
 //! `cc-ingest` (spec §5.5) build on in Phase 4. Phase 1 proves it with the
 //! fuzz/property suite (`tests/fuzz_decoder.rs`): the decoder must **never
-//! panic** on any byte stream, must **resynchronize** on the MAVLink 2 STX
+//! panic** on any byte stream, must **resynchronize** on a MAVLink STX
 //! byte after garbage or a hot-plug (spec §2.4), and its counters must
 //! account for **every byte pushed into it** (see [`DecodeCounters`]).
 //!
+//! ## MAVLink 1 and MAVLink 2 (both framings accepted)
+//!
+//! The CC-FC link is a MAVLink 2 custom dialect (spec §3): the CC_* telemetry
+//! messages have 24-bit IDs (≥ 54000) that cannot be expressed in MAVLink 1's
+//! 8-bit ID field, so *telemetry is MAVLink 2 exclusively*. However, PX4's
+//! shared timesync and parameter modules emit **standard low-ID messages**
+//! (e.g. `TIMESYNC` = 111) as **MAVLink 1** (`0xFE`) regardless of the
+//! `MAV_PROTO_VER` parameter — a property of the receiver-thread send path
+//! that is not controllable from the reply site (empirically verified against
+//! SITL; see the Phase 4 doc). A production companion link must therefore
+//! parse both framings. This decoder recognizes `0xFD` (v2) and `0xFE` (v1)
+//! frame starts; the CRC (with the per-message CRC_EXTRA) is what actually
+//! validates a candidate, so a stray `0xFE` inside garbage is rejected exactly
+//! like a stray `0xFD`.
+//!
 //! ## Resync policy (documented so the counters are testable)
 //!
-//! * Bytes are scanned for `0xFD` (STX). Every byte discarded during the
-//!   hunt increments `garbage_bytes`.
+//! * Bytes are scanned for an STX (`0xFD` **or** `0xFE`). Every byte discarded
+//!   during the hunt increments `garbage_bytes`.
 //! * A candidate frame whose **CRC fails** costs one `crc_errors` and the
 //!   decoder then discards **only the STX byte** and rescans from the next
 //!   byte. This is deliberately conservative: a real frame that begins
@@ -43,10 +58,18 @@
 
 use core::marker::PhantomData;
 
-use mavlink_core::{MAVLinkV2MessageRaw, MavHeader, MavlinkVersion, Message};
+use mavlink_core::{MAVLinkV1MessageRaw, MAVLinkV2MessageRaw, MavHeader, MavlinkVersion, Message};
 
 /// MAVLink 2 start-of-text (STX) marker.
 pub const STX_V2: u8 = 0xFD;
+
+/// MAVLink 1 start-of-text (STX) marker. See the module docs: PX4 emits some
+/// standard low-ID messages (e.g. `TIMESYNC`) as MAVLink 1 even on a v2 link.
+pub const STX_V1: u8 = 0xFE;
+
+/// MAVLink 1 header length including the STX byte
+/// (STX, len, seq, sysid, compid, msgid — the msg ID is a single byte).
+pub const V1_HEADER_LEN: usize = 6;
 
 /// Header length including the STX byte.
 pub const V2_HEADER_LEN: usize = 10;
@@ -174,8 +197,8 @@ impl<M: Message> FrameDecoder<M> {
         let mut pos = 0usize;
 
         loop {
-            // -- 1. hunt for STX ------------------------------------------
-            while pos < self.buf.len() && self.buf[pos] != STX_V2 {
+            // -- 1. hunt for STX (either framing) -------------------------
+            while pos < self.buf.len() && !is_stx(self.buf[pos]) {
                 pos += 1;
                 self.counters.garbage_bytes += 1;
             }
@@ -183,40 +206,52 @@ impl<M: Message> FrameDecoder<M> {
                 break;
             }
 
+            let is_v2 = self.buf[pos] == STX_V2;
+            let header_len = if is_v2 { V2_HEADER_LEN } else { V1_HEADER_LEN };
+
             // -- 2. header ---------------------------------------------------
-            if self.buf.len() - pos < V2_HEADER_LEN {
+            if self.buf.len() - pos < header_len {
                 break; // incomplete header: wait for more bytes
             }
-            let payload_len = self.buf[pos + 1] as usize;
-            let incompat = self.buf[pos + 2];
 
-            if incompat & !IFLAG_SIGNED != 0 {
-                // Unknown incompat flag: MUST drop (MAVLink 2 rule). Discard
-                // the STX and rescan — the "frame" may be garbage anyway.
-                self.counters.bad_incompat_flags += 1;
-                self.counters.garbage_bytes += 1;
-                pos += 1;
-                continue;
-            }
-            let signed = incompat & IFLAG_SIGNED != 0;
-            let frame_len = V2_HEADER_LEN
-                + payload_len
-                + V2_CRC_LEN
-                + if signed { V2_SIGNATURE_LEN } else { 0 };
+            // MAVLink 2 carries an incompat-flags byte; MAVLink 1 does not.
+            let signed = if is_v2 {
+                let incompat = self.buf[pos + 2];
+                if incompat & !IFLAG_SIGNED != 0 {
+                    // Unknown incompat flag: MUST drop (MAVLink 2 rule). Discard
+                    // the STX and rescan — the "frame" may be garbage anyway.
+                    self.counters.bad_incompat_flags += 1;
+                    self.counters.garbage_bytes += 1;
+                    pos += 1;
+                    continue;
+                }
+                incompat & IFLAG_SIGNED != 0
+            } else {
+                false // MAVLink 1 has no signature
+            };
+
+            let payload_len = self.buf[pos + 1] as usize;
+            let frame_len = if is_v2 {
+                V2_HEADER_LEN + payload_len + V2_CRC_LEN + if signed { V2_SIGNATURE_LEN } else { 0 }
+            } else {
+                V1_HEADER_LEN + payload_len + V2_CRC_LEN
+            };
 
             if self.buf.len() - pos < frame_len {
                 break; // incomplete frame: wait for more bytes
             }
 
             let frame = &self.buf[pos..pos + frame_len];
-            let msg_id = u32::from(frame[7])
-                | (u32::from(frame[8]) << 8)
-                | (u32::from(frame[9]) << 16);
+            let msg_id = if is_v2 {
+                u32::from(frame[7]) | (u32::from(frame[8]) << 8) | (u32::from(frame[9]) << 16)
+            } else {
+                u32::from(frame[5]) // MAVLink 1: single-byte message ID
+            };
 
             // -- 3. unknown message id: cannot CRC-check (no CRC_EXTRA) ----
             if M::default_message_from_id(msg_id).is_none() {
                 let end = pos + frame_len;
-                let ends_on_boundary = end == self.buf.len() || self.buf[end] == STX_V2;
+                let ends_on_boundary = end == self.buf.len() || is_stx(self.buf[end]);
                 if ends_on_boundary {
                     self.counters.unknown_msg_ids += 1;
                     self.counters.unknown_msg_bytes += frame_len as u64;
@@ -229,29 +264,52 @@ impl<M: Message> FrameDecoder<M> {
                 continue;
             }
 
-            // -- 4. CRC ------------------------------------------------------
-            let mut raw_bytes = [0u8; 1 + 9 + 255 + 2 + 13];
-            raw_bytes[..frame_len].copy_from_slice(frame);
-            let raw = MAVLinkV2MessageRaw::from_bytes_unparsed(raw_bytes);
-            if !raw.has_valid_crc::<M>() {
-                // Corruption or false STX: conservative resync, drop only
-                // the STX byte so a genuine frame inside is never lost.
+            // -- 4. CRC + 5. payload decode ----------------------------------
+            // Same policy for both framings: the CRC (with the per-message
+            // CRC_EXTRA) validates the candidate; a failure is a conservative
+            // one-byte resync so a genuine frame inside is never lost.
+            let (crc_ok, decoded) = if is_v2 {
+                let mut raw_bytes = [0u8; 1 + 9 + 255 + 2 + 13];
+                raw_bytes[..frame_len].copy_from_slice(frame);
+                let raw = MAVLinkV2MessageRaw::from_bytes_unparsed(raw_bytes);
+                if raw.has_valid_crc::<M>() {
+                    (true, M::parse(MavlinkVersion::V2, msg_id, raw.payload()).ok())
+                } else {
+                    (false, None)
+                }
+            } else {
+                let mut raw_bytes = [0u8; 1 + 5 + 255 + 2];
+                raw_bytes[..frame_len].copy_from_slice(frame);
+                let raw = MAVLinkV1MessageRaw::from_bytes_unparsed(raw_bytes);
+                if raw.has_valid_crc::<M>() {
+                    (true, M::parse(MavlinkVersion::V1, msg_id, raw.payload()).ok())
+                } else {
+                    (false, None)
+                }
+            };
+
+            if !crc_ok {
                 self.counters.crc_errors += 1;
                 self.counters.garbage_bytes += 1;
                 pos += 1;
                 continue;
             }
 
-            // -- 5. payload decode -------------------------------------------
-            match M::parse(MavlinkVersion::V2, msg_id, raw.payload()) {
-                Ok(message) => {
+            match decoded {
+                Some(message) => {
                     self.counters.frames_ok += 1;
                     self.counters.frames_ok_bytes += frame_len as u64;
+                    // Header field offsets differ between framings.
+                    let (system_id, component_id, sequence) = if is_v2 {
+                        (frame[5], frame[6], frame[4])
+                    } else {
+                        (frame[3], frame[4], frame[2])
+                    };
                     out.push(DecodedFrame {
                         header: MavHeader {
-                            system_id: frame[5],
-                            component_id: frame[6],
-                            sequence: frame[4],
+                            system_id,
+                            component_id,
+                            sequence,
                         },
                         message,
                         msg_id,
@@ -260,7 +318,7 @@ impl<M: Message> FrameDecoder<M> {
                         frame_len,
                     });
                 }
-                Err(_) => {
+                None => {
                     // CRC proved the framing, so skipping the whole frame is
                     // safe; the payload is semantically invalid (bad enum…).
                     self.counters.bad_payloads += 1;
@@ -273,6 +331,12 @@ impl<M: Message> FrameDecoder<M> {
         self.buf.drain(..pos);
         out
     }
+}
+
+/// A frame can start with either MAVLink STX marker.
+#[inline]
+fn is_stx(b: u8) -> bool {
+    b == STX_V2 || b == STX_V1
 }
 
 #[cfg(test)]

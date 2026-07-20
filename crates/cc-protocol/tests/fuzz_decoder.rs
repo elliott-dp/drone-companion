@@ -19,7 +19,7 @@
 //! cargo-fuzz target can be layered on later without changing this suite.)
 
 use cc_protocol::cc_dialect::*;
-use cc_protocol::framing::{DecodeCounters, IFLAG_SIGNED, STX_V2, V2_SIGNATURE_LEN};
+use cc_protocol::framing::{DecodeCounters, IFLAG_SIGNED, STX_V1, STX_V2, V2_SIGNATURE_LEN};
 use cc_protocol::identity;
 use cc_protocol::mavlink_core::{write_v2_msg, MAVLinkV2MessageRaw, MavHeader};
 use cc_protocol::CcFrameDecoder;
@@ -64,9 +64,12 @@ fn header(seq: u8) -> MavHeader {
 }
 
 /// A benign CC_HEALTH_REPORT for stream-building. NOTE: not every message
-/// can appear in the FD-free exact-counter tests — CC_LOG_CONTROL's own
+/// can appear in the STX-free exact-counter tests — CC_LOG_CONTROL's own
 /// message ID is 54013 = 0xD2FD, so its header always contains an 0xFD!
-/// CC_HEALTH_REPORT (54010 → FA D2 00) is safe.
+/// CC_HEALTH_REPORT (54010 → FA D2 00) is safe. The same applies to the
+/// `sequence` field value passed in: it is serialised into the payload, so a
+/// value whose little-endian bytes contain 0xFD or 0xFE (e.g. 509 = 0x01FD,
+/// 510 = 0x01FE) is a fixed STX no salt can remove — pick STX-free values.
 fn base_msg(sequence: u32, salt: u64) -> MavMessage {
     MavMessage::CC_HEALTH_REPORT(CC_HEALTH_REPORT_DATA {
         companion_timestamp_us: 0x0102_0304_0500_0000 + salt,
@@ -96,18 +99,19 @@ fn encode(msg: &MavMessage, seq: u8) -> Vec<u8> {
     v
 }
 
-/// Encode a frame guaranteed to contain no 0xFD after the STX, so garbage
-/// accounting in the exact-counter tests is fully deterministic. The field
+/// Encode a frame guaranteed to contain no STX (`0xFD` or `0xFE`) after the
+/// leading STX, so garbage accounting in the exact-counter tests is fully
+/// deterministic now that the decoder recognizes both framings. The field
 /// values are fixed except a timestamp salt, searched deterministically
-/// until the CRC bytes (the only content we cannot choose) are FD-free.
+/// until the CRC bytes (the only content we cannot choose) are STX-free.
 fn encode_fd_free(sequence: u32, seq: u8) -> Vec<u8> {
-    for salt in 0..=255u64 {
+    for salt in 0..=4095u64 {
         let bytes = encode(&base_msg(sequence, salt), seq);
-        if bytes.iter().skip(1).all(|&b| b != STX_V2) {
+        if bytes.iter().skip(1).all(|&b| b != STX_V2 && b != STX_V1) {
             return bytes;
         }
     }
-    unreachable!("no FD-free encoding in 256 salts — statistically impossible");
+    unreachable!("no STX-free encoding in 4096 salts — statistically impossible");
 }
 
 fn assert_conservation(dec: &CcFrameDecoder) {
@@ -120,12 +124,13 @@ fn assert_conservation(dec: &CcFrameDecoder) {
     );
 }
 
-/// Garbage run of given length guaranteed to contain no STX byte.
+/// Garbage run of given length guaranteed to contain no STX byte of either
+/// framing (`0xFD` or `0xFE`), so it drains entirely into `garbage_bytes`.
 fn fd_free_garbage(rng: &mut Rng, len: usize) -> Vec<u8> {
     (0..len)
         .map(|_| loop {
             let b = rng.byte();
-            if b != STX_V2 {
+            if b != STX_V2 && b != STX_V1 {
                 break b;
             }
         })
@@ -194,8 +199,18 @@ fn corrupted_crc_costs_exactly_one_error_and_the_frame() {
     let mut f1 = encode_fd_free(101, 1);
     let f2 = encode_fd_free(102, 2);
 
-    f1[10] ^= 0x01; // first payload byte
+    // Corrupt the first payload byte with a bit flip that does not turn it
+    // into an STX of either framing (which would give the resync a false
+    // frame-start and perturb the exact garbage accounting).
+    {
+        let mut bit = 0u32;
+        while f1[10] ^ (1 << bit) == STX_V2 || f1[10] ^ (1 << bit) == STX_V1 {
+            bit = (bit + 1) % 8;
+        }
+        f1[10] ^= 1 << bit;
+    }
     assert_ne!(f1[10], STX_V2);
+    assert_ne!(f1[10], STX_V1);
 
     let mut stream = Vec::new();
     stream.extend_from_slice(&f0);
@@ -312,10 +327,10 @@ fn unknown_id_frame(payload_len: u8) -> Vec<u8> {
     // 54008 = 0x00D2F8, little-endian on the wire
     f.extend_from_slice(&[0xF8, 0xD2, 0x00]);
     for i in 0..payload_len {
-        f.push(0x10 + (i % 0xC0)); // FD-free payload
+        f.push(0x10 + (i % 0xC0)); // STX-free payload (stays below 0xFD)
     }
     f.extend_from_slice(&[0x11, 0x22]); // CRC bytes (never checked: no CRC_EXTRA)
-    assert!(f.iter().skip(1).all(|&b| b != STX_V2));
+    assert!(f.iter().skip(1).all(|&b| b != STX_V2 && b != STX_V1));
     f
 }
 
@@ -346,7 +361,7 @@ fn unknown_msgid_counted_and_skipped_between_frames() {
 #[test]
 fn unknown_msgid_at_stream_end_counted() {
     // boundary case: the unknown frame ends exactly at the buffer end
-    let f1 = encode_fd_free(510, 0);
+    let f1 = encode_fd_free(512, 0);
     let unk = unknown_id_frame(4);
 
     let mut dec = CcFrameDecoder::new();
@@ -412,6 +427,102 @@ fn signed_frame_length_handled_and_flagged() {
     );
     assert_eq!(signed_bytes[2] & IFLAG_SIGNED, IFLAG_SIGNED);
     assert!(!frames[1].signed);
+    assert_conservation(&dec);
+}
+
+// --------------------------------------------------------------------------
+// MAVLink 1 framing (PX4 emits standard low-ID messages, e.g. TIMESYNC, as
+// MAVLink 1 even on a v2 link — see the framing module docs)
+// --------------------------------------------------------------------------
+
+#[test]
+fn decodes_mavlink1_timesync_standalone_interleaved_and_chunked() {
+    use cc_protocol::mavlink_core::MAVLinkV1MessageRaw;
+
+    // A genuine MAVLink 1 TIMESYNC frame (0xFE, 8-bit msg ID 111).
+    let ts = MavMessage::TIMESYNC(TIMESYNC_DATA {
+        tc1: 987_654_321,
+        ts1: 42,
+    });
+    let mut raw = MAVLinkV1MessageRaw::new();
+    raw.serialize_message(header(7), &ts);
+    let v1 = raw.raw_bytes().to_vec();
+    assert_eq!(v1[0], STX_V1, "must be a MAVLink 1 frame");
+    assert_eq!(v1.len(), 6 + 16 + 2, "v1 timesync: 6 hdr + 16 payload + 2 crc");
+
+    // (a) standalone
+    let mut dec = CcFrameDecoder::new();
+    let got = dec.push(&v1);
+    assert_eq!(got.len(), 1);
+    assert_eq!(got[0].msg_id, 111);
+    assert!(!got[0].signed);
+    assert_eq!(got[0].header.sequence, 7);
+    assert_eq!(got[0].header.system_id, identity::SYSID_VEHICLE_DEFAULT);
+    assert_eq!(got[0].header.component_id, identity::COMPID_CC);
+    assert_eq!(got[0].frame_len, v1.len());
+    match &got[0].message {
+        MavMessage::TIMESYNC(m) => {
+            assert_eq!(m.tc1, 987_654_321);
+            assert_eq!(m.ts1, 42);
+        }
+        other => panic!("expected TIMESYNC, got {other:?}"),
+    }
+    let c = dec.counters();
+    assert_eq!(c.frames_ok, 1);
+    assert_eq!(c.frames_ok_bytes, v1.len() as u64);
+    assert_eq!(c.garbage_bytes, 0);
+    assert_eq!(c.crc_errors, 0);
+    assert_eq!(dec.pending(), 0);
+
+    // (b) interleaved v2 | v1 | v2 — both framings on one link
+    let a = encode_fd_free(700, 1);
+    let b = encode_fd_free(701, 2);
+    let mut stream = Vec::new();
+    stream.extend_from_slice(&a);
+    stream.extend_from_slice(&v1);
+    stream.extend_from_slice(&b);
+    let mut dec2 = CcFrameDecoder::new();
+    let got2 = dec2.push(&stream);
+    assert_eq!(got2.len(), 3, "two v2 + one v1 all decode");
+    assert_eq!(got2[1].msg_id, 111);
+    let c2 = dec2.counters();
+    assert_eq!(c2.frames_ok, 3);
+    assert_eq!(c2.garbage_bytes, 0);
+    assert_eq!(c2.crc_errors, 0);
+    assert_conservation(&dec2);
+
+    // (c) delivered one byte at a time it still reassembles
+    let mut dec3 = CcFrameDecoder::new();
+    let mut n = 0;
+    for byte in &v1 {
+        n += dec3.push(&[*byte]).len();
+    }
+    assert_eq!(n, 1, "v1 frame reassembles across single-byte chunks");
+    assert_eq!(dec3.pending(), 0);
+}
+
+#[test]
+fn corrupted_mavlink1_frame_resyncs_to_following_v2() {
+    use cc_protocol::mavlink_core::MAVLinkV1MessageRaw;
+
+    // A CRC-broken v1 frame must not desync the stream: the following v2
+    // frame still decodes, and the broken frame drains to garbage.
+    let ts = MavMessage::TIMESYNC(TIMESYNC_DATA { tc1: 5, ts1: 6 });
+    let mut raw = MAVLinkV1MessageRaw::new();
+    raw.serialize_message(header(3), &ts);
+    let mut v1 = raw.raw_bytes().to_vec();
+    v1[7] ^= 0x20; // corrupt a payload byte → CRC now fails
+    let follow = encode_fd_free(710, 4);
+
+    let mut stream = v1.clone();
+    stream.extend_from_slice(&follow);
+    let mut dec = CcFrameDecoder::new();
+    let got = dec.push(&stream);
+
+    assert_eq!(got.len(), 1, "only the intact v2 frame survives");
+    assert_eq!(dec.counters().frames_ok, 1);
+    assert!(dec.counters().crc_errors >= 1, "the broken v1 frame is caught");
+    assert_eq!(dec.pending(), 0);
     assert_conservation(&dec);
 }
 
@@ -499,11 +610,12 @@ fn seeded_fault_soup_conserves_every_byte() {
                     let mut f = encode_fd_free(i, (i % 256) as u8);
                     let pos = 10 + rng.below(f.len() - 12); // payload region
                     let mut bit = rng.below(8);
-                    if f[pos] ^ (1 << bit) == STX_V2 {
-                        bit = (bit + 1) % 8; // at most one flip can make 0xFD
+                    while f[pos] ^ (1 << bit) == STX_V2 || f[pos] ^ (1 << bit) == STX_V1 {
+                        bit = (bit + 1) % 8; // never flip into an STX of either framing
                     }
                     f[pos] ^= 1 << bit;
                     assert_ne!(f[pos], STX_V2);
+                    assert_ne!(f[pos], STX_V1);
                     stream.extend_from_slice(&f);
                 }
                 2 => stream.extend_from_slice(&unknown_id_frame((rng.below(40) + 1) as u8)),

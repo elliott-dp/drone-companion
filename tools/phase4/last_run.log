@@ -1,0 +1,44 @@
+[11:44:42] === Phase 4: companiond vs SIH SITL ===
+[11:44:45] PASS  link UP
+[11:44:45] PASS  timesync LOCKED
+[11:44:45] PASS  timesync LOCKED within 5 s of link-up — 0.0 s
+[11:44:56] PASS  rate state @startup — 22.4 Hz vs 25.0 ±20%
+[11:44:56] PASS  rate imu @startup — 44.9 Hz vs 50.0 ±20%
+[11:44:56] PASS  rate power @startup — 8.9 Hz vs 10.0 ±20%
+[11:44:56] PASS  rate gps @startup — 4.5 Hz vs 5.0 ±20%
+[11:44:56] PASS  rate estimator @startup — 9.0 Hz vs 10.0 ±20%
+[11:44:56] PASS  rate actuator @startup — 15.1 Hz vs 16.7 ±20%
+[11:44:56] PASS  zero crc errors @startup
+[11:44:56] PASS  zero bad_source @startup
+[11:44:56] PASS  px4_boot_id nonzero — 1784441002
+[11:44:56] warmup 12s past the @startup transient before baselining gaps
+[11:45:16] PASS  zero sequence gaps in steady state @startup — Δgaps=0
+[11:45:16] drill A: blasting garbage at companiond's socket
+[11:45:19] PASS  drill A: garbage accounted — garbage 0 -> 34421
+[11:45:26] PASS  rate state @post-garbage — 22.3 Hz vs 25.0 ±20%
+[11:45:26] PASS  rate imu @post-garbage — 45.0 Hz vs 50.0 ±20%
+[11:45:26] PASS  rate power @post-garbage — 9.0 Hz vs 10.0 ±20%
+[11:45:26] PASS  rate gps @post-garbage — 4.5 Hz vs 5.0 ±20%
+[11:45:26] PASS  rate estimator @post-garbage — 9.0 Hz vs 10.0 ±20%
+[11:45:26] PASS  rate actuator @post-garbage — 15.0 Hz vs 16.7 ±20%
+[11:45:26] PASS  drill A: garbage induced no gaps — Δgaps=0
+[11:45:26] drill B: CC_TEL_PROFILE=0 (publisher silent)
+[11:45:56] PASS  drill B: all six streams stale
+[11:45:57] PASS  drill B: staleness clears on resume
+[11:45:57] warmup 6s past the @post-resume transient before baselining gaps
+[11:46:11] PASS  zero sequence gaps in steady state @post-resume — Δgaps=0
+[11:46:11] drill C: SITL shutdown + relaunch (FC reboot)
+[11:46:14] PASS  drill C: link leaves UP on FC death — DEGRADED
+[11:46:17] PASS  drill C: link UP after FC relaunch
+[11:46:17] PASS  drill C: NEW px4_boot_id — 1784441002 -> 1784444966
+[11:46:17] PASS  drill C: timesync re-LOCKED
+[11:46:28] PASS  rate state @post-reboot — 22.4 Hz vs 25.0 ±20%
+[11:46:28] PASS  rate imu @post-reboot — 44.7 Hz vs 50.0 ±20%
+[11:46:28] PASS  rate power @post-reboot — 9.0 Hz vs 10.0 ±20%
+[11:46:28] PASS  rate gps @post-reboot — 4.4 Hz vs 5.0 ±20%
+[11:46:28] PASS  rate estimator @post-reboot — 8.9 Hz vs 10.0 ±20%
+[11:46:28] PASS  rate actuator @post-reboot — 15.0 Hz vs 16.7 ±20%
+[11:46:28] warmup 12s past the @post-reboot transient before baselining gaps
+[11:46:48] PASS  zero sequence gaps in steady state @post-reboot — Δgaps=0
+[11:46:48] PASS  drill C: p0 never stalled
+[11:46:48] final status: {"t_ns": 126002651959, "link": "UP", "fc_hb_age_ms": 613, "px4_boot_id": 1784444966, "mission_id": 0, "timesync": {"q": "LOCKED", "offset_ns": -94120644042, "rtt_us": 241, "window": 32, "rejected": 1}, "streams": {"state": {"n": 2055, "hz": 22.0, "gaps": 2, "stale": false}, "imu": {"n": 4108, "hz": 45.0, "gaps": 6, "stale": false}, "power": {"n": 821, "hz": 9.0, "gaps": 2, "stale": false}, "gps": {"n": 410, "hz": 4.0, "gaps": 2, "stale": false}, "estimator": {"n": 821, "hz": 9.0, "gaps": 2, "stale": false}, "actuator": {"n": 1369, "hz": 15.0, "gaps": 0, "stale": false}, "event": {"n": 55, "hz": 0.0, "gaps": 0, "stale": false}, "safety_status": {"n": 0, "hz": 0.0, "gaps": 0, "stale": false}}, "counters": {"frames_ok": 10112, "crc_errors": 70, "garbage_bytes": 34421, "unknown_msg": 93, "bad_payloads": 0, "bad_source": 0, "bad_schema": 0, "tx_frames": 339, "tx_errors": 6, "p0_stalls": 0, "rx_drops": 0}}

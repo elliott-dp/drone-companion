@@ -1,67 +1,67 @@
-[19:13:47] PASS  preflight: fork XML == companion XML — dc5b8e9f vs dc5b8e9f
-[19:13:47] PASS  preflight: python bindings decode golden vectors — 16/16
-[19:13:47] === Phase 3 SITL verification (SIH headless, UDP companion link) ===
-[19:13:48] pxh up; waiting for CCFC-instance heartbeat on UDP 127.0.0.1:24040
-[19:13:49] PASS  link: HEARTBEAT from CCFC mavlink instance
-[19:13:55] collecting FC->CC stream traffic (12 s wall)...
-[19:14:07] seen: CC_EVENT×13, CC_TELEMETRY_ACTUATOR×270, CC_TELEMETRY_ESTIMATOR×162, CC_TELEMETRY_GPS×81, CC_TELEMETRY_IMU×807, CC_TELEMETRY_POWER×161, CC_TELEMETRY_STATE×403
-[19:14:07] PASS  stream CC_TELEMETRY_STATE present — 403 msgs
-[19:14:07] PASS  stream CC_TELEMETRY_STATE rate — 25.0 Hz vs 25.0 ±20%
-[19:14:07] PASS  stream CC_TELEMETRY_STATE continuity — 403/404 frames on wire (0.2% lost)
-[19:14:07] PASS  stream CC_TELEMETRY_STATE schema
-[19:14:07] PASS  stream CC_TELEMETRY_IMU present — 807 msgs
-[19:14:07] PASS  stream CC_TELEMETRY_IMU rate — 50.1 Hz vs 50.0 ±20%
-[19:14:07] PASS  stream CC_TELEMETRY_IMU continuity — 807/808 frames on wire (0.1% lost)
-[19:14:07] PASS  stream CC_TELEMETRY_IMU schema
-[19:14:07] PASS  stream CC_TELEMETRY_POWER present — 161 msgs
-[19:14:07] PASS  stream CC_TELEMETRY_POWER rate — 10.0 Hz vs 10.0 ±20%
-[19:14:07] PASS  stream CC_TELEMETRY_POWER continuity — 161/161 frames on wire (0.0% lost)
-[19:14:07] PASS  stream CC_TELEMETRY_POWER schema
-[19:14:07] PASS  stream CC_TELEMETRY_GPS present — 81 msgs
-[19:14:07] PASS  stream CC_TELEMETRY_GPS rate — 5.0 Hz vs 5.0 ±20%
-[19:14:07] PASS  stream CC_TELEMETRY_GPS continuity — 81/81 frames on wire (0.0% lost)
-[19:14:07] PASS  stream CC_TELEMETRY_GPS schema
-[19:14:07] PASS  stream CC_TELEMETRY_ESTIMATOR present — 162 msgs
-[19:14:07] PASS  stream CC_TELEMETRY_ESTIMATOR rate — 10.0 Hz vs 10.0 ±20%
-[19:14:07] PASS  stream CC_TELEMETRY_ESTIMATOR continuity — 162/162 frames on wire (0.0% lost)
-[19:14:07] PASS  stream CC_TELEMETRY_ESTIMATOR schema
-[19:14:07] PASS  stream CC_TELEMETRY_ACTUATOR present — 270 msgs
-[19:14:07] PASS  stream CC_TELEMETRY_ACTUATOR rate — 16.7 Hz vs 16.7 ±20%
-[19:14:07] PASS  stream CC_TELEMETRY_ACTUATOR continuity — 270/270 frames on wire (0.0% lost)
-[19:14:07] PASS  stream CC_TELEMETRY_ACTUATOR schema
-[19:14:07] PASS  STATE px4_boot_id constant+nonzero — {1784206444}
-[19:14:07] PASS  plausibility: quaternion normalized — |q|=1.000
-[19:14:07] PASS  plausibility: GPS fix + position — fix=3 lat=473977414
-[19:14:07] PASS  plausibility: battery voltage band — 16.20 V
-[19:14:10] PASS  gauntlet: 3 valid reports accepted — delta {'reports': 3} want {'reports': 3}
-[19:14:10] PASS  gauntlet: uORB cc_health_report published — listener shows seq 3
-[19:14:12] PASS  gauntlet: wrong component -> bad_source — delta {'bad_source': 1} want {'bad_source': 1}
-[19:14:14] PASS  gauntlet: bad schema -> bad_schema — delta {'bad_schema': 1} want {'bad_schema': 1}
-[19:14:15] PASS  gauntlet: severity 7 -> bad_range — delta {'bad_range': 1} want {'bad_range': 1}
-[19:14:17] PASS  gauntlet: duplicate sequence -> dup_seq — delta {'dup_seq': 1} want {'dup_seq': 1}
-[19:14:19] PASS  gauntlet: sequence gap counted — delta {'reports': 1, 'missed': 6} want {'reports': 1, 'missed': 6}
-[19:14:20] PASS  gauntlet: gapped report published — listener shows seq 10
-[19:14:24] PASS  gauntlet: flood capped (spec: >20/s dropped) — accepted 20, flood-dropped 80
-[19:14:24] PASS  gauntlet: flood moved no other counter — {'reports': 20, 'context': 0, 'diagnostic': 0, 'bad_source': 0, 'bad_schema': 0, 'bad_range': 0, 'dup_seq': 0, 'flood': 80, 'missed': 0}
-[19:14:28] PASS  gauntlet: receiver alive post-flood — {'reports': 1, 'context': 0, 'diagnostic': 0, 'bad_source': 0, 'bad_schema': 0, 'bad_range': 0, 'dup_seq': 0, 'flood': 0, 'missed': 89}
-[19:14:31] PASS  handshake: valid CC_MISSION_CONTEXT accepted — delta {'context': 1} want {'context': 1}
-[19:14:31] PASS  handshake: uORB cc_mission_context published — mission_id=777001
-[19:14:34] PASS  handshake: mission_id echoed on CC_TELEMETRY_STATE — wire mission_id=777001
-[19:14:36] PASS  handshake: wrong vehicle_id refused — delta {'bad_source': 1} want {'bad_source': 1}
-[19:14:38] PASS  handshake: mission_id unchanged after refusal — wire mission_id=777001
-[19:14:40] PASS  handshake: wrong dialect_hash refused — delta {'bad_schema': 1} want {'bad_schema': 1}
-[19:14:43] PASS  diagnostic: valid CC_AI_DIAGNOSTIC accepted — delta {'diagnostic': 1} want {'diagnostic': 1}
-[19:14:43] PASS  diagnostic: uORB cc_ai_diagnostic published — detail_code=2989
-[19:14:43] mavlink status (CCFC lines):
-[19:14:44]   CCFC rx accepted: reports 0 context 0 diagnostic 0
-[19:14:44]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-[19:14:44]   CCFC rx accepted: reports 0 context 0 diagnostic 0
-[19:14:44]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-[19:14:44]   CCFC rx accepted: reports 0 context 0 diagnostic 0
-[19:14:44]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-[19:14:44]   CCFC rx accepted: reports 0 context 0 diagnostic 0
-[19:14:44]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-[19:14:44]   CCFC rx accepted: reports 25 context 1 diagnostic 1
-[19:14:44]   CCFC rx dropped: bad_source 2 bad_schema 2 bad_range 1 dup_seq 1 flood 80 missed_reports 95
-[19:14:44]   CCFC rx accepted: reports 0 context 0 diagnostic 0
-[19:14:44]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+[11:48:16] PASS  preflight: fork XML == companion XML — dc5b8e9f vs dc5b8e9f
+[11:48:16] PASS  preflight: python bindings decode golden vectors — 16/16
+[11:48:16] === Phase 3 SITL verification (SIH headless, UDP companion link) ===
+[11:48:17] pxh up; waiting for CCFC-instance heartbeat on UDP 127.0.0.1:24040
+[11:48:18] PASS  link: HEARTBEAT from CCFC mavlink instance
+[11:48:24] collecting FC->CC stream traffic (12 s wall)...
+[11:48:36] seen: CC_EVENT×14, CC_TELEMETRY_ACTUATOR×246, CC_TELEMETRY_ESTIMATOR×148, CC_TELEMETRY_GPS×73, CC_TELEMETRY_IMU×739, CC_TELEMETRY_POWER×147, CC_TELEMETRY_STATE×369
+[11:48:36] PASS  stream CC_TELEMETRY_STATE present — 369 msgs
+[11:48:36] PASS  stream CC_TELEMETRY_STATE rate — 25.0 Hz vs 25.0 ±20%
+[11:48:36] PASS  stream CC_TELEMETRY_STATE continuity — 369/369 frames on wire (0.0% lost)
+[11:48:36] PASS  stream CC_TELEMETRY_STATE schema
+[11:48:36] PASS  stream CC_TELEMETRY_IMU present — 739 msgs
+[11:48:36] PASS  stream CC_TELEMETRY_IMU rate — 50.1 Hz vs 50.0 ±20%
+[11:48:36] PASS  stream CC_TELEMETRY_IMU continuity — 739/740 frames on wire (0.1% lost)
+[11:48:36] PASS  stream CC_TELEMETRY_IMU schema
+[11:48:36] PASS  stream CC_TELEMETRY_POWER present — 147 msgs
+[11:48:36] PASS  stream CC_TELEMETRY_POWER rate — 10.0 Hz vs 10.0 ±20%
+[11:48:36] PASS  stream CC_TELEMETRY_POWER continuity — 147/148 frames on wire (0.7% lost)
+[11:48:36] PASS  stream CC_TELEMETRY_POWER schema
+[11:48:36] PASS  stream CC_TELEMETRY_GPS present — 73 msgs
+[11:48:36] PASS  stream CC_TELEMETRY_GPS rate — 5.0 Hz vs 5.0 ±20%
+[11:48:36] PASS  stream CC_TELEMETRY_GPS continuity — 73/73 frames on wire (0.0% lost)
+[11:48:36] PASS  stream CC_TELEMETRY_GPS schema
+[11:48:36] PASS  stream CC_TELEMETRY_ESTIMATOR present — 148 msgs
+[11:48:36] PASS  stream CC_TELEMETRY_ESTIMATOR rate — 10.0 Hz vs 10.0 ±20%
+[11:48:36] PASS  stream CC_TELEMETRY_ESTIMATOR continuity — 148/148 frames on wire (0.0% lost)
+[11:48:36] PASS  stream CC_TELEMETRY_ESTIMATOR schema
+[11:48:36] PASS  stream CC_TELEMETRY_ACTUATOR present — 246 msgs
+[11:48:36] PASS  stream CC_TELEMETRY_ACTUATOR rate — 16.7 Hz vs 16.7 ±20%
+[11:48:36] PASS  stream CC_TELEMETRY_ACTUATOR continuity — 246/246 frames on wire (0.0% lost)
+[11:48:36] PASS  stream CC_TELEMETRY_ACTUATOR schema
+[11:48:36] PASS  STATE px4_boot_id constant+nonzero — {1784449409}
+[11:48:36] PASS  plausibility: quaternion normalized — |q|=1.000
+[11:48:36] PASS  plausibility: GPS fix + position — fix=3 lat=473977429
+[11:48:36] PASS  plausibility: battery voltage band — 16.20 V
+[11:48:38] PASS  gauntlet: 3 valid reports accepted — delta {'reports': 3} want {'reports': 3}
+[11:48:39] PASS  gauntlet: uORB cc_health_report published — listener shows seq 3
+[11:48:41] PASS  gauntlet: wrong component -> bad_source — delta {'bad_source': 1} want {'bad_source': 1}
+[11:48:43] PASS  gauntlet: bad schema -> bad_schema — delta {'bad_schema': 1} want {'bad_schema': 1}
+[11:48:44] PASS  gauntlet: severity 7 -> bad_range — delta {'bad_range': 1} want {'bad_range': 1}
+[11:48:46] PASS  gauntlet: duplicate sequence -> dup_seq — delta {'dup_seq': 1} want {'dup_seq': 1}
+[11:48:48] PASS  gauntlet: sequence gap counted — delta {'reports': 1, 'missed': 6} want {'reports': 1, 'missed': 6}
+[11:48:48] PASS  gauntlet: gapped report published — listener shows seq 10
+[11:48:53] PASS  gauntlet: flood capped (spec: >20/s dropped) — accepted 20, flood-dropped 80
+[11:48:53] PASS  gauntlet: flood moved no other counter — {'reports': 20, 'context': 0, 'diagnostic': 0, 'bad_source': 0, 'bad_schema': 0, 'bad_range': 0, 'dup_seq': 0, 'flood': 80, 'missed': 0}
+[11:48:57] PASS  gauntlet: receiver alive post-flood — {'reports': 1, 'context': 0, 'diagnostic': 0, 'bad_source': 0, 'bad_schema': 0, 'bad_range': 0, 'dup_seq': 0, 'flood': 0, 'missed': 89}
+[11:48:59] PASS  handshake: valid CC_MISSION_CONTEXT accepted — delta {'context': 1} want {'context': 1}
+[11:49:00] PASS  handshake: uORB cc_mission_context published — mission_id=777001
+[11:49:03] PASS  handshake: mission_id echoed on CC_TELEMETRY_STATE — wire mission_id=777001
+[11:49:05] PASS  handshake: wrong vehicle_id refused — delta {'bad_source': 1} want {'bad_source': 1}
+[11:49:07] PASS  handshake: mission_id unchanged after refusal — wire mission_id=777001
+[11:49:09] PASS  handshake: wrong dialect_hash refused — delta {'bad_schema': 1} want {'bad_schema': 1}
+[11:49:11] PASS  diagnostic: valid CC_AI_DIAGNOSTIC accepted — delta {'diagnostic': 1} want {'diagnostic': 1}
+[11:49:12] PASS  diagnostic: uORB cc_ai_diagnostic published — detail_code=2989
+[11:49:12] mavlink status (CCFC lines):
+[11:49:12]   CCFC rx accepted: reports 0 context 0 diagnostic 0
+[11:49:12]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+[11:49:12]   CCFC rx accepted: reports 0 context 0 diagnostic 0
+[11:49:12]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+[11:49:12]   CCFC rx accepted: reports 0 context 0 diagnostic 0
+[11:49:12]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+[11:49:12]   CCFC rx accepted: reports 0 context 0 diagnostic 0
+[11:49:12]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+[11:49:12]   CCFC rx accepted: reports 25 context 1 diagnostic 1
+[11:49:12]   CCFC rx dropped: bad_source 2 bad_schema 2 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+[11:49:12]   CCFC rx accepted: reports 0 context 0 diagnostic 0
+[11:49:12]   CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0

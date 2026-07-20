@@ -15,10 +15,11 @@
 | [phase1_protocol_layer.md](phase1/phase1_protocol_layer.md) | **Phase 1** — golden-vector mechanism (the CRC_EXTRA drift detector), the 16-frame golden set, fuzz/property suite, exit-criteria status, decisions & deviations log |
 | [phase2_px4_telemetry.md](phase2/phase2_px4_telemetry.md) | **Phase 2** — PX4 v1.17.0 pin, the eight `Cc*.msg` uORB topics, `cc_telemetry_publisher` design + mappings, SIH SITL verification harness, results |
 | [phase3_mavlink_link.md](phase3/phase3_mavlink_link.md) | **Phase 3** — dialect switch (`CONFIG_MAVLINK_DIALECT="cc_dialect"`), the 8 CC_* stream classes, receiver validation gauntlet + `mavlink status` counters, mission handshake + echo, pymavlink harness, results |
+| [phase4_companiond.md](phase4/phase4_companiond.md) | **Phase 4** — the real Rust RX path: cc-link (transport/priority TX/heartbeat), cc-timesync (filter + runner), cc-ingest (continuity/age/watchdogs), companiond v0, fault drills + soak, CI diagnosis (B.4) |
 | [cc_protocol_crate.md](phase1/cc_protocol_crate.md) | `crates/cc-protocol` reference — module layout, build-time binding generation, `FrameDecoder` semantics and counters, validation helpers, guidance for Phase 4 consumers |
 | [../cc-dialect/README.md](../cc-dialect/README.md) | The dialect directory itself — layout, contract rules, the change workflow ("edit the XML" checklist) |
 
-## Status at a glance (2026-07-15)
+## Status at a glance (2026-07-20)
 
 | Item | State |
 |---|---|
@@ -34,4 +35,9 @@
 | Phase 2 SITL verification (SIH, headless) | ✅ **37/37 checks green** (`tools/phase2/sitl_phase2_check.py`; results in the phase 2 doc Part C) — re-verified after the Phase 3 dialect switch |
 | Phase 3 dialect switch + 8 CC_* streams | ✅ mavlink module builds `cc_dialect`; streams registered, zero CCFC warnings |
 | Phase 3 receiver gauntlet | ✅ source/schema/range/sequence/flood + mission handshake, counters in `mavlink status` |
-| Phase 3 SITL verification (UDP, pymavlink) | ✅ **50/50 checks green** (`tools/phase3/sitl_phase3_check.py`; results in the phase 3 doc Part C) |
+| Phase 3 SITL verification (UDP, pymavlink) | ✅ **50/50 checks green** (`tools/phase3/sitl_phase3_check.py`; results in the phase 3 doc Part C) — re-verified on the Phase 4 `px4-rc.mavlink` |
+| Phase 4 `cc-link` / `cc-timesync` / `cc-ingest` / `companiond` | ✅ built + clippy clean; **44 unit/property tests** (incl. MAVLink 1 decode) |
+| Phase 4 MAVLink 1 timesync-reply fix | ✅ decoder accepts v1+v2 framing (D25); PX4 emits `TIMESYNC` replies as MAVLink 1 uncontrollably — diagnosed in phase 4 doc §C.1 |
+| Phase 4 SITL integration + fault drills | ✅ **36/36 checks green** (`tools/phase4/sitl_phase4_check.py`; timesync LOCK ≤ 5 s, rates ±20%, garbage/pause/reboot drills; results in the phase 4 doc Part C) |
+| Phase 4 fork edit | ✅ CC instance `-m custom` + explicit `HEARTBEAT` + `MAV_PROTO_VER 2`; **no PX4 C/C++ changed** (fork stays pinned to v1.17.0) |
+| Phase 4 soak (1 h unattended, exit criterion) | ⏳ in progress (`--soak 3600`) |

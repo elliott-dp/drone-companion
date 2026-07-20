@@ -1,0 +1,11 @@
+[package]
+name = "cc-link"
+description = "FC<->CC link layer: transport (UDP/serial), framing RX on cc-protocol's FrameDecoder, strict-priority TX queues, heartbeat, link state (spec §5.3)"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+cc-protocol.workspace = true
+tokio.workspace = true
+tokio-serial.workspace = true

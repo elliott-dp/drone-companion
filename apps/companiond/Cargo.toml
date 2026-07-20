@@ -1,0 +1,13 @@
+[package]
+name = "companiond"
+description = "companion runtime daemon v0: link + timesync + ingest wiring, 1 Hz status (spec §5.2, Phase 4 scope)"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+cc-protocol.workspace = true
+cc-link.workspace = true
+cc-timesync.workspace = true
+cc-ingest.workspace = true
+tokio.workspace = true

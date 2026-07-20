@@ -1,0 +1,16 @@
+[package]
+name = "cc-ingest"
+description = "decode → validate → normalize → TelemetryEvent fan-out with per-stream continuity and staleness watchdogs (spec §5.5)"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+cc-protocol.workspace = true
+cc-link.workspace = true
+cc-timesync.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+# paused-clock control for the watchdog tests
+tokio = { workspace = true, features = ["test-util"] }

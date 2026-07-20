@@ -1,0 +1,11 @@
+[package]
+name = "cc-timesync"
+description = "MAVLink TIMESYNC client: RTT-filtered median offset, quality states, conversions (spec §5.4). Filter core is pure and unit-tested on synthetic traces."
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+cc-protocol.workspace = true
+cc-link.workspace = true
+tokio.workspace = true

@@ -9,7 +9,11 @@
 [workspace]
 resolver = "2"
 members = [
+    "apps/companiond",
+    "crates/cc-ingest",
+    "crates/cc-link",
     "crates/cc-protocol",
+    "crates/cc-timesync",
 ]
 
 [workspace.package]
@@ -29,3 +33,11 @@ sha2 = "0.10"
 bitflags = "2.9"
 num-derive = "0.4"
 num-traits = "0.2"
+# Phase 4 runtime (spec §5.2): tokio multi-threaded runtime; serial transport
+# for Phase 8 bench work compiled from day one (same interface as UDP).
+tokio = { version = "1", features = ["rt-multi-thread", "net", "time", "sync", "macros", "signal", "io-util"] }
+tokio-serial = "5"
+cc-protocol = { path = "crates/cc-protocol" }
+cc-link = { path = "crates/cc-link" }
+cc-timesync = { path = "crates/cc-timesync" }
+cc-ingest = { path = "crates/cc-ingest" }

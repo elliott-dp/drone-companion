@@ -36,54 +36,166 @@ INFO  [lockstep_scheduler] setting initial absolute time to 4000 us
 INFO  [commander] LED: open /dev/led0 failed (22)
 ERROR [param] Parameter UXRCE_DDS_DOM_ID not found.
 etc/init.d-posix/rcS: line 328: uxrce_dds_client: command not found
-INFO  [tone_alarm] home set
 INFO  [mavlink] mode: Normal, data rate: 4000000 B/s on udp port 18570 remote port 14550
+INFO  [tone_alarm] home set
 INFO  [mavlink] mode: Onboard, data rate: 4000000 B/s on udp port 14580 remote port 14540
 INFO  [mavlink] mode: Onboard, data rate: 4000 B/s on udp port 14280 remote port 14030
 INFO  [mavlink] mode: Gimbal, data rate: 400000 B/s on udp port 13030 remote port 13280
-INFO  [mavlink] mode: Onboard, data rate: 400000 B/s on udp port 24540 remote port 24040
+INFO  [mavlink] mode: Custom, data rate: 400000 B/s on udp port 24540 remote port 24040
 INFO  [mavlink] mode: Custom, data rate: 400000 B/s on udp port 19450 remote port 19410
 INFO  [logger] logger started (mode=all)
 INFO  [logger] Start file log (type: full)
-INFO  [logger] [logger] ./log/2026-07-16/17_13_48.ulg	
-INFO  [logger] Opened full log file: ./log/2026-07-16/17_13_48.ulg
+INFO  [logger] [logger] ./log/2026-07-20/09_48_17.ulg	
+INFO  [logger] Opened full log file: ./log/2026-07-20/09_48_17.ulg
+INFO  [mavlink] MAVLink only on localhost (set param MAV_{i}_BROADCAST = 1 to enable network)
 INFO  [mavlink] MAVLink only on localhost (set param MAV_{i}_BROADCAST = 1 to enable network)
 INFO  [mavlink] MAVLink only on localhost (set param MAV_{i}_BROADCAST = 1 to enable network)
 INFO  [mavlink] MAVLink only on localhost (set param MAV_{i}_BROADCAST = 1 to enable network)
 INFO  [px4] Startup script returned successfully
-pxh> INFO  [mavlink] partner IP: 127.0.0.1
-INFO  [commander] Ready for takeoff!
+pxh> INFO  [commander] Ready for takeoff!
 pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
 
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 17097.6 B/s
+	  tx: 16857.6 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 26 (lost: 0)
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24225.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 4020.9 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1346.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9445.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13251.0 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> INFO  [mavlink] partner IP: 127.0.0.1
+pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 17245.0 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -112,7 +224,7 @@ instance #2:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 3759.0 B/s
+	  tx: 4002.0 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 0.145
 	  tx rate max: 4000 B/s
@@ -146,24 +258,173 @@ instance #3:
 	Broadcast enabled: NO
 
 instance #4:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx accepted: reports 3 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
 	mavlink chan: #4
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 33965.1 B/s
+	  tx: 9472.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 149.4 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 3 (lost: 0)
+	    msgid:54010, Rate:  0.0 Hz, last 0.84s ago
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13086.7 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
 	  rx: 0.0 B/s
 	  rx loss: 0.0%
 	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh> listenerpxh> listener pxh> listener cpxh> listener ccpxh> listener cc_pxh> listener cc_hpxh> listener cc_hepxh> listener cc_heapxh> listener cc_healpxh> listener cc_healtpxh> listener cc_healthpxh> listener cc_health_pxh> listener cc_health_rpxh> listener cc_health_repxh> listener cc_health_reppxh> listener cc_health_repopxh> listener cc_health_reporpxh> listener cc_health_report
+
+TOPIC: cc_health_report
+ cc_health_report
+    timestamp: 16696000 (1.320000 seconds ago)
+    companion_timestamp_us: 123456789
+    sequence: 3
+    mission_id: 0
+    companion_boot_id: 3423387649
+    health_flags: 0
+    detail_code: 0
+    link_rtt_ms: 1
+    telemetry_age_ms: 2
+    companion_loop_ms: 3
+    dropped_rx_count: 0
+    severity: 1
+    recommended_action: 1
+    confidence_percent: 90
+    schema_version: 1
+
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 16844.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24252.0 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
 	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 4012.0 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1333.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 3 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9432.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 3 (lost: 0)
+	    msgid:54010, Rate:  0.0 Hz, last 1.79s ago
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
 	Broadcast enabled: NO
+	partner IP: 127.0.0.1
 
 instance #5:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -184,39 +445,27 @@ instance #5:
 	MAVLink version: 2
 	transport protocol: UDP (19450, remote port: 19410)
 	Broadcast enabled: NO
-pxh> INFO  [mavlink] partner IP: 127.0.0.1
-pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
 
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 17110.6 B/s
+	  tx: 17147.4 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 28 (lost: 0)
-	    msgid:    0, Rate:  1.1 Hz, last 0.23s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -225,7 +474,7 @@ instance #1:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 24889.4 B/s
+	  tx: 24750.0 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
@@ -245,7 +494,7 @@ instance #2:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 3658.4 B/s
+	  tx: 3632.5 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 0.145
 	  tx rate max: 4000 B/s
@@ -280,22 +529,24 @@ instance #3:
 
 instance #4:
 	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	CCFC rx dropped: bad_source 1 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
 	mavlink chan: #4
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 33823.7 B/s
+	  tx: 9537.8 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
-	  rx: 149.4 B/s
+	  rx: 49.8 B/s
 	  rx loss: 0.0%
 	Received Messages:
 	  sysid:  1, compid:191, Total: 3 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 0.90s ago
+	    msgid:54010, Rate:  0.0 Hz, last 2.77s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	    msgid:54010, Rate:  nan Hz, last 0.50s ago
 	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -309,7 +560,7 @@ instance #5:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 13192.2 B/s
+	  tx: 13099.6 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
@@ -321,58 +572,27 @@ instance #5:
 	MAVLink version: 2
 	transport protocol: UDP (19450, remote port: 19410)
 	Broadcast enabled: NO
-pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh> listenerpxh> listener pxh> listener cpxh> listener ccpxh> listener cc_pxh> listener cc_hpxh> listener cc_hepxh> listener cc_heapxh> listener cc_healpxh> listener cc_healtpxh> listener cc_healthpxh> listener cc_health_pxh> listener cc_health_rpxh> listener cc_health_repxh> listener cc_health_reppxh> listener cc_health_repopxh> listener cc_health_reporpxh> listener cc_health_report
-
-TOPIC: cc_health_report
- cc_health_report
-    timestamp: 18192000 (1.432000 seconds ago)
-    companion_timestamp_us: 123456789
-    sequence: 3
-    mission_id: 0
-    companion_boot_id: 3423387649
-    health_flags: 0
-    detail_code: 0
-    link_rtt_ms: 1
-    telemetry_age_ms: 2
-    companion_loop_ms: 3
-    dropped_rx_count: 0
-    severity: 1
-    recommended_action: 1
-    confidence_percent: 90
-    schema_version: 1
-
 pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
 
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 16847.6 B/s
+	  tx: 17147.4 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 29 (lost: 0)
-	    msgid:    0, Rate:  1.1 Hz, last 0.39s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -381,7 +601,7 @@ instance #1:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 24495.0 B/s
+	  tx: 24750.0 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
@@ -401,7 +621,135 @@ instance #2:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 3802.8 B/s
+	  tx: 3632.5 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1346.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 3 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9537.8 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 49.8 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 3 (lost: 0)
+	    msgid:54010, Rate:  0.0 Hz, last 3.25s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	    msgid:54010, Rate:  nan Hz, last 0.98s ago
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13099.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> WARN  [mavlink] CCFC: dropping companion messages with unsupported schema 99
+pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 16977.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24369.5 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 4324.7 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 0.145
 	  tx rate max: 4000 B/s
@@ -436,22 +784,151 @@ instance #3:
 
 instance #4:
 	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 0 dup_seq 0 flood 0 missed_reports 0
 	mavlink chan: #4
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 33873.5 B/s
+	  tx: 9432.3 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
 	  rx: 0.0 B/s
 	  rx loss: 0.0%
 	Received Messages:
-	  sysid:  1, compid:191, Total: 3 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 1.96s ago
+	  sysid:  1, compid:191, Total: 4 (lost: 0)
+	    msgid:54010, Rate:  0.0 Hz, last 0.50s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	    msgid:54010, Rate:  nan Hz, last 1.97s ago
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13179.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 17147.4 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24414.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
 	FTP enabled: YES, TX enabled: YES
 	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 3999.0 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1333.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 3 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9374.5 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 49.8 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 4 (lost: 0)
+	    msgid:54010, Rate:  0.0 Hz, last 0.98s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	    msgid:54010, Rate:  nan Hz, last 2.44s ago
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -482,34 +959,22 @@ pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh>
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 17424.3 B/s
+	  tx: 17008.0 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 46.8 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 31 (lost: 0)
-	    msgid:    4, Rate:  nan Hz, last 1.05s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.56s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -518,7 +983,7 @@ instance #1:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 24537.8 B/s
+	  tx: 24224.1 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
@@ -538,7 +1003,261 @@ instance #2:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 4560.8 B/s
+	  tx: 3875.5 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1346.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 3 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9445.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 49.8 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 5 (lost: 0)
+	    msgid:54010, Rate:  0.1 Hz, last 0.50s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	    msgid:54010, Rate:  nan Hz, last 3.42s ago
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13192.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 17008.0 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24224.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 3875.5 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1346.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 3 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9445.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 49.8 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 5 (lost: 0)
+	    msgid:54010, Rate:  0.1 Hz, last 0.96s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	    msgid:54010, Rate:  nan Hz, last 3.88s ago
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13192.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 17094.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24455.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 4008.0 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 0.145
 	  tx rate max: 4000 B/s
@@ -573,24 +1292,151 @@ instance #3:
 
 instance #4:
 	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 0 missed_reports 0
 	mavlink chan: #4
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 33943.2 B/s
+	  tx: 9432.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 6 (lost: 0)
+	    msgid:54010, Rate:  0.2 Hz, last 0.50s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	    msgid:54010, Rate:  nan Hz, last 4.85s ago
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13086.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 16884.5 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24251.0 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 3719.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1333.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 3 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 0 missed_reports 0
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9524.9 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
 	  rx: 49.8 B/s
 	  rx loss: 0.0%
 	Received Messages:
-	  sysid:  1, compid:191, Total: 3 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 3.04s ago
+	  sysid:  1, compid:191, Total: 6 (lost: 0)
+	    msgid:54010, Rate:  0.2 Hz, last 0.96s ago
 	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 0.54s ago
+	    msgid:54010, Rate:  nan Hz, last 5.32s ago
 	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -621,34 +1467,22 @@ pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh>
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 17424.3 B/s
+	  tx: 17240.0 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 46.8 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 32 (lost: 0)
-	    msgid:    4, Rate:  nan Hz, last 1.58s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.20s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -657,7 +1491,7 @@ instance #1:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 24537.8 B/s
+	  tx: 24868.5 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
@@ -677,147 +1511,7 @@ instance #2:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 4560.8 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33943.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 49.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 3 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 3.57s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 1.07s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13179.3 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> WARN  [mavlink] CCFC: dropping companion messages with unsupported schema 99
-pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 16860.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 33 (lost: 0)
-	    msgid:    4, Rate:  nan Hz, last 2.65s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.34s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24224.1 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 3592.6 B/s
+	  tx: 4307.8 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 0.145
 	  tx rate max: 4000 B/s
@@ -851,25 +1545,25 @@ instance #3:
 	Broadcast enabled: NO
 
 instance #4:
-	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	CCFC rx accepted: reports 4 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 0 missed_reports 6
 	mavlink chan: #4
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 34126.5 B/s
+	  tx: 9387.5 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
+	  rx: 49.8 B/s
 	  rx loss: 0.0%
 	Received Messages:
-	  sysid:  1, compid:191, Total: 4 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 0.54s ago
+	  sysid:  1, compid:191, Total: 7 (lost: 0)
+	    msgid:54010, Rate:  0.2 Hz, last 0.50s ago
 	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 2.14s ago
+	    msgid:54010, Rate:  nan Hz, last 6.30s ago
 	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -895,851 +1589,11 @@ instance #5:
 	MAVLink version: 2
 	transport protocol: UDP (19450, remote port: 19410)
 	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 17146.4 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 36 (lost: 0)
-	    msgid:   76, Rate:250.0 Hz, last 0.10s ago
-	    msgid:    4, Rate:  nan Hz, last 3.19s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.00s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24415.3 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 4294.8 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33753.0 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 49.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 4 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 1.08s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 2.68s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13179.3 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 16869.5 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 108.6 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 37 (lost: 0)
-	    msgid:   76, Rate:250.0 Hz, last 1.17s ago
-	    msgid:    4, Rate:  nan Hz, last 4.26s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.19s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24323.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 3759.0 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33705.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 49.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 5 (lost: 0)
-	    msgid:54010, Rate:  0.1 Hz, last 0.55s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 3.76s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13086.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 16869.5 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 108.6 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 37 (lost: 0)
-	    msgid:   76, Rate:250.0 Hz, last 1.70s ago
-	    msgid:    4, Rate:  nan Hz, last 4.79s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.72s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24323.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 3759.0 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33705.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 49.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 5 (lost: 0)
-	    msgid:54010, Rate:  0.1 Hz, last 1.08s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 4.28s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13086.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 17110.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 38 (lost: 0)
-	    msgid:   76, Rate:250.0 Hz, last 2.76s ago
-	    msgid:    4, Rate:  nan Hz, last 5.85s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.88s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24429.3 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 3981.1 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1346.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 0 missed_reports 0
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33865.5 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 6 (lost: 0)
-	    msgid:54010, Rate:  0.1 Hz, last 0.54s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 5.34s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13251.0 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 17121.5 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 41.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 39 (lost: 0)
-	    msgid:   76, Rate:250.0 Hz, last 3.29s ago
-	    msgid:    4, Rate:  nan Hz, last 6.38s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.51s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 3862.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 3 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 0 missed_reports 0
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33739.0 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 49.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 6 (lost: 0)
-	    msgid:54010, Rate:  0.1 Hz, last 1.08s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 5.88s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13086.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 17097.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 40 (lost: 0)
-	    msgid:   76, Rate:250.0 Hz, last 4.36s ago
-	    msgid:    4, Rate:  nan Hz, last 7.45s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.68s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24415.3 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 4085.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 4 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 0 missed_reports 6
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33910.4 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 49.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 7 (lost: 0)
-	    msgid:54010, Rate:  0.2 Hz, last 0.54s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 6.94s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13179.3 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
 pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh> listenerpxh> listener pxh> listener cpxh> listener ccpxh> listener cc_pxh> listener cc_hpxh> listener cc_hepxh> listener cc_heapxh> listener cc_healpxh> listener cc_healtpxh> listener cc_healthpxh> listener cc_health_pxh> listener cc_health_rpxh> listener cc_health_repxh> listener cc_health_reppxh> listener cc_health_repopxh> listener cc_health_reporpxh> listener cc_health_report
 
 TOPIC: cc_health_report
  cc_health_report
-    timestamp: 27088000 (1.076000 seconds ago)
+    timestamp: 24768000 (0.980000 seconds ago)
     companion_timestamp_us: 123456789
     sequence: 10
     mission_id: 0
@@ -1760,35 +1614,22 @@ pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh>
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 16847.6 B/s
+	  tx: 17245.0 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 44 (lost: 0)
-	    msgid:   76, Rate:250.0 Hz, last 7.24s ago
-	    msgid:    4, Rate:  0.1 Hz, last 0.33s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.86s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -1797,7 +1638,7 @@ instance #1:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 24211.2 B/s
+	  tx: 24698.2 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
@@ -1817,7 +1658,7 @@ instance #2:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 3663.3 B/s
+	  tx: 4041.8 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 0.145
 	  tx rate max: 4000 B/s
@@ -1857,7 +1698,7 @@ instance #4:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 33706.2 B/s
+	  tx: 9529.9 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
@@ -1865,11 +1706,11 @@ instance #4:
 	  rx loss: 0.0%
 	Received Messages:
 	  sysid:  1, compid:191, Total: 7 (lost: 0)
-	    msgid:54010, Rate:  0.2 Hz, last 3.42s ago
+	    msgid:54010, Rate:  0.2 Hz, last 3.10s ago
 	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	    msgid:54010, Rate:  nan Hz, last 9.82s ago
+	    msgid:54010, Rate:  nan Hz, last 8.90s ago
 	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -1900,35 +1741,22 @@ pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh>
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 16847.6 B/s
+	  tx: 17134.5 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 47 (lost: 0)
-	    msgid:   76, Rate:250.0 Hz, last 9.13s ago
-	    msgid:    4, Rate:  0.1 Hz, last 2.22s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.04s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -1937,421 +1765,7 @@ instance #1:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 24212.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 3968.1 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 24 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 6
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33764.9 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 107 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 1.36s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13086.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 16860.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 49 (lost: 0)
-	    msgid:    4, Rate:  0.1 Hz, last 4.55s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.58s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24338.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 4381.5 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1346.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 24 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 6
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33564.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 107 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 3.69s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13099.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 17097.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 41.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 51 (lost: 0)
-	    msgid:    4, Rate:  0.1 Hz, last 5.81s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.04s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24414.3 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 3995.0 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1398.4 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 25 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33948.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 108 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 0.72s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13238.0 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 17121.5 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 51 (lost: 0)
-	    msgid:    4, Rate:  0.1 Hz, last 6.34s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.56s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24673.3 B/s
+	  tx: 24455.2 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
@@ -2405,24 +1819,24 @@ instance #3:
 	Broadcast enabled: NO
 
 instance #4:
-	CCFC rx accepted: reports 25 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	CCFC rx accepted: reports 24 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 6
 	mavlink chan: #4
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 34078.7 B/s
+	  tx: 9524.9 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
-	  rx: 49.8 B/s
+	  rx: 4980.1 B/s
 	  rx loss: 0.0%
 	Received Messages:
-	  sysid:  1, compid:191, Total: 108 (lost: 0)
-	    msgid:54010, Rate:  0.0 Hz, last 1.25s ago
+	  sysid:  1, compid:191, Total: 107 (lost: 0)
+	    msgid:54010, Rate:  0.0 Hz, last 1.24s ago
 	  sysid:  1, compid: 42, Total: 1 (lost: 0)
 	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -2453,34 +1867,22 @@ pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh>
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 17110.6 B/s
+	  tx: 17538.8 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 53 (lost: 0)
-	    msgid:    4, Rate:  0.1 Hz, last 7.77s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.20s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -2543,597 +1945,24 @@ instance #3:
 	Broadcast enabled: NO
 
 instance #4:
-	CCFC rx accepted: reports 25 context 1 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	CCFC rx accepted: reports 24 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 6
 	mavlink chan: #4
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 33981.1 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 52.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 109 (lost: 0)
-	    msgid:54012, Rate:  nan Hz, last 0.90s ago
-	    msgid:54010, Rate:  0.0 Hz, last 2.69s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13192.2 B/s
+	  tx: 9445.2 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
 	  rx: 0.0 B/s
 	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 107 (lost: 0)
+	    msgid:54010, Rate:  0.0 Hz, last 3.38s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
 	FTP enabled: YES, TX enabled: YES
 	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh> listenerpxh> listener pxh> listener cpxh> listener ccpxh> listener cc_pxh> listener cc_mpxh> listener cc_mipxh> listener cc_mispxh> listener cc_misspxh> listener cc_missipxh> listener cc_missiopxh> listener cc_missionpxh> listener cc_mission_pxh> listener cc_mission_cpxh> listener cc_mission_copxh> listener cc_mission_conpxh> listener cc_mission_contpxh> listener cc_mission_contepxh> listener cc_mission_contexpxh> listener cc_mission_context
-
-TOPIC: cc_mission_context
- cc_mission_context
-    timestamp: 37048000 (1.432000 seconds ago)
-    mission_id: 777001
-    cc_boot_id: 3423387649
-    vehicle_id: 1
-    dialect_hash: 3696987807
-    sw_version: "ccfc-phase3-check"
-
-    schema_version: 1
-
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 17446.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 134.5 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 60 (lost: 0)
-	    msgid:   76, Rate:215.0 Hz, last 1.18s ago
-	    msgid:    4, Rate:  0.1 Hz, last 1.46s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.35s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24538.8 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 3653.4 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 25 context 1 diagnostic 0
-	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33944.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 109 (lost: 0)
-	    msgid:54012, Rate:  nan Hz, last 4.59s ago
-	    msgid:54010, Rate:  0.0 Hz, last 6.38s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13179.3 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> WARN  [mavlink] CCFC: companion vehicle_id 999 != CC_VEHICLE_ID 1 — mission refused
-pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 16847.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 62 (lost: 0)
-	    msgid:   76, Rate:215.0 Hz, last 2.62s ago
-	    msgid:    4, Rate:  0.1 Hz, last 2.89s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.01s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24211.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 4732.1 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 25 context 1 diagnostic 0
-	CCFC rx dropped: bad_source 2 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33707.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 110 (lost: 0)
-	    msgid:54012, Rate:  0.2 Hz, last 0.90s ago
-	    msgid:54010, Rate:  0.0 Hz, last 7.81s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13086.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 17479.1 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 64 (lost: 0)
-	    msgid:   76, Rate:215.0 Hz, last 4.95s ago
-	    msgid:    4, Rate:  0.1 Hz, last 5.22s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.54s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24697.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 4324.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1333.7 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 25 context 1 diagnostic 0
-	CCFC rx dropped: bad_source 2 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 34133.5 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 110 (lost: 0)
-	    msgid:54012, Rate:  0.2 Hz, last 3.24s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (24540, remote port: 24040)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-
-instance #5:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #5
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 13238.0 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Custom
-	Forwarding: Off
-	MAVLink version: 2
-	transport protocol: UDP (19450, remote port: 19410)
-	Broadcast enabled: NO
-pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
-
-instance #0:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
-	mavlink chan: #0
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 17352.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 66 (lost: 0)
-	    msgid:   76, Rate:215.0 Hz, last 6.38s ago
-	    msgid:    4, Rate:  0.1 Hz, last 6.66s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.19s ago
-	FTP enabled: YES, TX enabled: YES
-	mode: Normal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (18570, remote port: 14550)
-	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
-
-instance #1:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #1
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 24348.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 4000000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14580, remote port: 14540)
-	Broadcast enabled: NO
-
-instance #2:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #2
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 3698.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 0.145
-	  tx rate max: 4000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (14280, remote port: 14030)
-	Broadcast enabled: NO
-
-instance #3:
-	CCFC rx accepted: reports 0 context 0 diagnostic 0
-	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	mavlink chan: #3
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 1346.6 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 0.0 B/s
-	  rx loss: 0.0%
-	FTP enabled: YES, TX enabled: YES
-	mode: Gimbal
-	Forwarding: On
-	MAVLink version: 2
-	transport protocol: UDP (13030, remote port: 13280)
-	Broadcast enabled: NO
-
-instance #4:
-	CCFC rx accepted: reports 25 context 1 diagnostic 0
-	CCFC rx dropped: bad_source 2 bad_schema 2 bad_range 1 dup_seq 1 flood 80 missed_reports 95
-	mavlink chan: #4
-	type:		GENERIC LINK OR RADIO
-	flow control: OFF
-	rates:
-	  tx: 33696.2 B/s
-	  txerr: 0.0 B/s
-	  tx rate mult: 1.000
-	  tx rate max: 400000 B/s
-	  rx: 52.8 B/s
-	  rx loss: 0.0%
-	Received Messages:
-	  sysid:  1, compid:191, Total: 111 (lost: 0)
-	    msgid:54012, Rate:  0.2 Hz, last 0.90s ago
-	  sysid:  1, compid: 42, Total: 1 (lost: 0)
-	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -3164,35 +1993,22 @@ pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh>
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 16879.5 B/s
+	  tx: 17213.1 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 66 (lost: 0)
-	    msgid:   76, Rate:215.0 Hz, last 6.92s ago
-	    msgid:    4, Rate:  0.1 Hz, last 7.19s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.72s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -3201,7 +2017,7 @@ instance #1:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 24414.3 B/s
+	  tx: 24212.2 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
@@ -3221,7 +2037,7 @@ instance #2:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 4294.8 B/s
+	  tx: 3729.1 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 0.145
 	  tx rate max: 4000 B/s
@@ -3241,7 +2057,7 @@ instance #3:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 1398.4 B/s
+	  tx: 1333.7 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
@@ -3255,24 +2071,24 @@ instance #3:
 	Broadcast enabled: NO
 
 instance #4:
-	CCFC rx accepted: reports 25 context 1 diagnostic 0
-	CCFC rx dropped: bad_source 2 bad_schema 2 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	CCFC rx accepted: reports 25 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
 	mavlink chan: #4
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 34250.0 B/s
+	  tx: 9374.5 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
 	  rx: 0.0 B/s
 	  rx loss: 0.0%
 	Received Messages:
-	  sysid:  1, compid:191, Total: 111 (lost: 0)
-	    msgid:54012, Rate:  0.2 Hz, last 1.43s ago
+	  sysid:  1, compid:191, Total: 108 (lost: 0)
+	    msgid:54010, Rate:  0.0 Hz, last 0.67s ago
 	  sysid:  1, compid: 42, Total: 1 (lost: 0)
 	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -3303,35 +2119,22 @@ pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh>
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 17114.5 B/s
+	  tx: 16876.5 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 68 (lost: 0)
-	    msgid:   76, Rate:215.0 Hz, last 8.36s ago
-	    msgid:    4, Rate:  0.1 Hz, last 8.63s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.36s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -3340,7 +2143,7 @@ instance #1:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 24212.2 B/s
+	  tx: 24453.2 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
@@ -3360,7 +2163,907 @@ instance #2:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 3653.4 B/s
+	  tx: 4185.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1333.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 25 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9432.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 49.8 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 108 (lost: 0)
+	    msgid:54010, Rate:  0.0 Hz, last 1.15s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13086.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 17115.5 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24264.9 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 3771.9 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1346.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 25 context 1 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9537.8 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 52.8 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 109 (lost: 0)
+	    msgid:54012, Rate:  nan Hz, last 0.84s ago
+	    msgid:54010, Rate:  0.0 Hz, last 2.47s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13192.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh> listenerpxh> listener pxh> listener cpxh> listener ccpxh> listener cc_pxh> listener cc_mpxh> listener cc_mipxh> listener cc_mispxh> listener cc_misspxh> listener cc_missipxh> listener cc_missiopxh> listener cc_missionpxh> listener cc_mission_pxh> listener cc_mission_cpxh> listener cc_mission_copxh> listener cc_mission_conpxh> listener cc_mission_contpxh> listener cc_mission_contepxh> listener cc_mission_contexpxh> listener cc_mission_context
+
+TOPIC: cc_mission_context
+ cc_mission_context
+    timestamp: 33820000 (1.324000 seconds ago)
+    mission_id: 777001
+    cc_boot_id: 3423387649
+    vehicle_id: 1
+    dialect_hash: 3696987807
+    sw_version: "ccfc-phase3-check"
+
+    schema_version: 1
+
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 17039.8 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24428.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 3728.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1346.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 25 context 1 diagnostic 0
+	CCFC rx dropped: bad_source 1 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9542.8 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 109 (lost: 0)
+	    msgid:54012, Rate:  nan Hz, last 4.28s ago
+	    msgid:54010, Rate:  0.0 Hz, last 5.91s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13099.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> WARN  [mavlink] CCFC: companion vehicle_id 999 != CC_VEHICLE_ID 1 — mission refused
+pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 16916.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24455.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 3729.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1333.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 25 context 1 diagnostic 0
+	CCFC rx dropped: bad_source 2 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9524.9 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 52.8 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 110 (lost: 0)
+	    msgid:54012, Rate:  0.2 Hz, last 0.83s ago
+	    msgid:54010, Rate:  0.0 Hz, last 7.22s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13086.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 16876.5 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24415.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 3976.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1333.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 25 context 1 diagnostic 0
+	CCFC rx dropped: bad_source 2 bad_schema 1 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9432.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 110 (lost: 0)
+	    msgid:54012, Rate:  0.2 Hz, last 2.97s ago
+	    msgid:54010, Rate:  0.0 Hz, last 9.36s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13086.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 17213.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24211.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 4453.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1333.7 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 25 context 1 diagnostic 0
+	CCFC rx dropped: bad_source 2 bad_schema 2 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9432.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 52.8 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 111 (lost: 0)
+	    msgid:54012, Rate:  0.2 Hz, last 0.84s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13179.3 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 16889.4 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24468.1 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 3658.4 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 0.145
+	  tx rate max: 4000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14280, remote port: 14030)
+	Broadcast enabled: NO
+
+instance #3:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #3
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 1346.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Gimbal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (13030, remote port: 13280)
+	Broadcast enabled: NO
+
+instance #4:
+	CCFC rx accepted: reports 25 context 1 diagnostic 0
+	CCFC rx dropped: bad_source 2 bad_schema 2 bad_range 1 dup_seq 1 flood 80 missed_reports 95
+	mavlink chan: #4
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 9445.2 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	Received Messages:
+	  sysid:  1, compid:191, Total: 111 (lost: 0)
+	    msgid:54012, Rate:  0.2 Hz, last 1.32s ago
+	  sysid:  1, compid: 42, Total: 1 (lost: 0)
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (24540, remote port: 24040)
+	Broadcast enabled: NO
+	partner IP: 127.0.0.1
+
+instance #5:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #5
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 13099.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 400000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Custom
+	Forwarding: Off
+	MAVLink version: 2
+	transport protocol: UDP (19450, remote port: 19410)
+	Broadcast enabled: NO
+pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh> mavlink pxh> mavlink spxh> mavlink stpxh> mavlink stapxh> mavlink statpxh> mavlink statupxh> mavlink status
+
+instance #0:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #0
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 17102.6 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Normal
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (18570, remote port: 14550)
+	Broadcast enabled: NO
+
+instance #1:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #1
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 24532.9 B/s
+	  txerr: 0.0 B/s
+	  tx rate mult: 1.000
+	  tx rate max: 4000000 B/s
+	  rx: 0.0 B/s
+	  rx loss: 0.0%
+	FTP enabled: YES, TX enabled: YES
+	mode: Onboard
+	Forwarding: On
+	MAVLink version: 2
+	transport protocol: UDP (14580, remote port: 14540)
+	Broadcast enabled: NO
+
+instance #2:
+	CCFC rx accepted: reports 0 context 0 diagnostic 0
+	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
+	mavlink chan: #2
+	type:		GENERIC LINK OR RADIO
+	flow control: OFF
+	rates:
+	  tx: 4225.1 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 0.145
 	  tx rate max: 4000 B/s
@@ -3400,7 +3103,7 @@ instance #4:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 33609.6 B/s
+	  tx: 9467.1 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
@@ -3408,11 +3111,11 @@ instance #4:
 	  rx loss: 0.0%
 	Received Messages:
 	  sysid:  1, compid:191, Total: 112 (lost: 0)
-	    msgid:54011, Rate:  nan Hz, last 0.90s ago
-	    msgid:54012, Rate:  0.2 Hz, last 2.87s ago
+	    msgid:54011, Rate:  nan Hz, last 0.83s ago
+	    msgid:54012, Rate:  0.2 Hz, last 2.63s ago
 	  sysid:  1, compid: 42, Total: 1 (lost: 0)
 	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -3426,7 +3129,7 @@ instance #5:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 13086.7 B/s
+	  tx: 13179.3 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
@@ -3442,7 +3145,7 @@ pxh> pxh> lpxh> lipxh> lispxh> listpxh> listepxh> listenpxh> listenepxh>
 
 TOPIC: cc_ai_diagnostic
  cc_ai_diagnostic
-    timestamp: 47908000 (1.444000 seconds ago)
+    timestamp: 43808000 (1.304000 seconds ago)
     companion_timestamp_us: 42
     sequence: 1
     value: 3.37500
@@ -3458,35 +3161,22 @@ pxh> pxh> mpxh> mapxh> mavpxh> mavlpxh> mavlipxh> mavlinpxh> mavlinkpxh>
 instance #0:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
 	CCFC rx dropped: bad_source 0 bad_schema 0 bad_range 0 dup_seq 0 flood 0 missed_reports 0
-	GCS heartbeat valid
 	mavlink chan: #0
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 16892.4 B/s
+	  tx: 17009.0 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
-	  rx: 20.9 B/s
+	  rx: 0.0 B/s
 	  rx loss: 0.0%
-	Received Messages:
-	  sysid:255, compid:190, Total: 69 (lost: 0)
-	    msgid:   76, Rate:215.0 Hz, last 9.42s ago
-	    msgid:    4, Rate:  0.1 Hz, last 9.70s ago
-	    msgid:    0, Rate:  1.1 Hz, last 0.53s ago
 	FTP enabled: YES, TX enabled: YES
 	mode: Normal
 	Forwarding: On
 	MAVLink version: 2
 	transport protocol: UDP (18570, remote port: 14550)
 	Broadcast enabled: NO
-	partner IP: 127.0.0.1
-	ping statistics:
-	  last: 0.00 ms
-	  mean: 0.00 ms
-	  max: 0.00 ms
-	  min: 0.00 ms
-	  dropped packets: 0
 
 instance #1:
 	CCFC rx accepted: reports 0 context 0 diagnostic 0
@@ -3495,7 +3185,7 @@ instance #1:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 24539.8 B/s
+	  tx: 24571.7 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 4000000 B/s
@@ -3515,7 +3205,7 @@ instance #2:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 4290.8 B/s
+	  tx: 3719.1 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 0.145
 	  tx rate max: 4000 B/s
@@ -3535,7 +3225,7 @@ instance #3:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 1346.6 B/s
+	  tx: 1333.7 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
@@ -3555,7 +3245,7 @@ instance #4:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 33822.7 B/s
+	  tx: 9432.3 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
@@ -3563,11 +3253,11 @@ instance #4:
 	  rx loss: 0.0%
 	Received Messages:
 	  sysid:  1, compid:191, Total: 112 (lost: 0)
-	    msgid:54011, Rate:  nan Hz, last 1.97s ago
-	    msgid:54012, Rate:  0.2 Hz, last 3.94s ago
+	    msgid:54011, Rate:  nan Hz, last 1.78s ago
+	    msgid:54012, Rate:  0.2 Hz, last 3.57s ago
 	  sysid:  1, compid: 42, Total: 1 (lost: 0)
 	FTP enabled: YES, TX enabled: YES
-	mode: Onboard
+	mode: Custom
 	Forwarding: Off
 	MAVLink version: 2
 	transport protocol: UDP (24540, remote port: 24040)
@@ -3581,7 +3271,7 @@ instance #5:
 	type:		GENERIC LINK OR RADIO
 	flow control: OFF
 	rates:
-	  tx: 13192.2 B/s
+	  tx: 13086.7 B/s
 	  txerr: 0.0 B/s
 	  tx rate mult: 1.000
 	  tx rate max: 400000 B/s
