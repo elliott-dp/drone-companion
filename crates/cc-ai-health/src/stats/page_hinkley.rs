@@ -64,9 +64,14 @@ impl PageHinkley {
         self.n += 1;
         // incremental running mean (fixed order)
         self.mean += (x - self.mean) / self.n as f64;
+        // Symmetric CUSUM-of-mean-deviation. Up subtracts the slack so a steady
+        // signal drifts `m` DOWN (extreme = running min, stat = m − min);
+        // Down adds the slack so a steady signal drifts `m` UP (extreme =
+        // running max, stat = max − m). Either way a steady input yields
+        // stat ≈ 0 and only a genuine shift in the watched direction grows it.
         let contrib = match self.dir {
             Direction::Up => x - self.mean - self.delta,
-            Direction::Down => self.mean - x - self.delta,
+            Direction::Down => x - self.mean + self.delta,
         };
         self.m += contrib;
         if self.n == 1 {
@@ -145,7 +150,11 @@ mod tests {
 
     #[test]
     fn downward_drift_trips() {
+        // establish a steady baseline, then step the mean DOWN
         let mut ph = PageHinkley::new(Direction::Down, 0.1, 3.0);
+        for _ in 0..50 {
+            assert!(!ph.update(0.0), "steady baseline must not trip");
+        }
         let mut tripped = false;
         for _ in 0..100 {
             if ph.update(-1.0) {
@@ -153,7 +162,21 @@ mod tests {
                 break;
             }
         }
-        assert!(tripped);
+        assert!(tripped, "a sustained downward shift must trip");
+    }
+
+    #[test]
+    fn steady_signal_never_trips_either_direction() {
+        // regression: a constant (or slowly varying) input must NOT trip a
+        // one-sided detector — the inverted-Down bug did exactly this.
+        for dir in [Direction::Up, Direction::Down] {
+            let mut ph = PageHinkley::new(dir, 0.1, 3.0);
+            for i in 0..500 {
+                // constant level with bounded (non-accumulating) noise
+                let x = 5.0 + if i % 2 == 0 { 0.05 } else { -0.05 };
+                assert!(!ph.update(x), "steady input tripped {dir:?}");
+            }
+        }
     }
 
     #[test]

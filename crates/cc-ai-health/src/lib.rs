@@ -23,6 +23,7 @@
 //!   (deviation D7). Link health is reconstructed purely from in-stream
 //!   `seq_gap` + timestamp gaps.
 
+pub mod algos;
 pub mod detail;
 pub mod finding;
 pub mod phase;

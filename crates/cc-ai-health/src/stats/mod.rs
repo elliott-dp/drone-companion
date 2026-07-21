@@ -40,6 +40,12 @@ pub mod page_hinkley;
 pub mod rls;
 pub mod robust;
 
+pub use cusum::{Cusum, CusumTrip};
+pub use ewma::Ewma;
+pub use page_hinkley::{Direction, PageHinkley};
+pub use rls::Rls3;
+pub use robust::RobustScale;
+
 /// Clamp to `[0, 1]`. `NaN` maps to `0` (a missing/garbage statistic must not
 /// inflate confidence).
 #[inline]
