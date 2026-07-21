@@ -10,4 +10,6 @@ cc-protocol.workspace = true
 cc-link.workspace = true
 cc-timesync.workspace = true
 cc-ingest.workspace = true
+cc-config.workspace = true
+cc-mission-log.workspace = true
 tokio.workspace = true

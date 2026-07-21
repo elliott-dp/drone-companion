@@ -77,6 +77,47 @@ pub struct PartialConfig {
     pub(crate) handshake: PHandshake,
 }
 
+/// A flat, public set of command-line overrides. The binary fills the fields
+/// it parsed; [`Overrides::into_partial`] maps them onto the highest-precedence
+/// [`PartialConfig`] layer (keeping the per-section partial types private).
+#[derive(Debug, Default, Clone)]
+pub struct Overrides {
+    pub vehicle_id: Option<u32>,
+    pub mission_root: Option<String>,
+    pub status_json: Option<bool>,
+    pub transport_kind: Option<String>,
+    pub udp_bind: Option<String>,
+    pub remote: Option<String>,
+    pub serial_path: Option<String>,
+    pub baud: Option<u32>,
+    pub sysid: Option<u8>,
+    pub disk_floor_bytes: Option<u64>,
+    pub param_snapshot: Option<String>,
+}
+
+impl Overrides {
+    pub fn into_partial(self) -> PartialConfig {
+        PartialConfig {
+            general: PGeneral {
+                vehicle_id: self.vehicle_id,
+                mission_root: self.mission_root,
+                status_json: self.status_json,
+            },
+            transport: PTransport {
+                kind: self.transport_kind,
+                udp_bind: self.udp_bind,
+                remote: self.remote,
+                serial_path: self.serial_path,
+                baud: self.baud,
+                sysid: self.sysid,
+            },
+            mission_log: PMissionLog::default(),
+            disk: PDisk { floor_bytes: self.disk_floor_bytes, ..PDisk::default() },
+            handshake: PHandshake { param_snapshot: self.param_snapshot, ..PHandshake::default() },
+        }
+    }
+}
+
 /// `hi.or(lo)` per field — a higher-precedence `Some` wins.
 macro_rules! overlay_fields {
     ($lo:expr, $hi:expr, $($f:ident),+ $(,)?) => {

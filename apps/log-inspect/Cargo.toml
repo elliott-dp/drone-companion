@@ -1,0 +1,13 @@
+[package]
+name = "log-inspect"
+description = "read + verify a mission dataset: per-stream row/time/gap/drop rollup, dialect-hash + manifest checks, Clean/Dirty/Corrupt verdict (dev-plan Phase 5.4)"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+# Synchronous, no tokio: opens a mission directory, recomputes the rollup from
+# the Parquet part footers, prints a human summary or `--json`, and maps the
+# verdict to an exit code (0 Clean / 1 Dirty / 2 Corrupt / 3 usage).
+[dependencies]
+cc-mission-log.workspace = true
+serde_json.workspace = true

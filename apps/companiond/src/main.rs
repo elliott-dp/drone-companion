@@ -1,129 +1,150 @@
-//! companiond v0 — the companion runtime daemon (spec §5.2, Phase 4 scope).
+//! companiond — the companion runtime daemon (spec §5.2).
 //!
-//! Wires cc-link → demux → { cc-timesync | cc-ingest } and prints a 1 Hz
-//! status line. `--status-json` switches to one JSON object per line
-//! (fixed schema, hand-emitted — the Phase 4 harness's interface; schema
-//! documented in tools/phase4/README.md). Config layering (cc-config)
-//! arrives in Phase 5; v0 takes flags:
+//! Wires cc-link → demux → { cc-timesync | cc-ingest } → broadcast, plus (new
+//! in Phase 5) the mission supervisor: on the FC-heartbeat stub-ack it opens a
+//! crash-safe mission dataset (`cc-mission-log`), streams `CC_MISSION_CONTEXT`,
+//! and logs telemetry + a pre-decode raw capture. A 1 Hz status line
+//! (`--status-json` for the machine schema) reports link, timesync, per-stream
+//! rates, and the mission-log health.
 //!
-//! ```text
-//! companiond [--udp-bind ADDR:PORT]     default 0.0.0.0:24040 (SITL CCFC link)
-//!            [--remote ADDR:PORT]       fixed peer (else learned from first rx)
-//!            [--serial PATH --baud N]   TELEM3 transport instead of UDP
-//!            [--sysid N]                MAVLink system id (default 1)
-//!            [--status-json]            machine-readable status lines
-//! ```
-//!
-//! Task graph (spec §5.2, Phase 4 subset — every channel bounded):
+//! Configuration is layered (cc-config): built-in defaults → TOML file
+//! (`--config`, `$CC_CONFIG`, `/etc/companiond/config.toml`) → environment
+//! (`CC_<SECTION>__<FIELD>`) → CLI flags:
 //!
 //! ```text
-//! [udp|serial] → cc-link RX ─→ demux ─→ TIMESYNC replies → cc-timesync ⇄ P0 TX
-//!                                   └─→ cc-ingest → broadcast<TelemetryEvent>
-//! cc-link heartbeat (1 Hz) → P0 TX      status task (1 Hz) → stdout
+//! companiond [--config PATH]
+//!            [--udp-bind ADDR:PORT] [--remote ADDR:PORT]
+//!            [--serial PATH --baud N] [--sysid N]
+//!            [--vehicle-id N] [--mission-root DIR] [--disk-floor BYTES]
+//!            [--param-snapshot real|stub|off] [--status-json]
 //! ```
+
+mod supervise;
 
 use std::net::SocketAddr;
 use std::process::ExitCode;
+use std::sync::Arc;
 use std::time::Duration;
 
+use cc_config::{Config, Overrides, TransportKind};
 use cc_ingest::StreamId;
 use cc_link::{clock, LinkState};
+use cc_mission_log::LogHealth;
 use cc_protocol::cc_dialect::MavMessage;
-use cc_protocol::identity;
 use cc_timesync::Quality;
 use tokio::sync::{mpsc, watch};
 
-struct Args {
-    udp_bind: SocketAddr,
-    remote: Option<SocketAddr>,
-    serial: Option<String>,
-    baud: u32,
-    sysid: u8,
-    status_json: bool,
-}
+/// Build-stamped software version (git describe; see build.rs).
+const SW_VERSION: &str = env!("CC_SW_VERSION");
 
-fn parse_args() -> Result<Args, String> {
-    let mut args = Args {
-        udp_bind: "0.0.0.0:24040".parse().unwrap(),
-        remote: None,
-        serial: None,
-        baud: 921_600,
-        sysid: identity::SYSID_VEHICLE_DEFAULT,
-        status_json: false,
-    };
+fn parse_cli() -> Result<(Option<std::path::PathBuf>, Overrides), String> {
+    let mut config_path = None;
+    let mut o = Overrides::default();
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
         let mut val = |name: &str| it.next().ok_or(format!("{name} needs a value"));
         match a.as_str() {
-            "--udp-bind" => args.udp_bind = val("--udp-bind")?.parse().map_err(|e| format!("--udp-bind: {e}"))?,
-            "--remote" => args.remote = Some(val("--remote")?.parse().map_err(|e| format!("--remote: {e}"))?),
-            "--serial" => args.serial = Some(val("--serial")?),
-            "--baud" => args.baud = val("--baud")?.parse().map_err(|e| format!("--baud: {e}"))?,
-            "--sysid" => args.sysid = val("--sysid")?.parse().map_err(|e| format!("--sysid: {e}"))?,
-            "--status-json" => args.status_json = true,
-            "--help" | "-h" => return Err("usage: companiond [--udp-bind A:P] [--remote A:P] \
-                                           [--serial PATH --baud N] [--sysid N] [--status-json]".into()),
-            other => return Err(format!("unknown argument: {other}")),
+            "--config" => config_path = Some(std::path::PathBuf::from(val("--config")?)),
+            "--udp-bind" => o.udp_bind = Some(val("--udp-bind")?),
+            "--remote" => o.remote = Some(val("--remote")?),
+            "--serial" => {
+                o.transport_kind = Some("serial".into());
+                o.serial_path = Some(val("--serial")?);
+            }
+            "--baud" => o.baud = Some(val("--baud")?.parse().map_err(|e| format!("--baud: {e}"))?),
+            "--sysid" => o.sysid = Some(val("--sysid")?.parse().map_err(|e| format!("--sysid: {e}"))?),
+            "--vehicle-id" => o.vehicle_id = Some(val("--vehicle-id")?.parse().map_err(|e| format!("--vehicle-id: {e}"))?),
+            "--mission-root" => o.mission_root = Some(val("--mission-root")?),
+            "--disk-floor" => o.disk_floor_bytes = Some(val("--disk-floor")?.parse().map_err(|e| format!("--disk-floor: {e}"))?),
+            "--param-snapshot" => o.param_snapshot = Some(val("--param-snapshot")?),
+            "--status-json" => o.status_json = Some(true),
+            "--help" | "-h" => return Err(usage()),
+            other => return Err(format!("unknown argument: {other}\n{}", usage())),
         }
     }
-    Ok(args)
+    Ok((config_path, o))
+}
+
+fn usage() -> String {
+    "usage: companiond [--config PATH] [--udp-bind A:P] [--remote A:P] \
+     [--serial PATH --baud N] [--sysid N] [--vehicle-id N] [--mission-root DIR] \
+     [--disk-floor BYTES] [--param-snapshot real|stub|off] [--status-json]"
+        .into()
 }
 
 #[tokio::main]
 async fn main() -> ExitCode {
-    let args = match parse_args() {
-        Ok(a) => a,
+    let (config_path, overrides) = match parse_cli() {
+        Ok(x) => x,
+        Err(e) => {
+            eprintln!("companiond: {e}");
+            return ExitCode::from(2);
+        }
+    };
+    let cfg = match Config::load(config_path.as_deref(), overrides.into_partial()) {
+        Ok(c) => c,
         Err(e) => {
             eprintln!("companiond: {e}");
             return ExitCode::from(2);
         }
     };
 
-    // ---- transport + link -----------------------------------------------
-    let (rx_half, tx_half, peer_tx) = if let Some(path) = &args.serial {
-        match cc_link::transport::serial(path, args.baud) {
-            Ok(t) => t,
-            Err(e) => {
-                eprintln!("companiond: serial {path}: {e}");
-                return ExitCode::from(1);
+    let sysid = cfg.transport.sysid;
+    let status_json = cfg.general.status_json;
+
+    // ---- transport + link (with pre-decode raw tap) ------------------------
+    let (rx_half, tx_half, peer_tx) = match cfg.transport.kind {
+        TransportKind::Serial => {
+            let path = cfg.transport.serial_path.clone().unwrap_or_default();
+            match cc_link::transport::serial(&path, cfg.transport.baud) {
+                Ok(t) => t,
+                Err(e) => {
+                    eprintln!("companiond: serial {path}: {e}");
+                    return ExitCode::from(1);
+                }
             }
         }
-    } else {
-        match cc_link::transport::udp(args.udp_bind, args.remote).await {
-            Ok(t) => t,
-            Err(e) => {
-                eprintln!("companiond: udp bind {}: {e}", args.udp_bind);
-                return ExitCode::from(1);
+        TransportKind::Udp => {
+            let bind: SocketAddr = match cfg.transport.udp_bind.parse() {
+                Ok(a) => a,
+                Err(e) => {
+                    eprintln!("companiond: --udp-bind {}: {e}", cfg.transport.udp_bind);
+                    return ExitCode::from(2);
+                }
+            };
+            let remote = match cfg.transport.remote.as_deref().map(str::parse).transpose() {
+                Ok(r) => r,
+                Err(e) => {
+                    eprintln!("companiond: --remote: {e}");
+                    return ExitCode::from(2);
+                }
+            };
+            match cc_link::transport::udp(bind, remote).await {
+                Ok(t) => t,
+                Err(e) => {
+                    eprintln!("companiond: udp bind {bind}: {e}");
+                    return ExitCode::from(1);
+                }
             }
         }
     };
 
-    let mut link = cc_link::spawn(rx_half, tx_half, peer_tx, args.sysid);
+    // raw datagram tap → mission-log (lossy; never blocks RX)
+    let (raw_tx, raw_rx) = mpsc::channel::<Vec<u8>>(256);
+    let mut link = cc_link::spawn_with_raw_tap(rx_half, tx_half, peer_tx, sysid, Some(raw_tx));
     let mut frames = link.take_frames();
 
-    // ---- boot-id bridge, timesync, ingest ---------------------------------
-    // The boot-id watch is created here because its two ends belong to
-    // different crates: cc-ingest writes it (STATE carries px4_boot_id),
-    // cc-timesync invalidates on it (spec §5.4).
+    // ---- boot-id bridge, timesync, ingest ----------------------------------
     let (boot_tx, boot_rx) = watch::channel(0u32);
-
     let runner = cc_timesync::runner::spawn(link.tx.clone(), boot_rx.clone());
-
     let (ingest_tx, ingest_rx) = mpsc::channel::<cc_link::LinkFrame>(512);
-    let ingest = cc_ingest::spawn(
-        ingest_rx,
-        runner.snapshot.clone(),
-        link.status.clone(),
-        boot_tx,
-    );
+    let ingest = cc_ingest::spawn(ingest_rx, runner.snapshot.clone(), link.status.clone(), boot_tx);
 
     // ---- demux: TIMESYNC replies → timesync; the rest → ingest -------------
     let replies = runner.replies.clone();
     tokio::spawn(async move {
         while let Some(frame) = frames.recv().await {
             if let MavMessage::TIMESYNC(t) = &frame.message {
-                // tc1 != 0 marks a RESPONSE (PX4 filled its clock in);
-                // requests echo through untouched channels elsewhere
                 if t.tc1 != 0 {
                     let _ = replies
                         .send(cc_timesync::runner::Reply {
@@ -136,10 +157,25 @@ async fn main() -> ExitCode {
                 continue;
             }
             if ingest_tx.send(frame).await.is_err() {
-                return; // ingest gone: shutting down
+                return;
             }
         }
     });
+
+    // ---- mission supervisor (handshake + mission-log lifecycle) -------------
+    let log_health = Arc::new(LogHealth::default());
+    let (shutdown_tx, shutdown_rx) = watch::channel(false);
+    let supervisor = tokio::spawn(supervise::run(
+        cfg.clone(),
+        link.tx.clone(),
+        link.status.clone(),
+        ingest.events.clone(),
+        boot_rx.clone(),
+        raw_rx,
+        log_health.clone(),
+        SW_VERSION.to_string(),
+        shutdown_rx,
+    ));
 
     // ---- status loop --------------------------------------------------------
     let stats = ingest.stats.clone();
@@ -147,9 +183,11 @@ async fn main() -> ExitCode {
     let status_watch = link.status.clone();
 
     eprintln!(
-        "companiond v0 up — transport {}, sysid {}",
-        args.serial.as_deref().unwrap_or("udp"),
-        args.sysid
+        "companiond {SW_VERSION} up — transport {}, sysid {}, vehicle {}, mission-root {}",
+        if cfg.transport.kind == TransportKind::Serial { "serial" } else { "udp" },
+        sysid,
+        cfg.general.vehicle_id,
+        cfg.general.mission_root.display(),
     );
 
     let mut prev_counts = [0u64; 8];
@@ -160,7 +198,10 @@ async fn main() -> ExitCode {
         tokio::select! {
             _ = tick.tick() => {}
             _ = tokio::signal::ctrl_c() => {
-                eprintln!("companiond: shutdown");
+                eprintln!("companiond: shutdown — finalizing mission");
+                let _ = shutdown_tx.send(true);
+                // give the mission-log a bounded window to seal + mark complete
+                let _ = tokio::time::timeout(Duration::from_secs(10), supervisor).await;
                 return ExitCode::SUCCESS;
             }
         }
@@ -170,13 +211,13 @@ async fn main() -> ExitCode {
         let lstats = link.stats();
         let boot = *boot_rx.borrow();
         let mission = stats.mission_id.load(std::sync::atomic::Ordering::Relaxed);
+        let log = log_health.snapshot();
 
-        // per-stream Hz over the last interval
         let mut hz = [0f64; 8];
         for s in StreamId::ALL {
             let i = s as usize;
             let n = stats.stream_count(s);
-            hz[i] = (n - prev_counts[i]) as f64; // 1 s interval → count == Hz
+            hz[i] = (n - prev_counts[i]) as f64;
             prev_counts[i] = n;
         }
 
@@ -191,9 +232,8 @@ async fn main() -> ExitCode {
             Quality::Unlocked => "UNLOCKED",
         };
 
-        if args.status_json {
-            // fixed schema, hand-emitted (documented in tools/phase4/README.md)
-            let mut s = String::with_capacity(1024);
+        if status_json {
+            let mut s = String::with_capacity(1200);
             s.push_str(&format!(
                 "{{\"t_ns\":{},\"link\":\"{}\",\"fc_hb_age_ms\":{},\"px4_boot_id\":{},\"mission_id\":{},",
                 clock::now_ns(),
@@ -222,6 +262,17 @@ async fn main() -> ExitCode {
             }
             s.push_str("},");
             s.push_str(&format!(
+                "\"log\":{{\"shed_stage\":\"{}\",\"warn\":{},\"drops\":{},\"raw_drops\":{},\"parts\":{},\"write_errors\":{},\"lagged\":{},\"free_mib\":{}}},",
+                log.stage_name(),
+                log.warn,
+                log.dropped.iter().sum::<u64>(),
+                log.raw_dropped,
+                log.parts_sealed,
+                log.write_errors,
+                log.lagged,
+                log.last_free_bytes / (1024 * 1024),
+            ));
+            s.push_str(&format!(
                 "\"counters\":{{\"frames_ok\":{},\"crc_errors\":{},\"garbage_bytes\":{},\"unknown_msg\":{},\"bad_payloads\":{},\"bad_source\":{},\"bad_schema\":{},\"tx_frames\":{},\"tx_errors\":{},\"p0_stalls\":{},\"rx_drops\":{}}}}}",
                 lstats.frames_ok,
                 lstats.crc_errors,
@@ -238,7 +289,7 @@ async fn main() -> ExitCode {
             println!("{s}");
         } else {
             println!(
-                "[link {link_str}] state {:.0} imu {:.0} pwr {:.0} gps {:.0} est {:.0} act {:.0} Hz | gaps {} | crc {} | ts {q_str} off {:.3} ms rtt {:.3} ms | boot {boot} mission {mission}",
+                "[link {link_str}] state {:.0} imu {:.0} pwr {:.0} gps {:.0} est {:.0} act {:.0} Hz | gaps {} | crc {} | ts {q_str} off {:.3} ms | boot {boot} mission {mission} | log {} warn {} drops {}",
                 hz[StreamId::State as usize],
                 hz[StreamId::Imu as usize],
                 hz[StreamId::Power as usize],
@@ -248,7 +299,9 @@ async fn main() -> ExitCode {
                 stats.total_gaps(),
                 lstats.crc_errors,
                 ts.offset_ns as f64 / 1e6,
-                ts.rtt_ns as f64 / 1e6,
+                log.stage_name(),
+                log.warn,
+                log.total_dropped(),
             );
         }
     }

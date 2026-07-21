@@ -9,7 +9,6 @@
 
 use std::time::Duration;
 
-use bytes::Bytes;
 use cc_ingest::TelemetryEvent;
 use tokio::sync::{broadcast, mpsc, oneshot, watch};
 use tokio::task::JoinHandle;
@@ -22,7 +21,7 @@ use crate::Mission;
 pub fn spawn(
     mut mission: Mission,
     mut events_rx: broadcast::Receiver<TelemetryEvent>,
-    mut raw_rx: mpsc::Receiver<Bytes>,
+    mut raw_rx: mpsc::Receiver<Vec<u8>>,
     mut boot_rx: watch::Receiver<u32>,
     tick_period: Duration,
     mut shutdown: oneshot::Receiver<()>,

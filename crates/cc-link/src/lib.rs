@@ -178,6 +178,22 @@ pub fn spawn(
     peer_tx: tokio::sync::watch::Sender<Option<std::net::SocketAddr>>,
     sysid: u8,
 ) -> Link {
+    spawn_with_raw_tap(rx_half, tx_half, peer_tx, sysid, None)
+}
+
+/// Like [`spawn`], but with an optional **pre-decode raw datagram tap**
+/// (deviation D-raw-tap): each received datagram's exact wire bytes are
+/// `try_send` to `raw_tap` *before* decode, so `cc-mission-log`'s
+/// `raw_mavlink.bin` is ground truth independent of the decoder. The send is
+/// lossy (a full/absent channel drops the copy) so it can never back-pressure
+/// the RX path (spec §5.2).
+pub fn spawn_with_raw_tap(
+    rx_half: RxHalf,
+    tx_half: TxHalf,
+    peer_tx: tokio::sync::watch::Sender<Option<std::net::SocketAddr>>,
+    sysid: u8,
+    raw_tap: Option<mpsc::Sender<Vec<u8>>>,
+) -> Link {
     let counters = Arc::new(LinkCounters::default());
     let stats_decoder = Arc::new(std::sync::Mutex::new(
         cc_protocol::framing::DecodeCounters::default(),
@@ -215,6 +231,7 @@ pub fn spawn(
         last_fc_hb.clone(),
         peer_tx,
         sysid,
+        raw_tap,
     ));
     tokio::spawn(tx_task(tx_half, [p0r, p1r, p2r, p3r], counters.clone(), sysid));
     tokio::spawn(heartbeat_task(tx_handle.clone()));
@@ -229,6 +246,7 @@ pub fn spawn(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn rx_task(
     mut rx: RxHalf,
     frame_tx: mpsc::Sender<LinkFrame>,
@@ -237,6 +255,7 @@ async fn rx_task(
     last_fc_hb: Arc<AtomicU64>,
     peer_tx: watch::Sender<Option<std::net::SocketAddr>>,
     sysid: u8,
+    raw_tap: Option<mpsc::Sender<Vec<u8>>>,
 ) {
     let mut decoder = CcFrameDecoder::new();
     let mut buf = vec![0u8; 65536];
@@ -253,6 +272,11 @@ async fn rx_task(
                 continue;
             }
         };
+
+        // Pre-decode raw tap (ground truth): lossy, never blocks RX.
+        if let Some(tap) = &raw_tap {
+            let _ = tap.try_send(buf[..n].to_vec());
+        }
 
         let mut decoded_any = false;
 

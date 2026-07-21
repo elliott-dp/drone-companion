@@ -13,7 +13,7 @@ mod layer;
 mod model;
 mod validate;
 
-pub use layer::PartialConfig;
+pub use layer::{Overrides, PartialConfig};
 pub use model::{
     Compression, Config, Disk, General, Handshake, MissionLog, ParamSnapshotMode, Transport,
     TransportKind,

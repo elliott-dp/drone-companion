@@ -311,7 +311,6 @@ name = "cc-mission-log"
 version = "0.1.0"
 dependencies = [
  "arrow",
- "bytes",
  "cc-config",
  "cc-ingest",
  "cc-protocol",
@@ -370,8 +369,10 @@ dependencies = [
 name = "companiond"
 version = "0.1.0"
 dependencies = [
+ "cc-config",
  "cc-ingest",
  "cc-link",
+ "cc-mission-log",
  "cc-protocol",
  "cc-timesync",
  "tokio",
@@ -733,6 +734,10 @@ checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 [[package]]
 name = "log-inspect"
 version = "0.1.0"
+dependencies = [
+ "cc-mission-log",
+ "serde_json",
+]
 
 [[package]]
 name = "mach2"
