@@ -23,6 +23,7 @@ mod supervise;
 
 use std::net::SocketAddr;
 use std::process::ExitCode;
+use std::sync::atomic::{AtomicU32, AtomicU8, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -36,6 +37,39 @@ use tokio::sync::{mpsc, watch};
 
 /// Build-stamped software version (git describe; see build.rs).
 const SW_VERSION: &str = env!("CC_SW_VERSION");
+
+/// Latest CC_SAFETY_STATUS received from the FC safety monitor (surfaced in the
+/// status JSON so the Phase 6 scenario harness can assert the monitor's
+/// response from companiond's stdout).
+#[derive(Default)]
+struct SafetyState {
+    /// 0=UNKNOWN 1=OK 2=WARN 3=CRITICAL 4=STALE; 255 = none seen yet.
+    state: AtomicU8,
+    action: AtomicU8,
+    ack_seq: AtomicU32,
+    reject: AtomicU8,
+    seen: AtomicU8,
+}
+
+impl SafetyState {
+    fn set(&self, state: u8, action: u8, ack_seq: u32, reject: u8) {
+        self.state.store(state, Ordering::Relaxed);
+        self.action.store(action, Ordering::Relaxed);
+        self.ack_seq.store(ack_seq, Ordering::Relaxed);
+        self.reject.store(reject, Ordering::Relaxed);
+        self.seen.store(1, Ordering::Relaxed);
+    }
+    fn snapshot(&self) -> (i32, u8, u8, u32, u8) {
+        let seen = self.seen.load(Ordering::Relaxed) != 0;
+        (
+            if seen { self.state.load(Ordering::Relaxed) as i32 } else { -1 },
+            self.action.load(Ordering::Relaxed),
+            self.reject.load(Ordering::Relaxed),
+            self.ack_seq.load(Ordering::Relaxed),
+            self.seen.load(Ordering::Relaxed),
+        )
+    }
+}
 
 struct Cli {
     config_path: Option<std::path::PathBuf>,
@@ -153,6 +187,8 @@ async fn main() -> ExitCode {
     // report-ACK watch: the monitor's echoed CC_SAFETY_STATUS.last_report_sequence
     // (feeds cc-health-tx so a CRITICAL repeat stops once acknowledged).
     let (ack_tx, ack_rx) = watch::channel(0u32);
+    let safety_state = Arc::new(SafetyState::default());
+    let safety_demux = safety_state.clone();
 
     // ---- demux: TIMESYNC replies → timesync; tap CC_SAFETY_STATUS ack;
     //      the rest → ingest --------------------------------------------------
@@ -173,6 +209,12 @@ async fn main() -> ExitCode {
             }
             if let MavMessage::CC_SAFETY_STATUS(s) = &frame.message {
                 let _ = ack_tx.send(s.last_report_sequence);
+                safety_demux.set(
+                    s.companion_state as u8,
+                    s.action_taken as u8,
+                    s.last_report_sequence,
+                    s.reject_reason as u8,
+                );
             }
             if ingest_tx.send(frame).await.is_err() {
                 return;
@@ -292,6 +334,11 @@ async fn main() -> ExitCode {
                 log.write_errors,
                 log.lagged,
                 log.last_free_bytes / (1024 * 1024),
+            ));
+            let (sf_state, sf_action, sf_reject, sf_ack, sf_seen) = safety_state.snapshot();
+            s.push_str(&format!(
+                "\"safety\":{{\"state\":{sf_state},\"action\":{sf_action},\"reject\":{sf_reject},\"ack_seq\":{sf_ack},\"seen\":{}}},",
+                sf_seen != 0
             ));
             s.push_str(&format!(
                 "\"counters\":{{\"frames_ok\":{},\"crc_errors\":{},\"garbage_bytes\":{},\"unknown_msg\":{},\"bad_payloads\":{},\"bad_source\":{},\"bad_schema\":{},\"tx_frames\":{},\"tx_errors\":{},\"p0_stalls\":{},\"rx_drops\":{}}}}}",
