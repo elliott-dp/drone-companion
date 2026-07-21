@@ -16,6 +16,7 @@
 | [phase2_px4_telemetry.md](phase2/phase2_px4_telemetry.md) | **Phase 2** — PX4 v1.17.0 pin, the eight `Cc*.msg` uORB topics, `cc_telemetry_publisher` design + mappings, SIH SITL verification harness, results |
 | [phase3_mavlink_link.md](phase3/phase3_mavlink_link.md) | **Phase 3** — dialect switch (`CONFIG_MAVLINK_DIALECT="cc_dialect"`), the 8 CC_* stream classes, receiver validation gauntlet + `mavlink status` counters, mission handshake + echo, pymavlink harness, results |
 | [phase4_companiond.md](phase4/phase4_companiond.md) | **Phase 4** — the real Rust RX path: cc-link (transport/priority TX/heartbeat), cc-timesync (filter + runner), cc-ingest (continuity/age/watchdogs), companiond v0, fault drills + soak, CI diagnosis (B.4) |
+| [phase5_mission_log.md](phase5/phase5_mission_log.md) | **Phase 5** — the crash-safe mission dataset: cc-config (layered), cc-mission-log (row-group-per-file Parquet, resume, shed ladder, raw capture), log-inspect (three-state verdict), companiond mission supervisor; judge-panel design + deviations; crash/disk-full/soak results (Part C) |
 | [cc_protocol_crate.md](phase1/cc_protocol_crate.md) | `crates/cc-protocol` reference — module layout, build-time binding generation, `FrameDecoder` semantics and counters, validation helpers, guidance for Phase 4 consumers |
 | [../cc-dialect/README.md](../cc-dialect/README.md) | The dialect directory itself — layout, contract rules, the change workflow ("edit the XML" checklist) |
 
@@ -41,3 +42,8 @@
 | Phase 4 SITL integration + fault drills | ✅ **36/36 checks green** (`tools/phase4/sitl_phase4_check.py`; timesync LOCK ≤ 5 s, rates ±20%, garbage/pause/reboot drills; results in the phase 4 doc Part C) |
 | Phase 4 fork edit | ✅ CC instance `-m custom` + explicit `HEARTBEAT` + `MAV_PROTO_VER 2`; **no PX4 C/C++ changed** (fork stays pinned to v1.17.0) |
 | Phase 4 soak (1 h unattended, exit criterion) | ✅ **47/47 incl. soak** — 1 h, Δ0 gaps / 0 crc / 0 stale, timesync held LOCKED (305 716 frames); **exit criterion met** |
+| Phase 5 `cc-config` | ✅ **13/13** — layered defaults→file→env→CLI, per-field precedence, cross-field validation |
+| Phase 5 `cc-mission-log` | ✅ **29/29** + clippy clean — row-group-per-file crash-safety crux, resume-same-mission (§7), shed ladder, deterministic crash/disk-full lifecycle; arrow+parquet pinned to 59 |
+| Phase 5 `log-inspect` + companiond supervisor | ✅ built — three-state verdict (Clean/Dirty/Corrupt), mission supervisor + handshake, pre-decode raw tap, status `log` object |
+| Phase 5 SITL verification (clean/crash/disk-full) | ✅ **20/20** (`tools/phase5/sitl_phase5_check.py`; results in the phase 5 doc Part C) |
+| Phase 5 soak (1 h `log-inspect`-clean mission, exit criterion) | ⏳ in progress (`--soak 3600`) |
