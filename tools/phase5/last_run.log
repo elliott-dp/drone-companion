@@ -1,0 +1,22 @@
+[10:22:31] SITL up
+[10:22:35] PASS  clean: link UP + mission opened — mission 1
+[10:22:47] PASS  clean: mission directory created
+[10:22:47] PASS  clean: log-inspect CLEAN — verdict CLEAN exit 0
+[10:22:47] PASS  clean: complete + dialect/schema match
+[10:22:47] PASS  clean: all six streams have rows — total rows 1217
+[10:22:47] PASS  clean: zero drops
+[10:22:47] PASS  clean: raw capture present
+[10:22:48] PASS  soak: mission opened
+[10:22:48] soak: 3600s unattended
+[11:22:49] PASS  soak: companiond alive at end
+[11:22:51] PASS  soak: log-inspect CLEAN — verdict CLEAN exit 0
+[11:22:51] PASS  soak: complete + zero drops
+[11:22:51] PASS  soak: segments rotated on the 30 min cap — 3 segments over 3600s
+[11:22:51] PASS  soak: state total rows in range — 75975 vs ~90000
+[11:22:51] PASS  soak: imu total rows in range — 151950 vs ~180000
+[11:22:51] PASS  soak: power total rows in range — 30390 vs ~36000
+[11:22:51] PASS  soak: gps total rows in range — 15195 vs ~18000
+[11:22:51] PASS  soak: estimator total rows in range — 30390 vs ~36000
+[11:22:51] PASS  soak: actuator total rows in range — 50650 vs ~60000
+
+===== Phase 5 SITL check: 18/18 passed =====

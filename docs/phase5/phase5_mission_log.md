@@ -248,29 +248,31 @@ the release `companiond`:
 |---|---|
 | verdict | **CLEAN** (exit 0) |
 | complete | true |
-| total rows | **363 233** |
 | total drops | 0 |
 | sequence gaps | 0 (every stream, every segment) |
-| segments | 3 — rotated on the 30 min `seg_cap_secs` cap (two full 1800 s segments + a sub-second tail before shutdown), all cleanly closed |
-| parts/stream/segment | 172 (a 30 min segment at the 10 s time cap) |
+| segments | 3 — rotated on the 30 min `seg_cap_secs` cap (two full 1800 s segments + a sub-second tail before the clean shutdown), all cleanly closed |
+| parts/stream/segment | ~172 (a 30 min segment at the 10 s time cap) |
 
 Per-stream row totals (summed across segments) vs nominal `Hz × 3600`, all
-within tolerance — the CC streams deliver at ~86 % of nominal in SITL (the same
-~22 Hz State / ~43 Hz IMU observed in Phase 4):
+within tolerance — the CC streams deliver at ~84 % of nominal in SITL (the same
+~22 Hz State / ~42 Hz IMU observed in Phase 4):
 
 | stream | rows | ~expected | |
 |---|---|---|---|
-| state | 77 836 | 90 000 | 86 % |
-| imu | 155 671 | 180 000 | 86 % |
-| power | 31 134 | 36 000 | 86 % |
-| gps | 15 567 | 18 000 | 86 % |
-| estimator | 31 135 | 36 000 | 86 % |
-| actuator | 51 890 | 60 000 | 86 % |
+| state | 75 975 | 90 000 | 84 % |
+| imu | 151 950 | 180 000 | 84 % |
+| power | 30 390 | 36 000 | 84 % |
+| gps | 15 195 | 18 000 | 84 % |
+| estimator | 30 390 | 36 000 | 84 % |
+| actuator | 50 650 | 60 000 | 84 % |
 
-Raw capture: **374 172 frames** across the segments (`raw_mavlink.bin`, torn-tail
-clean). **Phase 5 exit criterion met.** Evidence: `tools/phase5/last_run.log`.
+**354 550 telemetry rows** over the hour, plus the raw capture (`raw_mavlink.bin`,
+torn-tail clean) and the operational-event ledger — all `log-inspect`-clean.
+**Phase 5 exit criterion met.** Evidence: `tools/phase5/last_run.log`
+(18/18: 7 clean-mission + 11 soak assertions).
 
-> A first soak run captured the identical clean dataset but the harness's
-> row-count assertion compared each segment against the whole-hour expectation
-> instead of summing across the (rotated) segments; the assertion was corrected
-> and re-verified against the recorded mission before this green run.
+> A first soak run captured an identical clean dataset (363 233 rows) but the
+> harness's row-count assertion compared each segment against the whole-hour
+> expectation instead of summing across the (rotated) segments; the assertion
+> was corrected, re-verified against that recorded mission, and this green run
+> is the corrected end-to-end pass.

@@ -20,7 +20,7 @@
 | [cc_protocol_crate.md](phase1/cc_protocol_crate.md) | `crates/cc-protocol` reference — module layout, build-time binding generation, `FrameDecoder` semantics and counters, validation helpers, guidance for Phase 4 consumers |
 | [../cc-dialect/README.md](../cc-dialect/README.md) | The dialect directory itself — layout, contract rules, the change workflow ("edit the XML" checklist) |
 
-## Status at a glance (2026-07-20)
+## Status at a glance (2026-07-21)
 
 | Item | State |
 |---|---|
@@ -46,4 +46,4 @@
 | Phase 5 `cc-mission-log` | ✅ **29/29** + clippy clean — row-group-per-file crash-safety crux, resume-same-mission (§7), shed ladder, deterministic crash/disk-full lifecycle; arrow+parquet pinned to 59 |
 | Phase 5 `log-inspect` + companiond supervisor | ✅ built — three-state verdict (Clean/Dirty/Corrupt), mission supervisor + handshake, pre-decode raw tap, status `log` object |
 | Phase 5 SITL verification (clean/crash/disk-full) | ✅ **20/20** (`tools/phase5/sitl_phase5_check.py`; results in the phase 5 doc Part C) |
-| Phase 5 soak (1 h `log-inspect`-clean mission, exit criterion) | ⏳ in progress (`--soak 3600`) |
+| Phase 5 soak (1 h `log-inspect`-clean mission, exit criterion) | ✅ **18/18** — 1 h mission CLEAN + complete, 354 550 rows, 0 gaps, 0 drops, 3 segments (30 min cap); **exit criterion met** |
