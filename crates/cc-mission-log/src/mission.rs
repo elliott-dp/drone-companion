@@ -87,12 +87,24 @@ impl Mission {
         // Resume an incomplete mission for this vehicle, else mint a new one.
         let (mission_id, mission_dir, mut manifest, seg_index) =
             match find_incomplete(&mission_root, vehicle_id) {
-                Some((dir, m)) => {
+                Some((dir, mut m)) => {
                     let idx = m.segments.len() as u32;
                     warn(&format!(
                         "resuming incomplete mission {} at segment_{:02} (spec §7)",
                         m.mission_id, idx
                     ));
+                    // Retroactively finalize the segment the crashed process
+                    // left open: recompute its stats from the sealed parts on
+                    // disk and stamp close_reason="cc_restart", so the manifest
+                    // reconciles and a cleanly-resumed mission reads Clean.
+                    if let Some(last) = m.segments.last_mut() {
+                        if last.closed_wall_unix_ns.is_none() {
+                            let seg_dir = dir.join(&last.dir);
+                            last.streams = crate::inspect::recompute_segment_streams(&seg_dir);
+                            last.closed_wall_unix_ns = Some(clock.wall_unix_ns());
+                            last.close_reason = Some(crate::manifest::CLOSE_CC_RESTART.to_string());
+                        }
+                    }
                     (m.mission_id, dir, m, idx)
                 }
                 None => {

@@ -216,11 +216,17 @@ fn restart_resumes_same_mission_id_new_segment() {
     }
     m2.finalize().unwrap();
 
-    // manifest now links segment_00 (crashed) + segment_01 (resumed, clean)
+    // manifest now links segment_00 (crashed, retroactively closed as
+    // cc_restart) + segment_01 (resumed, clean); a cleanly-resumed mission
+    // reads Clean, and segment_00's sealed rows are all accounted for.
     let report = inspect_mission(&dir1);
     assert!(report.segments.len() >= 2, "two segments linked in one manifest");
     assert_eq!(report.segments[1].dir, "segment_01");
     assert!(report.complete, "second run finalized the mission");
+    assert_eq!(report.verdict, Verdict::Clean, "recovered mission reads Clean: {:?}", report.verdict);
+    assert!(report.segments[0].closed, "crashed segment retroactively closed on resume");
+    assert!(report.segments[0].streams.iter().any(|s| s.name == "power" && s.rows > 0),
+        "crashed segment_00's sealed rows survived and are accounted");
 }
 
 #[test]

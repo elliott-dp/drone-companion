@@ -226,6 +226,41 @@ pub fn inspect_mission(mission_dir: &Path) -> Report {
     }
 }
 
+/// Recompute a segment's per-stream manifest entries from its on-disk parts.
+/// Used by `Mission` to retroactively finalize a segment left open by a crash
+/// when a later run resumes the mission (so the manifest reconciles and the
+/// recovered mission can read Clean).
+pub fn recompute_segment_streams(
+    seg_dir: &Path,
+) -> std::collections::BTreeMap<String, crate::manifest::StreamEntry> {
+    let mut out = std::collections::BTreeMap::new();
+    for s in cc_ingest::StreamId::ALL {
+        let sdir = seg_dir.join(s.name());
+        if let Ok((r, _inprogress)) = scan_stream(&sdir, s.name()) {
+            let bytes = std::fs::read_dir(&sdir)
+                .into_iter()
+                .flatten()
+                .flatten()
+                .filter(|e| is_sealed_part(&e.file_name().to_string_lossy()))
+                .filter_map(|e| e.metadata().ok().map(|m| m.len()))
+                .sum();
+            out.insert(
+                s.name().to_string(),
+                crate::manifest::StreamEntry {
+                    sealed_parts: r.parts,
+                    rows: r.rows,
+                    dropped: 0,
+                    first_cc_ns: r.first_cc_ns,
+                    last_cc_ns: r.last_cc_ns,
+                    seq_gap_total: r.seq_gap_total,
+                    bytes,
+                },
+            );
+        }
+    }
+    out
+}
+
 /// Scan one stream's part directory. Returns (report, in_progress_count) or a
 /// fault string for a Corrupt verdict (a sealed part with a broken footer).
 fn scan_stream(dir: &Path, name: &str) -> std::result::Result<(StreamReport, u64), String> {
