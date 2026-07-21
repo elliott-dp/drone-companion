@@ -12,4 +12,5 @@ cc-timesync.workspace = true
 cc-ingest.workspace = true
 cc-config.workspace = true
 cc-mission-log.workspace = true
+cc-health-tx.workspace = true
 tokio.workspace = true

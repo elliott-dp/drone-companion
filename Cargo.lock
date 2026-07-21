@@ -288,6 +288,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "cc-health-tx"
+version = "0.1.0"
+dependencies = [
+ "cc-link",
+ "cc-protocol",
+ "serde",
+ "tokio",
+ "toml",
+]
+
+[[package]]
 name = "cc-ingest"
 version = "0.1.0"
 dependencies = [
@@ -370,6 +381,7 @@ name = "companiond"
 version = "0.1.0"
 dependencies = [
  "cc-config",
+ "cc-health-tx",
  "cc-ingest",
  "cc-link",
  "cc-mission-log",

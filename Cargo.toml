@@ -12,6 +12,7 @@ members = [
     "apps/companiond",
     "apps/log-inspect",
     "crates/cc-config",
+    "crates/cc-health-tx",
     "crates/cc-ingest",
     "crates/cc-link",
     "crates/cc-mission-log",
@@ -46,6 +47,7 @@ cc-timesync = { path = "crates/cc-timesync" }
 cc-ingest = { path = "crates/cc-ingest" }
 cc-config = { path = "crates/cc-config" }
 cc-mission-log = { path = "crates/cc-mission-log" }
+cc-health-tx = { path = "crates/cc-health-tx" }
 # Phase 5 mission dataset (spec §5.6). arrow + parquet are released in
 # lockstep and MUST share one major — pinned together and re-verified with
 # the schema round-trip suite on any bump (the same discipline as the

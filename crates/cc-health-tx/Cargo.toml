@@ -1,0 +1,16 @@
+[package]
+name = "cc-health-tx"
+description = "companion health report transmitter (dev-plan Phase 6.2): scripted severity source → CC_HEALTH_REPORT with hysteresis, rate policy, and ACK-tracking against CC_SAFETY_STATUS.last_report_sequence"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+cc-protocol.workspace = true
+cc-link.workspace = true
+serde = { workspace = true }
+toml = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }

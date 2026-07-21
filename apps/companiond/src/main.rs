@@ -37,14 +37,23 @@ use tokio::sync::{mpsc, watch};
 /// Build-stamped software version (git describe; see build.rs).
 const SW_VERSION: &str = env!("CC_SW_VERSION");
 
-fn parse_cli() -> Result<(Option<std::path::PathBuf>, Overrides), String> {
+struct Cli {
+    config_path: Option<std::path::PathBuf>,
+    overrides: Overrides,
+    /// Phase 6: cc-health-tx scripted severity scenario file.
+    health_scenario: Option<std::path::PathBuf>,
+}
+
+fn parse_cli() -> Result<Cli, String> {
     let mut config_path = None;
+    let mut health_scenario = None;
     let mut o = Overrides::default();
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
         let mut val = |name: &str| it.next().ok_or(format!("{name} needs a value"));
         match a.as_str() {
             "--config" => config_path = Some(std::path::PathBuf::from(val("--config")?)),
+            "--health-scenario" => health_scenario = Some(std::path::PathBuf::from(val("--health-scenario")?)),
             "--udp-bind" => o.udp_bind = Some(val("--udp-bind")?),
             "--remote" => o.remote = Some(val("--remote")?),
             "--serial" => {
@@ -62,26 +71,27 @@ fn parse_cli() -> Result<(Option<std::path::PathBuf>, Overrides), String> {
             other => return Err(format!("unknown argument: {other}\n{}", usage())),
         }
     }
-    Ok((config_path, o))
+    Ok(Cli { config_path, overrides: o, health_scenario })
 }
 
 fn usage() -> String {
     "usage: companiond [--config PATH] [--udp-bind A:P] [--remote A:P] \
      [--serial PATH --baud N] [--sysid N] [--vehicle-id N] [--mission-root DIR] \
-     [--disk-floor BYTES] [--param-snapshot real|stub|off] [--status-json]"
+     [--disk-floor BYTES] [--param-snapshot real|stub|off] [--status-json] \
+     [--health-scenario FILE]"
         .into()
 }
 
 #[tokio::main]
 async fn main() -> ExitCode {
-    let (config_path, overrides) = match parse_cli() {
+    let cli = match parse_cli() {
         Ok(x) => x,
         Err(e) => {
             eprintln!("companiond: {e}");
             return ExitCode::from(2);
         }
     };
-    let cfg = match Config::load(config_path.as_deref(), overrides.into_partial()) {
+    let cfg = match Config::load(cli.config_path.as_deref(), cli.overrides.into_partial()) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("companiond: {e}");
@@ -140,7 +150,12 @@ async fn main() -> ExitCode {
     let (ingest_tx, ingest_rx) = mpsc::channel::<cc_link::LinkFrame>(512);
     let ingest = cc_ingest::spawn(ingest_rx, runner.snapshot.clone(), link.status.clone(), boot_tx);
 
-    // ---- demux: TIMESYNC replies → timesync; the rest → ingest -------------
+    // report-ACK watch: the monitor's echoed CC_SAFETY_STATUS.last_report_sequence
+    // (feeds cc-health-tx so a CRITICAL repeat stops once acknowledged).
+    let (ack_tx, ack_rx) = watch::channel(0u32);
+
+    // ---- demux: TIMESYNC replies → timesync; tap CC_SAFETY_STATUS ack;
+    //      the rest → ingest --------------------------------------------------
     let replies = runner.replies.clone();
     tokio::spawn(async move {
         while let Some(frame) = frames.recv().await {
@@ -155,6 +170,9 @@ async fn main() -> ExitCode {
                         .await;
                 }
                 continue;
+            }
+            if let MavMessage::CC_SAFETY_STATUS(s) = &frame.message {
+                let _ = ack_tx.send(s.last_report_sequence);
             }
             if ingest_tx.send(frame).await.is_err() {
                 return;
@@ -175,6 +193,9 @@ async fn main() -> ExitCode {
         log_health.clone(),
         SW_VERSION.to_string(),
         shutdown_rx,
+        cli.health_scenario,
+        ack_rx,
+        ingest.stats.clone(),
     ));
 
     // ---- status loop --------------------------------------------------------

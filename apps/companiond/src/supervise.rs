@@ -33,6 +33,9 @@ pub async fn run(
     health: Arc<LogHealth>,
     sw_version: String,
     mut shutdown: watch::Receiver<bool>,
+    health_scenario: Option<std::path::PathBuf>,
+    ack_rx: watch::Receiver<u32>,
+    ingest_stats: Arc<cc_ingest::IngestStats>,
 ) {
     // 1. Stub-ack: first FC heartbeat (link leaves DOWN). Bail if we are told
     //    to shut down before we ever see the FC. (Phase 6 flips the predicate
@@ -99,6 +102,28 @@ pub async fn run(
         Duration::from_millis(500),
         log_shutdown_rx,
     );
+
+    // 4b. Phase 6: the scripted health-report source (cc-health-tx). Sends
+    //     CC_HEALTH_REPORT at P1 per the scenario; the monitor's ACK
+    //     (CC_SAFETY_STATUS.last_report_sequence via `ack_rx`) stops the
+    //     CRITICAL repeat.
+    if let Some(path) = health_scenario {
+        match std::fs::read_to_string(&path)
+            .map_err(|e| e.to_string())
+            .and_then(|s| cc_health_tx::Scenario::from_toml_str(&s))
+        {
+            Ok(scenario) => {
+                let source = cc_health_tx::ReportSource::new(scenario, mission_id, cc_boot_id, 0);
+                let stats = ingest_stats.clone();
+                cc_health_tx::spawn(source, tx.clone(), ack_rx, move || cc_health_tx::SelfTelemetry {
+                    dropped_rx_count: stats.total_gaps().min(u16::MAX as u64) as u16,
+                    ..Default::default()
+                });
+                eprintln!("companiond: cc-health-tx scenario {} active", path.display());
+            }
+            Err(e) => eprintln!("companiond: health scenario {}: {e}", path.display()),
+        }
+    }
 
     // 5. Stream CC_MISSION_CONTEXT at context_hz (P1) until shutdown.
     let period = Duration::from_secs_f64(1.0 / cfg.handshake.context_hz.max(0.1));
