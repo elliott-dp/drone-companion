@@ -1,0 +1,13 @@
+[package]
+name = "cc-ai-health"
+description = "online, unsupervised, deterministic companion health-detection algorithms (dev-plan Phase 7): change-point statistics + physics models producing the CC_HEALTH_REPORT conclusion"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+cc-ingest.workspace = true
+cc-protocol.workspace = true
+cc-health-tx.workspace = true
+cc-config.workspace = true
+libm.workspace = true

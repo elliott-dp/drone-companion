@@ -11,6 +11,7 @@ resolver = "2"
 members = [
     "apps/companiond",
     "apps/log-inspect",
+    "crates/cc-ai-health",
     "crates/cc-config",
     "crates/cc-health-tx",
     "crates/cc-ingest",
@@ -48,6 +49,10 @@ cc-ingest = { path = "crates/cc-ingest" }
 cc-config = { path = "crates/cc-config" }
 cc-mission-log = { path = "crates/cc-mission-log" }
 cc-health-tx = { path = "crates/cc-health-tx" }
+cc-ai-health = { path = "crates/cc-ai-health" }
+# Deterministic, bit-reproducible transcendentals (log/exp) so cc-replay
+# produces byte-identical findings on x86-64 (CI) and aarch64 (Jetson).
+libm = "0.2"
 # Phase 5 mission dataset (spec §5.6). arrow + parquet are released in
 # lockstep and MUST share one major — pinned together and re-verified with
 # the schema round-trip suite on any bump (the same discipline as the

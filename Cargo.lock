@@ -280,6 +280,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "cc-ai-health"
+version = "0.1.0"
+dependencies = [
+ "cc-config",
+ "cc-health-tx",
+ "cc-ingest",
+ "cc-protocol",
+ "libm",
+]
+
+[[package]]
 name = "cc-config"
 version = "0.1.0"
 dependencies = [
