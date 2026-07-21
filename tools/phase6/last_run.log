@@ -1,0 +1,15 @@
+[14:40:51] SITL up
+[14:40:55] PASS  nominal: monitor reaches OK on OK reports — state 1
+[14:40:55] PASS  nominal: action NONE at OK — action 0
+[14:40:55] PASS  nominal: report ACK advances — ack 1
+[14:41:00] PASS  critical: monitor escalates to CRITICAL — state 3
+[14:41:00] PASS  critical: BLOCK_OFFBOARD on the ground (never auto-Land) — action 2
+[14:41:02] PASS  critical: ACK keeps advancing (monitor acknowledging the 5 Hz repeat) — 6 -> 8
+[14:41:06] PASS  recovery: OK x CC_MON_OK_COUNT returns to OK — state 1
+[14:41:09] PASS  garbage: monitor unmoved by bad/flooded reports (stays OK) — state 1
+[14:41:14] PASS  stale: monitor goes STALE after the report gap — state 4
+[14:41:32] PASS  stale: resumed OK reports recover to OK — state 1
+[14:41:35] PASS  disabled: reject_reason MONITOR_DISABLED when CC_MON_EN=0 — reject 6
+[14:41:35] PASS  disabled: no action while disabled — action 0
+
+===== Phase 6 SITL scenario suite: 12/12 passed =====

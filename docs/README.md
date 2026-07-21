@@ -17,6 +17,7 @@
 | [phase3_mavlink_link.md](phase3/phase3_mavlink_link.md) | **Phase 3** — dialect switch (`CONFIG_MAVLINK_DIALECT="cc_dialect"`), the 8 CC_* stream classes, receiver validation gauntlet + `mavlink status` counters, mission handshake + echo, pymavlink harness, results |
 | [phase4_companiond.md](phase4/phase4_companiond.md) | **Phase 4** — the real Rust RX path: cc-link (transport/priority TX/heartbeat), cc-timesync (filter + runner), cc-ingest (continuity/age/watchdogs), companiond v0, fault drills + soak, CI diagnosis (B.4) |
 | [phase5_mission_log.md](phase5/phase5_mission_log.md) | **Phase 5** — the crash-safe mission dataset: cc-config (layered), cc-mission-log (row-group-per-file Parquet, resume, shed ladder, raw capture), log-inspect (three-state verdict), companiond mission supervisor; judge-panel design + deviations; crash/disk-full/soak results (Part C) |
+| [phase6_safety_loop.md](phase6/phase6_safety_loop.md) | **Phase 6** — the deterministic safety loop: PX4 `cc_safety_monitor` (pure host-tested policy table + state machine, edge-triggered Hold/Land/RTL, CC_MON_* params), `cc-health-tx` (scripted severity source, rate policy, ACK-tracking), companiond wiring; conservative-only invariants; 40 host + 12/12 SITL scenario results (Part C) |
 | [cc_protocol_crate.md](phase1/cc_protocol_crate.md) | `crates/cc-protocol` reference — module layout, build-time binding generation, `FrameDecoder` semantics and counters, validation helpers, guidance for Phase 4 consumers |
 | [../cc-dialect/README.md](../cc-dialect/README.md) | The dialect directory itself — layout, contract rules, the change workflow ("edit the XML" checklist) |
 
@@ -47,3 +48,6 @@
 | Phase 5 `log-inspect` + companiond supervisor | ✅ built — three-state verdict (Clean/Dirty/Corrupt), mission supervisor + handshake, pre-decode raw tap, status `log` object |
 | Phase 5 SITL verification (clean/crash/disk-full) | ✅ **20/20** (`tools/phase5/sitl_phase5_check.py`; results in the phase 5 doc Part C) |
 | Phase 5 soak (1 h `log-inspect`-clean mission, exit criterion) | ✅ **18/18** — 1 h mission CLEAN + complete, 354 550 rows, 0 gaps, 0 drops, 3 segments (30 min cap); **exit criterion met** |
+| Phase 6 policy core (host) | ✅ **40/40** — pure `cc_policy_table.hpp` + `cc_state_machine.hpp`, one case per §4.5 row + hysteresis/staleness/reboot + exhaustive conservative-only sweep; **policy 100% host coverage — exit criterion met** |
+| Phase 6 `cc_safety_monitor` module + `cc-health-tx` | ✅ builds + runs in SITL; module (state machine → policy → cc_safety_status + edge-triggered Hold/Land/RTL + pilot-override + CC_MON_*); cc-health-tx **11 tests** (rate policy, hysteresis, ACK-tracking) |
+| Phase 6 SITL scenario suite | ✅ **12/12** (`tools/phase6/sitl_phase6_check.py`) — nominal/critical-ground/recovery/stale/garbage/disabled; airborne arm+takeoff+Land scenario is a follow-up (SIH not flight-ready) |
