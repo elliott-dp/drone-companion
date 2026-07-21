@@ -241,4 +241,36 @@ the release `companiond`:
 
 ### C.3 Soak (dev-plan exit criterion: 1 h `log-inspect`-clean mission)
 
-*(recorded on completion — `tools/phase5/sitl_phase5_check.py --soak 3600`)*
+`tools/phase5/sitl_phase5_check.py --soak 3600` — one hour, unattended,
+`companiond` alive throughout, clean shutdown, then `log-inspect`:
+
+| | Result |
+|---|---|
+| verdict | **CLEAN** (exit 0) |
+| complete | true |
+| total rows | **363 233** |
+| total drops | 0 |
+| sequence gaps | 0 (every stream, every segment) |
+| segments | 3 — rotated on the 30 min `seg_cap_secs` cap (two full 1800 s segments + a sub-second tail before shutdown), all cleanly closed |
+| parts/stream/segment | 172 (a 30 min segment at the 10 s time cap) |
+
+Per-stream row totals (summed across segments) vs nominal `Hz × 3600`, all
+within tolerance — the CC streams deliver at ~86 % of nominal in SITL (the same
+~22 Hz State / ~43 Hz IMU observed in Phase 4):
+
+| stream | rows | ~expected | |
+|---|---|---|---|
+| state | 77 836 | 90 000 | 86 % |
+| imu | 155 671 | 180 000 | 86 % |
+| power | 31 134 | 36 000 | 86 % |
+| gps | 15 567 | 18 000 | 86 % |
+| estimator | 31 135 | 36 000 | 86 % |
+| actuator | 51 890 | 60 000 | 86 % |
+
+Raw capture: **374 172 frames** across the segments (`raw_mavlink.bin`, torn-tail
+clean). **Phase 5 exit criterion met.** Evidence: `tools/phase5/last_run.log`.
+
+> A first soak run captured the identical clean dataset but the harness's
+> row-count assertion compared each segment against the whole-hour expectation
+> instead of summing across the (rotated) segments; the assertion was corrected
+> and re-verified against the recorded mission before this green run.

@@ -292,15 +292,21 @@ def soak(secs):
           f"verdict {rep['verdict'] if rep else '?'} exit {code}")
     if rep:
         check("soak: complete + zero drops", rep["complete"] and rep["total_drops"] == 0)
-        # per-stream row counts within ±25% of Hz*secs (sim jitter + boot warmup)
+        check("soak: segments rotated on the 30 min cap", len(rep["segments"]) >= 2,
+              f"{len(rep['segments'])} segments over {secs}s")
+        # per-stream row counts SUMMED across segments, within ±25% of Hz*secs
+        # (the mission rotates every seg_cap_secs, so a stream's rows are split
+        # across segments; sim jitter + boot warmup explain the tolerance).
+        totals = {}
         for seg in rep["segments"]:
             for st in seg["streams"]:
-                if st["name"] in EXPECT_HZ:
-                    expect = EXPECT_HZ[st["name"]] * secs
-                    lo, hi = expect * 0.5, expect * 1.25
-                    check(f"soak: {st['name']} row count in range",
-                          lo <= st["rows"] <= hi,
-                          f"{st['rows']} vs ~{expect:.0f}")
+                totals[st["name"]] = totals.get(st["name"], 0) + st["rows"]
+        for name, hz in EXPECT_HZ.items():
+            expect = hz * secs
+            got = totals.get(name, 0)
+            check(f"soak: {name} total rows in range",
+                  expect * 0.5 <= got <= expect * 1.25,
+                  f"{got} vs ~{expect:.0f}")
 
 
 def main():
