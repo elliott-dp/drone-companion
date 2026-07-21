@@ -1,0 +1,27 @@
+[package]
+name = "cc-mission-log"
+description = "crash-safe, replayable mission dataset: per-stream Parquet part-files, atomic manifest, disk-shedding ladder, raw capture (spec §5.6)"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+cc-protocol.workspace = true
+cc-ingest.workspace = true
+cc-config.workspace = true
+arrow.workspace = true
+parquet.workspace = true
+serde = { workspace = true }
+serde_json.workspace = true
+rustix.workspace = true
+bytes.workspace = true
+tokio = { workspace = true }
+
+[features]
+# The fake Clock / SpaceProbe / Syncer seams are compiled for the crate's own
+# tests always, and exported behind this feature so companiond's tests and the
+# phase-5 harness can drive deterministic crash / disk-full scenarios too.
+test-seams = []
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["test-util"] }
