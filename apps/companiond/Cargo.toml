@@ -13,4 +13,5 @@ cc-ingest.workspace = true
 cc-config.workspace = true
 cc-mission-log.workspace = true
 cc-health-tx.workspace = true
+cc-ai-health.workspace = true
 tokio.workspace = true

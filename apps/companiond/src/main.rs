@@ -19,6 +19,7 @@
 //!            [--param-snapshot real|stub|off] [--status-json]
 //! ```
 
+mod ai_health;
 mod supervise;
 
 use std::net::SocketAddr;
@@ -76,11 +77,15 @@ struct Cli {
     overrides: Overrides,
     /// Phase 6: cc-health-tx scripted severity scenario file.
     health_scenario: Option<std::path::PathBuf>,
+    /// Phase 7: drive CC_HEALTH_REPORT from the live cc-ai-health Runner
+    /// instead of a scripted scenario.
+    ai_health: bool,
 }
 
 fn parse_cli() -> Result<Cli, String> {
     let mut config_path = None;
     let mut health_scenario = None;
+    let mut ai_health = false;
     let mut o = Overrides::default();
     let mut it = std::env::args().skip(1);
     while let Some(a) = it.next() {
@@ -88,6 +93,7 @@ fn parse_cli() -> Result<Cli, String> {
         match a.as_str() {
             "--config" => config_path = Some(std::path::PathBuf::from(val("--config")?)),
             "--health-scenario" => health_scenario = Some(std::path::PathBuf::from(val("--health-scenario")?)),
+            "--ai-health" => ai_health = true,
             "--udp-bind" => o.udp_bind = Some(val("--udp-bind")?),
             "--remote" => o.remote = Some(val("--remote")?),
             "--serial" => {
@@ -105,14 +111,14 @@ fn parse_cli() -> Result<Cli, String> {
             other => return Err(format!("unknown argument: {other}\n{}", usage())),
         }
     }
-    Ok(Cli { config_path, overrides: o, health_scenario })
+    Ok(Cli { config_path, overrides: o, health_scenario, ai_health })
 }
 
 fn usage() -> String {
     "usage: companiond [--config PATH] [--udp-bind A:P] [--remote A:P] \
      [--serial PATH --baud N] [--sysid N] [--vehicle-id N] [--mission-root DIR] \
      [--disk-floor BYTES] [--param-snapshot real|stub|off] [--status-json] \
-     [--health-scenario FILE]"
+     [--health-scenario FILE] [--ai-health]"
         .into()
 }
 
@@ -236,6 +242,7 @@ async fn main() -> ExitCode {
         SW_VERSION.to_string(),
         shutdown_rx,
         cli.health_scenario,
+        cli.ai_health,
         ack_rx,
         ingest.stats.clone(),
     ));

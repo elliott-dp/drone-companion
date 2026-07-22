@@ -21,6 +21,14 @@ use cc_protocol::mavlink_core::types::CharArray;
 use cc_protocol::{dialect_hash, identity};
 use tokio::sync::{broadcast, mpsc, oneshot, watch};
 
+/// A trivial always-OK scenario. The AI-driven `ReportSource` never samples its
+/// scenario (it is ticked via `tick_with_conclusion`), but `ReportSource::new`
+/// requires one; this supplies a benign placeholder.
+fn idle_scenario() -> cc_health_tx::Scenario {
+    cc_health_tx::Scenario::from_toml_str("[[event]]\nt_s=0\nseverity=\"ok\"\n")
+        .expect("static idle scenario parses")
+}
+
 /// Run the supervisor to completion (spawned as a task by `main`).
 #[allow(clippy::too_many_arguments)]
 pub async fn run(
@@ -34,6 +42,7 @@ pub async fn run(
     sw_version: String,
     mut shutdown: watch::Receiver<bool>,
     health_scenario: Option<std::path::PathBuf>,
+    ai_health: bool,
     ack_rx: watch::Receiver<u32>,
     ingest_stats: Arc<cc_ingest::IngestStats>,
 ) {
@@ -103,11 +112,29 @@ pub async fn run(
         log_shutdown_rx,
     );
 
-    // 4b. Phase 6: the scripted health-report source (cc-health-tx). Sends
-    //     CC_HEALTH_REPORT at P1 per the scenario; the monitor's ACK
-    //     (CC_SAFETY_STATUS.last_report_sequence via `ack_rx`) stops the
-    //     CRITICAL repeat.
-    if let Some(path) = health_scenario {
+    // 4b. The health-report source (cc-health-tx). Sends CC_HEALTH_REPORT at
+    //     P1; the monitor's ACK (CC_SAFETY_STATUS.last_report_sequence via
+    //     `ack_rx`) stops the CRITICAL repeat. Two drivers:
+    //     * Phase 7 (`--ai-health`): the live cc-ai-health Runner (a third,
+    //       lossy broadcast subscriber) → de-escalation-smoothed conclusion.
+    //     * Phase 6 fallback (`--health-scenario`): a scripted severity file
+    //       (kept for the SITL scenario suite).
+    if ai_health {
+        // 2 s de-escalation debounce so a one-tick CRITICAL flicker does not
+        // instantly drop the report (escalation stays immediate).
+        const AI_DEESCALATE_NS: i64 = 2_000_000_000;
+        let (conc_rx, _driver) = crate::ai_health::spawn(events.subscribe());
+        let source =
+            cc_health_tx::ReportSource::new(idle_scenario(), mission_id, cc_boot_id, AI_DEESCALATE_NS);
+        let stats = ingest_stats.clone();
+        cc_health_tx::spawn_ai(source, tx.clone(), ack_rx, conc_rx, move || {
+            cc_health_tx::SelfTelemetry {
+                dropped_rx_count: stats.total_gaps().min(u16::MAX as u64) as u16,
+                ..Default::default()
+            }
+        });
+        eprintln!("companiond: cc-ai-health live health source active (advisory until FP audit)");
+    } else if let Some(path) = health_scenario {
         match std::fs::read_to_string(&path)
             .map_err(|e| e.to_string())
             .and_then(|s| cc_health_tx::Scenario::from_toml_str(&s))
