@@ -325,6 +325,91 @@ or the unlogged `StreamStale`/`LinkStatus` events.
 
 ## Part D — Results
 
-*(Framework + `stats/` primitives + `algos/` land here with their synthetic-trace
-test counts, the cc-replay determinism golden-hash result, and the benign-corpus
-FP-audit numbers, as each is implemented.)*
+### D.0 What shipped
+
+Two crates and one app, all `cargo clippy`-clean:
+
+| Component | What it is | Tests |
+|---|---|---|
+| `cc-ai-health` `stats/` | 5 pure deterministic primitives (`ewma`, `robust`, `cusum`, `page_hinkley`, `rls`) + helpers | 26 |
+| `cc-ai-health` framework | `HealthAlgorithm` trait, `FlightPhaseTracker`, 10 Hz `Runner`, `merge`, detail codes | 12 |
+| `cc-ai-health` `algos/` | the 8 algorithms (battery, vibration, estimator, gps, motor, link, thermal, mission) | 53 |
+| `cc-ai-health` integration | full-registry benign trace + system determinism | 2 |
+| `cc-replay` + `replay-mission` | mission-dir → ordered events → Runner → timeline; run/diff/audit | 4 |
+| `cc-health-tx` (Phase-7 additions) | `Conclusion` + `tick_with_conclusion` + `spawn_ai` | 3 of 13 |
+
+**`cc-ai-health` total: 93 tests. Whole workspace: green.**
+
+### D.1 The determinism spine held
+
+Every algorithm ships a **double-run byte-identity** test, and two system-level
+proofs close the loop:
+
+* `benign_flight_produces_no_warn_or_critical` — all 8 algorithms driven through
+  the `Runner` over a healthy 45 s multi-stream trace produce **zero**
+  WARN/CRITICAL (the pipeline-level false-positive proof).
+* `full_registry_replay_is_byte_identical` — the same trace FNV-hashes
+  identically across two runs.
+* `cc-replay` `parquet_roundtrip_reproduces_in_memory_findings` — a benign
+  mission written as real `cc-mission-log` Parquet parts, read back, and
+  replayed yields **the same SHA-256** as replaying the in-memory events: the
+  Parquet reconstruction is lossless *for findings*, and
+  `run_mission(dir).hash == run_mission(dir).hash` on re-run.
+
+The split that makes this hold — **state folds in `on_event` (always runs);
+`evaluate(&self)` is a pure read** — is enforced by the trait signature, so a
+slow or skipped evaluate cannot perturb a later finding.
+
+### D.2 Bugs found and fixed while building
+
+* **Inverted Page-Hinkley `Direction::Down`** (latent in the committed
+  `stats/` core): `contrib = mean − x − delta` made a *steady* signal drift the
+  statistic down unboundedly, tripping after ~`lambda/delta` samples — the old
+  "down" test only "passed" because it fed a constant `−1.0`. Corrected to the
+  symmetric `contrib = x − mean + delta`; added a steady-never-trips regression
+  across both directions. This was surfaced by the battery sag detector
+  false-positiving on a flat healthy residual.
+* **`RobustScale::z` NaN cascade** in `gps_quality`: `z` is NaN on an empty
+  window and `NaN < STEP` is `false`, so the first adaptive-baseline update was
+  skipped and the window stayed empty forever. Guarded so warm-up populates the
+  baseline while a genuine step is still withheld.
+* **Thermal rate-floor too low**: a 40 °C rate-arming floor let a fast cold-start
+  warm-up ramp trip runaway; raised to above normal operating temperature so
+  `dT/dt` only arms when the pack/sensor is genuinely hot.
+
+### D.3 The false-positive audit gate (unchanged exit criterion)
+
+`replay-mission audit <benign missions…>` aggregates WARN/CRITICAL over recorded
+benign flights and **fails on any CRITICAL or > 0.5 % WARN**. The synthetic
+benign traces already return zero findings; the audit over *recorded* windy-hover
+and aggressive-but-healthy SITL/flight missions is the real gate. **Until a
+documented audit passes, every CRITICAL here is advisory — the FC monitor stays
+warn-only on these lanes** (`CC_MON_*`), and the live `--ai-health` source logs
+itself as "advisory until FP audit". This is the Phase-9 flight-ladder
+precondition, not a Phase-7 claim.
+
+### D.4 Deviations — as realized
+
+| Dev | Status |
+|---|---|
+| **D1** | `ReportSource::tick_with_conclusion` + `spawn_ai`; companiond `--ai-health` drives the live Runner as a third lossy subscriber. Scripted `--health-scenario` retained for the SITL suite. Conclusion-level de-escalation smoothing **added** (v0 only paced the rate). |
+| **D2** | thermal = battery + IMU only (no Jetson SoC temp in the contract). |
+| **D3** | `libm` added — the one new dep, for bit-reproducible cross-arch `log`/`exp`. |
+| **D4** | `mission_risk` capacity / reserve / nominal-RTL-speed are module constants, flagged as the `cc-config` surface. |
+| **D5** | `CC_AI_DIAGNOSTIC` scheduling deferred (report path carries `detail_code`/`value`/`limit` sources today). |
+| **D6** | no host-time deadline guard was added; the pure `on_event`/`evaluate` split already removes the nondeterminism it was meant to catch. |
+| **D7** | `link_quality` uses only replayable in-stream fields (`seq_gap`, inter-arrival vs `nominal_period_ns`) — never RTT, `IngestStats`, or the unlogged `StreamStale`/`LinkStatus`. Enforced structurally: the Runner ignores those variants. |
+
+Design simplification vs the blueprint: **no `window.rs`** — each detector keeps
+exactly the O(1) streaming state it needs, which is cheaper and a cleaner
+determinism story than a shared ring; and `cc-replay` decodes only the six
+periodic streams (Event/SafetyStatus cannot change a finding).
+
+### D.5 Not yet done (follow-on)
+
+* The benign-corpus FP audit over **recorded** missions (needs a corpus of
+  windy/aggressive benign SITL + flight logs) — the gate on arming.
+* `CC_AI_DIAGNOSTIC` emission (value/limit evidence stream) + `ai_health.parquet`
+  sink (D5).
+* Live SITL validation of the `--ai-health` path end-to-end (host build + tests
+  pass; a SITL soak is the next integration step).
