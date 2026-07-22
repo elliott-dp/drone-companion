@@ -196,12 +196,12 @@ impl HealthAlgorithm for GpsQuality {
         // is withheld so the anomaly is never absorbed into normal.
         let noise = d.noise_per_ms as f64;
         self.noise_z = self.noise_scale.z(noise);
-        if adapt && !(self.noise_z >= Z_STEP) {
+        if adapt && (self.noise_z.is_nan() || self.noise_z < Z_STEP) {
             self.noise_scale.update(noise);
         }
         let jam = d.jamming_indicator as f64;
         self.jam_z = self.jam_scale.z(jam);
-        if adapt && !(self.jam_z >= Z_STEP) {
+        if adapt && (self.jam_z.is_nan() || self.jam_z < Z_STEP) {
             self.jam_scale.update(jam);
         }
 
