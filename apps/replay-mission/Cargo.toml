@@ -1,0 +1,10 @@
+[package]
+name = "replay-mission"
+description = "CLI over cc-replay: run (finding timeline + hash), diff (two runs → nonzero exit on any byte difference), audit (aggregate false-positive stats over benign missions) — dev-plan Phase 7"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+[dependencies]
+cc-replay.workspace = true
+serde_json.workspace = true

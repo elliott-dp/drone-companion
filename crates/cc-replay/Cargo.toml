@@ -1,0 +1,21 @@
+[package]
+name = "cc-replay"
+description = "replay a recorded cc-mission-log dataset through the cc-ai-health Runner: k-way merge the Parquet parts into one time-ordered TelemetryEvent stream and reproduce the exact finding timeline (dev-plan Phase 7)"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+# Synchronous, no tokio. Reads a mission directory's Parquet parts, reconstructs
+# the TelemetryEvent stream, and drives the SAME deterministic Runner the live
+# companion uses, so a recorded mission's findings are byte-reproducible.
+[dependencies]
+cc-ai-health.workspace = true
+cc-ingest.workspace = true
+cc-protocol.workspace = true
+cc-mission-log.workspace = true
+cc-health-tx.workspace = true
+arrow.workspace = true
+parquet.workspace = true
+serde = { workspace = true }
+serde_json.workspace = true
+sha2.workspace = true
