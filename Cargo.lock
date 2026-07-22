@@ -356,6 +356,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "cc-replay"
+version = "0.1.0"
+dependencies = [
+ "arrow",
+ "cc-ai-health",
+ "cc-health-tx",
+ "cc-ingest",
+ "cc-mission-log",
+ "cc-protocol",
+ "parquet",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "cc-timesync"
 version = "0.1.0"
 dependencies = [
@@ -391,6 +407,7 @@ dependencies = [
 name = "companiond"
 version = "0.1.0"
 dependencies = [
+ "cc-ai-health",
  "cc-config",
  "cc-health-tx",
  "cc-ingest",
@@ -1017,6 +1034,14 @@ name = "regex-syntax"
 version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
+
+[[package]]
+name = "replay-mission"
+version = "0.1.0"
+dependencies = [
+ "cc-replay",
+ "serde_json",
+]
 
 [[package]]
 name = "rustc_version"
