@@ -297,3 +297,166 @@ mod tests {
         assert_eq!(hash(), hash());
     }
 }
+
+/// Full-registry integration: drive all eight algorithms through the `Runner`
+/// with a **benign** multi-stream trace. This is the pipeline-level analogue of
+/// the per-algorithm benign-trace tests — a healthy flight must produce **zero**
+/// WARN/CRITICAL — and the deterministic-replay proof for the whole system.
+#[cfg(test)]
+mod integration {
+    use super::*;
+    use cc_ingest::{AgeInfo, RxMeta};
+    use cc_protocol::cc_dialect::*;
+
+    fn rx(cc_ns: i64) -> RxMeta {
+        RxMeta { cc_receive_time_ns: cc_ns, seq_gap: 0, age: AgeInfo::Locked { age_ns: 1 } }
+    }
+
+    /// A healthy, armed, hovering-near-home flight across all six periodic
+    /// streams at their nominal rates, time-ordered.
+    fn benign_trace(dur_ns: i64) -> Vec<TelemetryEvent> {
+        let mut out = Vec::new();
+        let step = 10_000_000; // 10 ms base grid
+        let mut t = 0;
+        let mut power_i = 0u64;
+        while t < dur_ns {
+            // State @40 ms — armed, quasi-steady, hovering at the origin
+            if t % 40_000_000 == 0 {
+                let d = CC_TELEMETRY_STATE_DATA {
+                    px4_boot_id: 7,
+                    angular_velocity: [0.02, 0.01, 0.0],
+                    velocity_ned: [0.1, 0.0, 0.0],
+                    position_ned: [1.0, 1.0, -10.0],
+                    heading: 0.3,
+                    arming_state: 2,
+                    estimator_valid: 1,
+                    schema_version: 1,
+                    ..Default::default()
+                };
+                out.push(TelemetryEvent::State(d, rx(t)));
+            }
+            // IMU @20 ms — low, throttle-coupled vibration, stable temp
+            if t % 20_000_000 == 0 {
+                let d = CC_TELEMETRY_IMU_DATA {
+                    clipping_count: 0,
+                    accel: [0.0, 0.0, -9.8],
+                    gyro: [0.0; 3],
+                    delta_angle: [0.0; 3],
+                    delta_velocity: [0.0; 3],
+                    vibration_metric: [8.0, 0.05, 0.0005],
+                    temperature: 45.0,
+                    schema_version: 1,
+                    ..Default::default()
+                };
+                out.push(TelemetryEvent::Imu(d, rx(t)));
+            }
+            // Power @100 ms — voltage above the model curve, current varying
+            if t % 100_000_000 == 0 {
+                let cur = if power_i % 2 == 0 { 10.0 } else { 14.0 };
+                power_i += 1;
+                let d = CC_TELEMETRY_POWER_DATA {
+                    voltage: 15.8,
+                    current: cur,
+                    power: 15.8 * cur,
+                    consumed_mah: power_i as f32 * 2.0,
+                    remaining: 0.72,
+                    temperature: 32.0,
+                    cell_count: 4,
+                    warning: 0,
+                    connected: 1,
+                    schema_version: 1,
+                    ..Default::default()
+                };
+                out.push(TelemetryEvent::Power(d, rx(t)));
+            }
+            // GPS @200 ms — solid 3D fix, quiet RF, speed agrees with EKF
+            if t % 200_000_000 == 0 {
+                let d = CC_TELEMETRY_GPS_DATA {
+                    eph: 0.8,
+                    epv: 1.2,
+                    ground_speed: 0.1,
+                    noise_per_ms: 80,
+                    jamming_indicator: 5,
+                    fix_type: 4,
+                    satellites_used: 14,
+                    schema_version: 1,
+                    ..Default::default()
+                };
+                out.push(TelemetryEvent::Gps(d, rx(t)));
+            }
+            // Estimator @100 ms — innovation ratios comfortably below 1
+            if t % 100_000_000 == 0 {
+                let d = CC_TELEMETRY_ESTIMATOR_DATA {
+                    velocity_test_ratio: 0.4,
+                    position_test_ratio: 0.35,
+                    height_test_ratio: 0.3,
+                    mag_test_ratio: 0.25,
+                    airspeed_test_ratio: f32::NAN,
+                    innovation_check_flags: 0,
+                    schema_version: 1,
+                    ..Default::default()
+                };
+                out.push(TelemetryEvent::Estimator(d, rx(t)));
+            }
+            // Actuator @60 ms — symmetric hover outputs
+            if t % 60_000_000 == 0 {
+                let d = CC_TELEMETRY_ACTUATOR_DATA {
+                    actuator_output: [0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0],
+                    motor_count: 4,
+                    schema_version: 1,
+                    ..Default::default()
+                };
+                out.push(TelemetryEvent::Actuator(d, rx(t)));
+            }
+            t += step;
+        }
+        out
+    }
+
+    #[test]
+    fn benign_flight_produces_no_warn_or_critical() {
+        let events = benign_trace(45_000_000_000); // 45 s
+        let mut r = Runner::new(algos::default_registry());
+        let ticks = r.run_events(&events);
+        assert!(!ticks.is_empty());
+        for (t, c) in &ticks {
+            assert_ne!(
+                c.severity,
+                cc_health_tx::Severity::Critical,
+                "benign trace produced CRITICAL at t={t} detail={}",
+                c.detail_code
+            );
+            assert_ne!(
+                c.severity,
+                cc_health_tx::Severity::Warn,
+                "benign trace produced WARN at t={t} detail={}",
+                c.detail_code
+            );
+        }
+    }
+
+    #[test]
+    fn full_registry_replay_is_byte_identical() {
+        let events = benign_trace(30_000_000_000);
+        let hash = || {
+            let mut r = Runner::new(algos::default_registry());
+            r.run_events(&events)
+                .iter()
+                .flat_map(|(t, c)| {
+                    [
+                        *t as u64,
+                        c.severity as u64,
+                        c.action as u64,
+                        c.health_flags as u64,
+                        c.detail_code as u64,
+                        c.value.to_bits() as u64,
+                        c.confidence as u64,
+                    ]
+                })
+                .fold(1469598103934665603u64, |h, x| {
+                    (h ^ x).wrapping_mul(1099511628211)
+                })
+        };
+        assert_eq!(hash(), hash(), "the same trace must yield byte-identical findings");
+    }
+}
