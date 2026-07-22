@@ -116,6 +116,8 @@ impl HealthAlgorithm for EstimatorConsistency {
             d.height_test_ratio as f64,
             d.mag_test_ratio as f64,
         ];
+        // indexes several parallel per-channel arrays (ratios/streak/cusum/…)
+        #[allow(clippy::needless_range_loop)]
         for k in 0..NCH {
             let r = ratios[k];
             if !r.is_finite() {

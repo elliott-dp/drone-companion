@@ -25,6 +25,7 @@ use cc_ingest::StreamId;
 
 pub mod battery;
 pub mod estimator;
+pub mod gps;
 pub mod vibration;
 
 /// A required stream is *fresh* if it was seen within 4× its nominal period
@@ -45,5 +46,6 @@ pub fn default_registry() -> Vec<Box<dyn HealthAlgorithm>> {
         Box::new(battery::BatteryModel::new()),
         Box::new(vibration::VibrationAnomaly::new()),
         Box::new(estimator::EstimatorConsistency::new()),
+        Box::new(gps::GpsQuality::new()),
     ]
 }
