@@ -4,8 +4,6 @@
 //! a real `kill -9` between seals, but host-runnable in milliseconds and 100%
 //! reproducible).
 
-#![cfg(test)]
-
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 

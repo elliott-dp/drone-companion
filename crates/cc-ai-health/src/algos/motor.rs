@@ -50,7 +50,7 @@ use cc_health_tx::{Action, Severity};
 use cc_ingest::{StreamId, TelemetryEvent};
 use cc_protocol::cc_dialect::CcSubsystem;
 
-const MAX_MOTORS: usize = 8;
+const MAX_MOTORS: usize = 4;
 const OFFSET_WARN: f64 = 0.08; // 8 % of normalized command, body-fixed
 const SAT_LEVEL: f64 = 0.95;
 const SAT_STREAK: u32 = 20;
