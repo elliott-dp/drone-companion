@@ -156,11 +156,29 @@ drone-companion/
 └── tools/                SITL test harnesses (drive a simulated PX4 instance end to end)
 ```
 
-The flight-controller side of this project — the PX4 module that enforces the
-policy table and is the only thing that ever acts on a recommendation — lives
-in a separate fork:
-**[PX4-Autopilot-CCFC](https://github.com/elliott-dp/PX4-Autopilot-CCFC)**,
-pinned to PX4 release **`v1.17.0`**.
+---
+
+## The PX4 fork
+
+This repo is only the companion side. The flight-controller side — the actual
+PX4 module that enforces the policy table and is the **only** thing that ever
+acts on a recommendation — lives in a separate fork:
+
+**➜ [PX4-Autopilot-CCFC](https://github.com/elliott-dp/PX4-Autopilot-CCFC)**,
+pinned to PX4 release **`v1.17.0`** (never `main` — a flight-safety fork
+tracks a stable, released tag on purpose).
+
+| Addition | What it does |
+|---|---|
+| `cc_telemetry_publisher` | curates six uORB topics into fixed-rate telemetry streams, no heap after init |
+| Custom `cc_dialect` MAVLink streams + receiver gauntlet | the dialect crosses the link both ways; every inbound message is source/schema/range/sequence/flood-checked before it ever reaches uORB |
+| `cc_safety_monitor` | the safety decision core — two **pure, PX4-free C++ headers**, exhaustively unit-tested with **40/40 host-run cases** and zero PX4 build dependency |
+| Dedicated companion MAVLink instance | carries only the `CC_*` contract + heartbeat, no default-dialect pollution |
+| Build-time dialect SHA-256 gate | refuses to build on a stale vendored copy of the XML instead of silently decoding wrong |
+
+The fork's own README has the full breakdown — every module, every new
+parameter, every board target, and how to reproduce the 40/40 policy-table
+result yourself with a one-line host compile.
 
 ---
 
