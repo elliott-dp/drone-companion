@@ -21,6 +21,12 @@
 | [cc_protocol_crate.md](phase1/cc_protocol_crate.md) | `crates/cc-protocol` reference — module layout, build-time binding generation, `FrameDecoder` semantics and counters, validation helpers, guidance for Phase 4 consumers |
 | [../cc-dialect/README.md](../cc-dialect/README.md) | The dialect directory itself — layout, contract rules, the change workflow ("edit the XML" checklist) |
 
+## Proposals (designed, not built)
+
+| Document | Covers |
+|---|---|
+| [phase10_radar_mmwcas.md](phase10/phase10_radar_mmwcas.md) | **Phase 10 (proposed)** — TI MMWCAS cascaded radar (MMWCAS-RF-EVM + MMWCAS-DSP-EVM): the hardware constraints that drive the design, three integration paths (capture controller + capture reference · pre-processed stream contract · Jetson-side CUDA), radar invariants, `cc-radar` crate layout, on-disk schemas, `[radar]` config, session lifecycle, test plan, phased exit criteria, risk register |
+
 ## Status at a glance (2026-07-21)
 
 | Item | State |

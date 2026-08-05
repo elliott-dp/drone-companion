@@ -282,6 +282,21 @@ Gate each stage on the previous stage's logs; change one variable at a time.
 
 ---
 
+## Phase 10 (proposed) — TI MMWCAS cascaded radar payload
+
+**Goal:** record radar data as part of a mission and stream pre-processed radar
+products into the companion stack, without weakening a single flight-safety
+property. Radar is a **payload**, never a flight input.
+
+Design, options and exit criteria: [`phase10/phase10_radar_mmwcas.md`](phase10/phase10_radar_mmwcas.md).
+In short: 10.1 capture controller + capture reference (no bulk data path);
+10.2 the pre-processed frame contract + recording, driven by a fake-radar
+harness; 10.3 a real producer behind that contract, then warn-only radar
+self-health; 10.4 any radar → PX4 perception path stays deferred to its own spec
+change. Nothing here is built yet.
+
+---
+
 ## Cross-phase working rules
 
 - **Contract changes** (any XML edit): bump schema_version if semantics
