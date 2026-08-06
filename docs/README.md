@@ -25,7 +25,7 @@
 
 | Document | Covers |
 |---|---|
-| [phase10_radar_mmwcas.md](phase10/phase10_radar_mmwcas.md) | **Phase 10 (proposed)** — TI MMWCAS cascaded radar (MMWCAS-RF-EVM + MMWCAS-DSP-EVM): the hardware constraints that drive the design, three integration paths (capture controller + capture reference · pre-processed stream contract · Jetson-side CUDA), radar invariants, `cc-radar` crate layout, on-disk schemas, `[radar]` config, session lifecycle, test plan, phased exit criteria, risk register |
+| [phase10_radar_mmwcas.md](phase10/phase10_radar_mmwcas.md) | **Phase 10 (proposed)** — TI MMWCAS cascaded radar as a **human-detection & vital-signs sensing payload** (not navigation): the regulatory gate (47 CFR § 95.3333 airborne prohibition + mandated inhibit interlock), the phase/displacement and ego-motion budgets that set frame rate and dwell time, what must be recorded and why raw-to-SSD is mandatory, the two time domains (ms context vs µs compensation), `cc-radar`/`cc-vitals` crate layout, radar schemas, false-positive catalogue, bench-first phase plan, risk register, and a verification queue for every number sourced indirectly |
 
 ## Status at a glance (2026-07-21)
 

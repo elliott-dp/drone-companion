@@ -282,18 +282,24 @@ Gate each stage on the previous stage's logs; change one variable at a time.
 
 ---
 
-## Phase 10 (proposed) — TI MMWCAS cascaded radar payload
+## Phase 10 (proposed) — TI MMWCAS radar: human-detection & vital-signs payload
 
-**Goal:** record radar data as part of a mission and stream pre-processed radar
-products into the companion stack, without weakening a single flight-safety
-property. Radar is a **payload**, never a flight input.
+**Goal:** locate people and estimate respiration / heart rate from the air, and
+record the result as part of a mission — a search-and-rescue **sensing payload**,
+never a navigation or obstacle sensor. Nothing it produces reaches PX4's flight
+logic.
 
-Design, options and exit criteria: [`phase10/phase10_radar_mmwcas.md`](phase10/phase10_radar_mmwcas.md).
-In short: 10.1 capture controller + capture reference (no bulk data path);
-10.2 the pre-processed frame contract + recording, driven by a fake-radar
-harness; 10.3 a real producer behind that contract, then warn-only radar
-self-health; 10.4 any radar → PX4 perception path stays deferred to its own spec
-change. Nothing here is built yet.
+Design, budgets, exit criteria: [`phase10/phase10_radar_mmwcas.md`](phase10/phase10_radar_mmwcas.md).
+Two findings gate the phase: **airborne 76–81 GHz radar is prohibited in the US**
+absent an experimental authorization (47 CFR § 95.3333, which also mandates an
+airborne-inhibit mechanism), and **76–81 GHz cannot find buried people** — it is a
+surface / line-of-sight sensor. So the phase order is bench-first:
+10.0 regulatory + bench feasibility (the measurements that can invalidate the
+concept); 10.1 control plane + inhibit interlock + landed captures; 10.2 the µs
+time domain + coherent phase recording + an offline, replayable vital-sign
+estimator validated against belt/PPG ground truth; 10.3 tethered/hover with
+scene-referenced ego-motion compensation; 10.4 monitoring stream + operator
+downlink. Any radar → PX4 path stays out of scope. Nothing here is built yet.
 
 ---
 
