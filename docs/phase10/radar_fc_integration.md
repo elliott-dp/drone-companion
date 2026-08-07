@@ -12,7 +12,9 @@ publisher decimation as the single rate authority, the §4.4 receiver gauntlet w
 named counters in `ccfc_print_stats()`).
 
 Tags: **[calc]** arithmetic here · **[code]** read from source/docs on GitHub ·
-**[corrob]** search extracts · **[unver]** inference.
+**[corrob]** search extracts · **[unver]** inference · **[prim]** primary
+document read (2026-08 verification pass — see
+[`radar_primary_source_findings.md`](radar_primary_source_findings.md)).
 
 ---
 
@@ -262,7 +264,9 @@ they are low-rate and evidentiary.
 ELRS MAVLink mode forces a 1:2 telemetry ratio, and the documented downlink
 figures for the 900 MHz family — which is the 868 MHz hardware family in the EU
 domain — are ~880 B/s at 200 Hz Full and ~4420 B/s at K1000 Full (LR1121)
-**[code, ExpressLRS docs]**. Against that, a 48 B report **[calc]**:
+**[prim, `expresslrs.org/software/mavlink` throughput tables — every figure and
+percentage in the harness table re-derived and confirmed]**. Against that, a
+48 B report **[calc]**:
 
 | Rate | Cost at 880 B/s | Cost at 4420 B/s |
 |---|---|---|
@@ -270,33 +274,80 @@ domain — are ~880 B/s at 200 Hz Full and ~4420 B/s at K1000 Full (LR1121)
 | 0.2 Hz | 1.1 % | 0.2 % |
 
 Affordable — but the budget is shared with all of PX4's own telemetry, so
-`CC_PL_TEL_HZ` exists to tune it per airframe rather than assuming.
+`CC_PL_TEL_HZ` exists to tune it per airframe rather than assuming. Three
+caveats from the primary tables and firmware **[prim]**:
+
+* **K1000 Full buys its bandwidth with 10 dB of RX sensitivity** (−101 dBm vs
+  −111 dBm for 200 Hz Full), so the 1.1 % sizing case is a short-range mode.
+  Gemini/dual-band hardware roughly doubles the downlink (~1760 / ~8845 B/s).
+* **`MAV_x_RATE` must be set below the mode's real downlink.** ELRS's own PX4
+  setup guide suggests 9600 B/s, which oversubscribes *every* 868-capable mode;
+  the TX module's 16-message buffer then overflows and sheds whole messages.
+  Set it at or below ~50 % of the mode's downlink figure.
+* MAVLink mode requires ESP-based TX **and** RX, firmware ≥ 3.5.0, 460800 baud,
+  and forces the Hybrid switch mode — which constrains AUX-channel resolution
+  for `CC_PL_RC_CH` (plan the start/stop switch as 2/3-position, not analog).
 
 ### G.2 The EU 868 constraint that changes the design
 
-The EU868 domain uses **Listen Before Talk**: before each transmission ELRS
-measures channel activity, and **if the channel is busy that packet interval is
-aborted** and the system moves to the next hop **[corrob]**. This is required
-because >1 % duty cycle is needed for low latency, and LBT/frequency hopping
-provides the polite-spectrum-access route under ETSI EN 300 220 **[corrob]**.
-Certified power with LBT is up to 100 mW, with users often at 25 mW **[corrob]**.
+**Correction from the primary sources (this section previously described an LBT
+mechanism that does not exist at 868 MHz).** What the standard requires and what
+the firmware does are different things, and both were checked **[prim]**:
 
-Two design consequences, both real:
+* **EN 300 220-1 §5.21** mandates polite spectrum access as the alternative to
+  duty-cycle limits: a ≥160 µs clear-channel assessment before each transmission,
+  and on a busy channel either a randomised deferral or an AFA hop to another
+  frequency with a fresh CCA. Polite access is not duty-free — it carries its own
+  cap of **100 s cumulative TX per hour per 200 kHz** and Ton ≤ 1 s.
+* **Power: there is no 100 mW tier.** The sub-bands ELRS EU868 hops across
+  (13 channels, 863.275–869.575 MHz, from `FHSS.cpp`) are capped at **25 mW
+  e.r.p.** with or without LBT (EN 300 220-2 table B.1 rows K/L/M/N); only
+  869.4–869.65 MHz allows 500 mW. The oft-quoted "100 mW with LBT" belongs to
+  the 2.4 GHz CE domain (EN 300 328), and 100 mW appears in EN 300 220 only as
+  the CCA-threshold breakpoint (Table 45).
+* **ELRS's EU868 build implements no LBT at all.** `LBT.cpp`/`LBT.h` are gated
+  on `Regulatory_Domain_EU_CE_2400`; every other domain — including
+  `Regulatory_Domain_EU_868` — compiles no-op stubs, and there is no firmware
+  duty-cycle limiter either. EU868 is plain 13-channel FHSS; EN 300 220
+  compliance rests on the operator. (Where LBT *is* active, on 2.4 GHz CE, a
+  busy channel does skip that packet interval — TX-done is faked at nominal
+  time-on-air — so the original "slots are lost, not delayed" intuition was
+  right, just in the wrong band.)
 
-1. **The downlink loses slots non-deterministically**, so the effective bandwidth
-   is below the table and varies with the RF environment. Plan at ~50 % of nominal.
+The design consequences survive with a corrected loss model:
+
+1. **Plan at ~50 % of nominal anyway.** The 868 downlink loses reports to RF
+   packet loss and — in MAVLink mode — to the TX module's **16-message buffer
+   overflowing** when oversubscribed, which sheds whole messages. MAVLink mode
+   also runs a *stubborn sender* that retries undelivered telemetry, so reports
+   can arrive **late rather than never** — which is exactly why the report
+   carries `decision_age_ms` and why `CC_PL_TEL_HZ` must not oversubscribe (G.1).
 2. **Every report must be self-contained and idempotent.** No deltas, no implied
    state, no "field X refers to the previous message". Each report carries its own
    `dwell_id`, `sequence`, absolute values and `decision_age_ms`, so any single
-   packet that arrives is fully interpretable and any number of lost packets costs
-   only freshness. The message in §B.3 is designed that way; this is *why*.
+   packet that arrives is fully interpretable — whether it was delayed, retried,
+   or its neighbours were shed — and any number of lost packets costs only
+   freshness. The message in §B.3 is designed that way; this is *why*.
 
 ### G.3 Getting it in front of the pilot — two paths, and they differ a lot
 
 | Path | How | Verdict |
 |---|---|---|
-| **GCS over MAVLink-on-ELRS** | QGroundControl/MP on a tablet with the CC dialect loaded; the custom message decodes and can be displayed/logged | **Works with only the PX4 work above.** Recommended for 10.3. Caveat: in MAVLink mode the FC waits to be asked for streams, so **EdgeTX can show nothing until a GCS connects** **[code, ELRS discussion]** |
-| **Handset (EdgeTX) only** | ELRS converts MAVLink telemetry into CRSF sensors, and EdgeTX discovers those — but only for the mapped sensor set, so **a custom dialect message will not render** **[corrob]**. PX4's CRSF telemetry additionally requires custom firmware including `crsf_rc` in place of `rc_input`, and supports a fixed set (mode, battery, GPS, RSSI, speed, altitude) **[corrob]** | Needs either a **custom CRSF sensor frame** added to PX4's CRSF telemetry plus an **EdgeTX Lua widget** to display it, or mapping 2–3 scalars into standard sensor slots (which is abuse and will confuse the GCS). Real work — schedule for 10.4 |
+| **GCS over MAVLink-on-ELRS** | QGroundControl/MP on a tablet with the CC dialect loaded; the custom message decodes and can be displayed/logged | **Works with only the PX4 work above.** Recommended for 10.3. (An earlier caveat here — "the FC waits to be asked for streams, so EdgeTX shows nothing until a GCS connects" — is **wrong for PX4** **[prim]**: PX4 starts every MAVLink instance with `-x` and programs the full profile stream set from boot; it does not even implement `REQUEST_DATA_STREAM`. The mapped handset sensors appear as soon as the RX hears the FC. That failure mode is ArduPilot-shaped, where `SRx_*` at 0 streams nothing.) |
+| **Handset (EdgeTX) only** | ELRS converts MAVLink telemetry into CRSF sensors via a **fixed `msgid` switch** (`MAVLink.cpp`: BATTERY_STATUS, GPS_RAW_INT, GLOBAL_POSITION_INT, ATTITUDE, HEARTBEAT, SYSTEM_TIME, SCALED_PRESSURE, plus Yaapu passthrough frames), so **a custom dialect message hits no case and can never render** **[prim]**. PX4's CRSF telemetry additionally requires custom firmware including `crsf_rc` in place of `rc_input` (`RC_CRSF_PRT_CFG`, `RC_CRSF_TEL_EN`), and emits exactly five frames round-robin at ~2 Hz each: battery, GPS (incl. groundspeed/heading/altitude), attitude, flight-mode text, and fused local altitude in the baro-altitude frame; RSSI/LQ come from the RX link statistics, not PX4 **[prim]** | Needs either a **custom CRSF sensor frame** added to PX4's CRSF telemetry plus an **EdgeTX Lua widget** to display it, or mapping 2–3 scalars into standard sensor slots (which is abuse and will confuse the GCS). Real work — schedule for 10.4 |
+
+Two wiring facts that shape this **[prim]**:
+
+* **ELRS converts only messages from `MAV_COMP_ID_AUTOPILOT1`.** A message the
+  companion emits under its own component id is ignored by the converter even for
+  mapped types — so the vitals stream must be re-emitted by the *autopilot's*
+  MAVLink instance, which is exactly what the Part E stream registration does.
+  This is now a requirement, not just a convenience.
+* **A zero-new-display-code alert path exists:** ELRS forwards MAVLink
+  `STATUSTEXT` as Yaapu passthrough text, and the Yaapu Lua script works with
+  ELRS MAVLink mode. PX4 can put a short "PRESENCE: YES 12m" line on the handset
+  via `mavlink_log_*` long before the custom CRSF frame of 10.4 exists — worth
+  wiring as the interim handset display in 10.3.
 
 Recommended sequencing: build the GCS path first because it needs no new display
 code; add the CRSF frame + Lua widget when handset-only operation is actually
@@ -359,7 +410,7 @@ is the intended behaviour, not an obstacle.
 | J4 | SITL: repeat-until-ack | Command repeats at `CC_PL_REP_HZ`; the harness echoes `last_command_seq`; repetition stops |
 | J5 | RC-loss drill | No command emitted with `rc_valid = 0`; no capture starts |
 | J6 | Receiver gauntlet on vitals | Each invalid class increments exactly its counter and publishes nothing (mirroring the 50/50 Phase 3 result) |
-| J7 | Downlink budget | 1 Hz report measured on the radio instance; verify against §G.1 and against a 868 MHz link with LBT active |
+| J7 | Downlink budget | 1 Hz report measured on the radio instance; verify against §G.1, including an oversubscription drill (`MAV_x_RATE` above the mode budget) proving the report survives the 16-message TX buffer shedding — with `decision_age_ms` growing rather than stale data presented as fresh |
 | J8 | Cross-log join | `cc_vitals_report` in ULog joins to `radar_vital_estimate` rows in the mission dataset on `(dwell_id, sequence)` — the Phase 6.4 join, extended to the payload |
 | J9 | Interlock source | With `landed_state` present, the companion's interlock uses it; with the field absent (old FC), the interlock falls back to **Inhibit**, not to inference |
 | J10 | Isolation | Injecting `human_present = 1, confidence = 100` never changes `cc_safety_status`, never issues a `vehicle_command` — asserted, not assumed |

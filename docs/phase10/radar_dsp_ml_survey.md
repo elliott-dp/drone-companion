@@ -11,7 +11,9 @@ wrong stage.
 Tags: **[calc]** arithmetic here · **[std]** standard, textbook or
 universally-used practice · **[corrob]** multiple independent search extracts,
 primary paper not read here · **[unver]** single source or inference ·
-**[open]** genuinely unresolved.
+**[open]** genuinely unresolved · **[prim]** primary document read (2026-08
+verification pass — see
+[`radar_primary_source_findings.md`](radar_primary_source_findings.md)).
 
 ---
 
@@ -49,11 +51,27 @@ TI ships a calibration procedure and a calibration matrix for exactly this
 2. **Frequency-dependent** correction across the sweep (the calibration is valid
    for a specific profile — **so a profile change invalidates it**, which is why the
    harness hashes both together and refuses a mismatch).
-3. **Temperature drift** — phase versus die temperature, and TI documents a
-   periodic APLL/VCO recalibration **[unver]**. If that recalibration lands a step
-   in the slow-time phase it sits *inside* the cardiac band (test E10 in the
-   transport document). This is the single most under-appreciated risk in the whole
-   chain.
+3. **Temperature drift and runtime calibration** — now documented rather than
+   suspected **[prim, SWRS223D §7.7; SPRACF4C; SPRACV2; ICD Table 5.36]**. The
+   magnitudes: RX inter-channel phase mismatch varies ±3° over the full
+   −40…140 °C range; the TX phase-shifter temperature effect is ~±2.3°
+   (< ±2° after LUT correction); gain drifts ~0.4 dB (RX) / 0.2 dB (TX) per
+   10 °C with frozen settings. The calibrations: APLL + synth-VCO runtime cals
+   run at 1 s periodicity, always-on, **not disableable**; all other runtime
+   cals (the documented source of abrupt gain/phase jumps — one RX gain code is
+   a 2 dB step) are host-disableable, and the ICD explicitly recommends
+   disabling them in cascade for phase synchronisation. TI's cascade recipe is
+   freeze-and-anchor: factory save/restore, corner-reflector offset tables,
+   host-forced simultaneous temperature-index transitions with DSP subtraction
+   of the characterised jump — residual smooth drift is explicitly delegated to
+   application-level references, which *is* this document's scene-anchor
+   approach. The phase impact of the non-disableable 1 s APLL/VCO cal is the one
+   thing TI never quantifies — it sits *inside* the cardiac band, and test E10
+   (now instrumented via `ENABLE_CAL_REPORT`) measures exactly that residual.
+   Two more documented slow-time noise sources worth knowing: a 0/1.1 ns bimodal
+   chirp-start jitter (0.4° per chirp at 1 MHz IF, worse at higher IF — favour a
+   low IF for vitals cells), and the rule that historical static-clutter
+   estimates must be reset after any calibration event.
 
 **Test, don't assume:** capture a corner reflector at a surveyed position at the
 start and end of every session, and store the residual. The residual over a session
@@ -101,7 +119,7 @@ Implications:
 | **Mean subtraction along slow-time**, per range bin | The community default; removes static background while retaining motion **[corrob]**. Also — usefully — exactly the transform that compresses best (see the dataset document). |
 | High-pass / MTI along slow-time | Same family; explicit cut-off control. Beware: the respiration band starts at 0.1 Hz, so the cut-off must be *below* it. |
 | **SVD / PCA subspace removal** | Drop the dominant singular components (usually clutter). Powerful, but it can eat the respiration component when the subject is the strongest thing in the scene — validate per geometry **[corrob]**. |
-| DC-offset compensation on I/Q | Needed before arctangent demodulation; classic circle-fitting on the I/Q locus **[corrob]**. |
+| DC-offset compensation on I/Q | Needed before arctangent demodulation; circle-fitting on the I/Q locus is the classic *CW-Doppler literature* technique **[corrob]** — but note TI's shipped FMCW chain implements **no** circle fit: it sidesteps DC via successive phase differencing, keeps an EMA clutter profile for bin selection only, and ships DC-range-signature calibration disabled **[prim, toolbox source]**. |
 | **The catch** | Under random body movement (and platform movement) the "DC" term is *time-varying*, so no static calibration recovers it **[corrob]**. This is why ego-motion compensation must precede or be joint with phase extraction. |
 
 ### B.5 Localisation
@@ -112,9 +130,11 @@ Implications:
   aperture), Capon/MVDR (better resolution and null-steering at higher cost),
   MUSIC/ESPRIT (super-resolution, needs a source-count estimate and good
   calibration), compressive/sparse methods (best resolution, most fragile).
-  Verified geometry: 42.5λ horizontal aperture → ~1.35° azimuth; 3λ vertical →
-  ~19° elevation **[code, from a published cascade dataset's own parameters]**.
-* **Elevation is ~2 cells across the FoV** **[calc]** — the array cannot separate a
+  Verified geometry **[prim, SWRU553A Table 1 + §2.6.3]**: 86 non-overlapping
+  λ/2 azimuth positions = 42.5λ aperture → ~1.35° azimuth; 4-element
+  minimum-redundancy elevation array spanning 3λ → ~19° elevation; element gain
+  12 dBi, ±60° azimuth / ±30° elevation 3 dB FoV, λ defined at 78.5 GHz.
+* **Elevation is ~2–3 cells across the FoV** **[calc]** — the array cannot separate a
   supine casualty from the ground plane. Height needs platform-motion synthetic
   aperture (requiring cm-class pose per chirp) or an assumed ground surface.
   Treat elevation as a nuisance parameter, not an observable.
@@ -129,7 +149,7 @@ Candidate criteria, and none is obviously right:
 | Max phase variance | Platform motion and multipath fading also maximise it |
 | Max spectral energy in the respiration band | Wind-moved vegetation and tarps also peak at 0.1–0.5 Hz |
 | Harmonic-structure score | Weak when the subject is barely resolved |
-| **Multi-cell fusion** (weighted combination across neighbouring range-angle cells) | More robust and now standard practice **[corrob]**; the right default |
+| **Multi-cell fusion** (weighted combination across neighbouring range-angle cells) | Demonstrably more robust in 2024–2025 work — HR MAE 0.66 vs 1.97 BPM single-bin (Sensors 2025, 25:2596), and 0.84 vs 3.99 BPM with correlation 0.96 vs 0.56 in an acute stroke ward **[prim]** — though most published chains, TI's included, still select a single bin (TI's re-selects only every 6.4 s **[prim, toolbox source]**). The right default here, and one more argument for recording all bins and selecting offline. |
 
 Two harness-level consequences:
 * **Do not select cells in flight.** Record all bins over a coarse beam set, and
@@ -146,8 +166,8 @@ Two harness-level consequences:
 | `atan2(Q, I)` + unwrap | The baseline **[std]**. Sensitive to DC offset and to the wrap-per-frame condition (A2). |
 | **DACM** (differentiate-and-cross-multiply) / extended DACM | Avoids explicit arctangent branch discontinuities; differentiates first, integrates after **[corrob]**. Often more robust in practice. |
 | Complex-signal demodulation | Handles the DC/null-point problem differently; worth benchmarking. |
-| Successive phase differencing | Kills DC and slow drift and pre-emphasises the cardiac band (a differentiator has +6 dB/octave) — TI's own chain uses it **[corrob]**. Cheap and effective; note it also amplifies high-frequency noise, so it pairs with the band-pass. |
-| Impulse-noise removal (forward/backward difference threshold + interpolate) | TI's chain does this **[corrob]**. **Distinguish carefully** from a missing frame: interpolating a *spike within received data* is fine; interpolating across a *dropped frame* is not (A2). |
+| Successive phase differencing | Kills DC and slow drift and pre-emphasises the cardiac band (a differentiator has +6 dB/octave) — TI's own chain uses it (`FLAG_COMPUTE_PHASE_DIFFERENCE`, on by default) **[prim, toolbox source]**. Cheap and effective; note it also amplifies high-frequency noise, so it pairs with the band-pass. |
+| Impulse-noise removal (forward/backward difference threshold + interpolate) | TI's chain does this, on the differenced phase, with a fixed threshold of 1.5 and single-sample linear interpolation **[prim, toolbox source]**. **Distinguish carefully** from a missing frame: interpolating a *spike within received data* is fine; interpolating across a *dropped frame* is not (A2). |
 
 ### B.8 Band separation and the harmonic problem
 
@@ -157,12 +177,25 @@ line, since respiration is 8–60× larger in amplitude **[calc]**. This, not
 sensitivity, is the dominant error source for heart rate on a *stationary* subject.
 
 Approaches, roughly in order of increasing sophistication:
-* Cascaded band-pass IIR (TI's chain: separate breathing and cardiac biquads;
-  TI's shipped cardiac band is **0.8–2.0 Hz = 48–120 BPM** **[corrob]** — too narrow
-  for a tachycardic casualty, so widen deliberately).
+* Cascaded band-pass IIR (TI's chain: separate breathing and cardiac biquads).
+  The shipped-band picture is subtler than a single number **[prim, toolbox
+  source]**: the *decision* band is 0.8–2.0 Hz = 48–120 BPM with a hard
+  `MAX_HEART_RATE_BPM = 120` output cap; the 14xx lab's effective band-pass is
+  0.8–2.0 Hz while the 68xx lab band-passes 0.8–4.0 Hz but still searches and
+  reports only 0.8–2.0 Hz (plus a 1.6–4.0 Hz harmonic estimator, the only path
+  sensitive above 120 BPM). Still too narrow for a tachycardic casualty — and
+  widening means changing the **search band and the cap** (and, on 14xx, the
+  filter), not just the filter. Two more shipped-code gotchas: the coefficients
+  are hard-coded for exactly 20 fps, and the 68xx lab's phase-to-displacement
+  constant is the 77 GHz wavelength even under its 60 GHz profile (~28 % scale
+  error) — do not reuse TI constants blind.
 * Explicit harmonic notching at k·f_resp once the respiration rate is known.
 * **VMD** (variational mode decomposition) — extracts cardiac modes and avoids the
-  mode-mixing that plagues EMD **[corrob]**.
+  mode-mixing that plagues EMD **[prim, Sci. Reports 2025 + Sensors 2023; also
+  the separation stage in the current 7 m range-record system]** — with one
+  caveat the benchmark must respect: the advantage is contingent on the preset
+  mode count K and penalty α, so a K/α selection rule (or an optimised-VMD
+  variant) is part of the method, not a tuning afterthought.
 * **EEMD/CEEMDAN** — adaptive decomposition, but documented mode mixing degrades
   heart-rate accuracy precisely because of respiratory harmonics **[corrob]**.
 * Wavelet/DWT and CWT-based decomposition for clutter and noise suppression
@@ -173,14 +206,18 @@ Approaches, roughly in order of increasing sophistication:
 | Estimator | Strength | Weakness |
 |---|---|---|
 | FFT peak | Simple, resolution 1/T | Harmonics, leakage, needs a long window |
-| Autocorrelation | Robust to spectral leakage; reported ~93 % accuracy for both rates in one study **[corrob]** | Ambiguous at harmonics/subharmonics |
+| Autocorrelation | Robust to spectral leakage; ~93 % accuracy for both rates **[prim, Wang et al., Sensors 2020 20:2999 — 77 GHz, subject at 0.7–0.84 m, ~50 s windows]** | Ambiguous at harmonics/subharmonics |
 | Inter-peak interval (time domain) | Gives beat-to-beat variability | Very sensitive to impulse noise |
-| **MUSIC / harmonic MUSIC (HMUSIC)** | Super-resolution; HMUSIC exploits the *harmonic structure* of the vital signal and is reported at 89th-percentile respiration error < 3 rpm and 88th-percentile heart error < 5 BPM **[corrob]** | Needs model order; sensitive to colouring |
+| **MUSIC / harmonic MUSIC (HMUSIC)** | Super-resolution; HMUSIC exploits the *harmonic structure* of the vital signal — 89th-percentile respiration error < 3 rpm and 88th-percentile heart error < 5 BPM **[prim, Hsieh et al., arXiv:2408.01951 — 60 GHz IWR6843, 12.8 s window, 4 static subjects]** | Needs model order; sensitive to colouring |
 | Chirp-Z / zoom FFT | Fine frequency grid without a longer window | Does not add true resolution (A3) |
 | Kalman/UKF rate tracking | Smooths, enforces physiological continuity | Can mask real change; must not fabricate during gaps |
 
 **Run three or more and fuse with an explicit confidence metric** — that is what
-TI's chain does and what the better literature does **[corrob]**. Cross-estimator
+TI's chain does (FFT peak, autocorrelation, inter-peak counting, harmonic-energy
+and 4 Hz-band variants, confidence = peak energy over residual band energy — all
+confirmed at source level **[prim]**) and what the better literature does
+**[corrob]**. Only the 2nd breathing harmonic is cancelled in TI's chain; the
+3rd–5th this document worries about are untreated there. Cross-estimator
 agreement is itself the single most useful confidence feature, and it is exactly
 the kind of quantity the existing `HealthFinding` culture in this repo already
 knows how to express.
@@ -191,31 +228,58 @@ Ranked by expected value on this platform:
 
 1. **Scene-referenced (static-clutter) phase reference.** Subtract the phase
    history of a static anchor cell (corner reflector, ground patch, structure) from
-   the target cell. Common-mode platform motion cancels. A published finding that
-   anchor-based compensation matches or beats IMU-based compensation supports this
-   as the primary method **[unver]**, and A5 explains why: the lever-arm term alone
-   needs 0.0086° attitude knowledge to reach 0.1 rad, which no multirotor EKF
-   delivers **[calc]**.
+   the target cell. Common-mode platform motion cancels. **This is no longer a
+   proposal — it is the demonstrated primary airborne method, at this band**
+   **[prim]**: Stöckel et al. (IEEE Trans. Radar Systems 2024) fly a 77 GHz FMCW
+   under a hovering UAV, track multiple walls as static anchors, solve for radar
+   position from their phases, and reduce ~200 mm of platform motion to < 4 mm
+   (~98 %) for a 1.33 % respiration-rate error; Rong et al. (IEEE SSP 2021) used
+   the static-ground phase residual on a real UAV at UWB. Stöckel also states
+   outright that IMU/LIDAR-SLAM cannot reach the λ/4 ≈ 0.97 mm accuracy needed —
+   published support for anchor-beats-IMU, and A5 explains why: the lever-arm
+   term alone needs 0.0086° attitude knowledge to reach 0.1 rad, which no
+   multirotor EKF delivers **[calc]**. One warning ports with it: at 77 GHz
+   classical unwrapping fails (inter-frame motion ≫ λ/4), and Stöckel needed a
+   second-derivative unwrapping algorithm plus aux-position initialisation —
+   plan for that in B.7. Published failure modes: anchor auto-selection, clutter
+   leakage, and scenes with no static object.
 2. **Range-migration compensation via inter-frame correlation**, then blind source
-   separation (ICA) to split platform motion from physiology — the demonstrated
-   airborne approach, at sub-6 GHz **[unver]**. Range migration is not optional at
-   30 s: a 1 m drift crosses several 30 cm range bins.
-3. **Reference-channel / dual-radar adaptive cancellation** — a second aperture (or
-   beam) aimed at static ground provides the noise reference for an adaptive
-   canceller **[unver]**. With 192 virtual channels, a *beam* can serve as the
-   second channel at no hardware cost — an attractive, cheap experiment this
-   aperture uniquely enables.
+   separation to split platform motion from physiology — the demonstrated airborne
+   approach at **7.29 GHz UWB** (not sub-6 as previously stated) **[prim: Li et
+   al., Drones 2022 (hover, ICA, respiration); Jing et al., Sensors 2025
+   (envelope alignment + JADE + feedback harmonic notch — respiration 93.8–98.7 %
+   and *heart rate* 90.2–98.4 % at 2–5 m in hover)]**. Range migration is not
+   optional at 30 s: a 1 m drift crosses several 30 cm range bins.
+3. **Reference-channel / dual-radar adaptive cancellation** — a second aperture
+   aimed at static ground provides the noise reference for an adaptive canceller.
+   **Flight-proven in 2025** **[prim, Ishmael et al., IEEE TMTT]**: dual 24 GHz
+   radars, ANC/NIC on the demodulated reference, first in-flight respiration
+   *displacement waveform* — sub-mm recovery under > 100 mm of platform motion,
+   < 1 % rate error, 100 s hovers. With 192 virtual channels, a *beam* can serve
+   as the second channel at no hardware cost — still unpublished anywhere, and
+   the one genuinely novel experiment this aperture uniquely enables.
 4. **IMU-aided, µs-aligned** — as a *coarse* pre-correction and a validity gate,
    not as the primary. Timing budget: −20 dB of a 100 Hz line needs 159 µs
-   alignment; −30 dB needs 50 µs **[calc]**.
+   alignment; −30 dB needs 50 µs **[calc]**. The demotion is now published
+   consensus: Stöckel (77 GHz) and the 62–69 GHz 4D-imaging simulation (J.
+   Radars 2025) both reject IMU-only compensation for accuracy/bias reasons.
 5. **Adaptive motion-artifact filtering (CWT-based)** for random *body* movement,
    which is a separate problem from platform movement **[corrob]**.
 
 ### B.11 Multiple subjects
 
 Range-angle separation is the standard route: range FFT → angle FFT → extract phase
-per range-angle cell **[corrob]**. Difference beamforming reportedly separates
-subjects closer than the nominal angular resolution **[corrob]**. This aperture is
+per range-angle cell **[corrob]**. The "difference beamforming" idea needed
+correcting against its primary **[prim, Hur et al., IEEE TRS 2023]**: differential
+beams are *pairs* of beams aimed at different spots on **one person's chest**,
+differenced to cancel respiration harmonics near the cardiac line — a per-person
+isolation/harmonic-suppression technique for multi-person HRV, exploiting
+beam-*pointing* finer than the resolution cell. Published evidence for separating
+two subjects closer than the nominal angular resolution was not found. Note also
+that the same MMWCAS cascade has been operated as a *multi-point* chest sensor at
+3–4 m (Ren et al., arXiv:2411.09201 — 192 virtual channels, SCG-validated,
+cross-correlation 0.84–0.88), which both proves feasibility and supplies a
+working chirp parameter set. This aperture is
 unusually well suited (1.35° azimuth ⇒ 24 cm cross-range at 10 m **[calc]**, i.e.
 better than body width). But: **do not build this before single-subject works
 landed** (§E).
@@ -225,17 +289,28 @@ landed** (§E).
 Two regimes, and they need different pipelines:
 
 * **Moving person** — micro-Doppler gait signatures are well established across
-  many datasets and bands **[corrob]**; a spectrogram + classifier is a solved-ish
-  problem, and the cascade's aperture makes it easier than most published work.
-  This is the *cueing* function and it should be the first working capability.
+  many datasets and bands (2.4–77 GHz, typical ~90 % within-dataset accuracy)
+  **[prim, Sensors 2024 review]**; a spectrogram + classifier is a solved-ish
+  problem *within* a dataset, and the cascade's aperture makes it easier than
+  most published work. Two documented failure modes to design around:
+  cross-dataset/cross-environment generalisation degrades (which is why §C.5
+  demands environment-wise splits too), and detection dips for motion tangential
+  to boresight. This is the *cueing* function and it should be the first working
+  capability.
 * **Motionless person** — this is the hard, valuable case, and it reduces to the
   vital-signs problem plus a presence decision. A body-shaped RCS with a
   physiological modulation is the only discriminator; hence the mannequin dwells in
   the dataset (a body without physiology) as a mandatory control.
 
-Aspect matters more than people expect: a person's RCS varies by ~20 dB with
-aspect **[corrob]**, so a single-threshold detector will flicker. Record per-detection
-SNR/RCS and treat detection as probabilistic.
+Aspect matters more than people expect: measured standing-human RCS at 76–81 GHz
+spans −16.6 to 0 dBsm over azimuth (mean −6.6 dBsm) **[prim, Schubert et al.,
+IRS 2013]**, and the only above-aspect measurement — cardiopulmonary effective
+RCS at 2.4 GHz — shows a ~9.5 dB supine-vs-prone pose effect (0.326 vs 2.9 m²)
+**[prim, Kiriazi et al., EMBC 2009]**, so a single-threshold detector will
+flicker. Record per-detection SNR/RCS and treat detection as probabilistic.
+(Skin reflectance at 80–100 GHz is high — 0.615 ± 0.088 at normal incidence —
+so a supine casualty viewed from above should give a strong quasi-specular
+torso return **[prim, Owda & Salmon, Sensors 2020]**.)
 
 ---
 
@@ -245,10 +320,10 @@ SNR/RCS and treat detection as probabilistic.
 
 | Approach | Relevance here |
 |---|---|
-| **Learning directly from raw ADC** (e.g. ADCNet-style, with a learnable/differentiable signal-processing front end, range FFT and windowing optimised jointly with the task) **[corrob]** | Directly applicable, and it is the strongest argument for archiving *raw* rather than products: only raw lets the front end be learned. |
+| **Learning directly from raw ADC** (ADCNet: DFT + windowing as learnable layers, perturbed-DFT init, distilled from classical SP then fine-tuned; evaluated on the RADIal 12×16 imaging-radar dataset) **[prim, arXiv:2303.11420 — still a preprint; the peer-reviewed anchor is FFT-RadNet, CVPR 2022, which starts from range-Doppler]** | Directly applicable, and it is the strongest argument for archiving *raw* rather than products: only raw lets the front end be learned. |
 | **Denoise-then-classify cascades** (a self-supervised denoiser feeding a classifier, trained end to end) **[corrob]** | The closest match to the stated interest in ML denoising. |
 | **Self-supervised / contrastive pretraining** on unlabelled radar **[corrob]** | Very attractive here: the harness will produce far more unlabelled dwells than labelled ones. |
-| **Cross-modal supervision** (a camera or reference sensor supervises the radar) **[corrob]** | The cheapest label source available: the published cascade datasets do exactly this with synchronised cameras **[code]**. Add a camera to the payload for labels even if the product never uses it. |
+| **Cross-modal supervision** (a camera, lidar or reference sensor supervises the radar) | The cheapest label source available — with the supervising sensor corrected against the actual datasets **[prim]**: Radatron (ECCV 2022) uses a stereo camera *plus manual annotation* of 16K/152K frames; **RaDelft (2024) trains the detector directly against lidar** on the same MMWCAS hardware, and that line has continued into automatic semantic segmentation; ColoRadar ships pose-only ground truth. Camera-guided beamforming is also what achieved the 7 m vitals range record. Add a camera **and consider a small lidar/depth camera** to the payload for labels even if the product never uses them. |
 | Generative/GAN and diffusion methods for high-resolution imaging from degraded input **[unver]** | Interesting for imaging, high risk for a measurement whose output is a *number a medic will act on*. |
 | Hardware-accelerated DSP front ends (automotive platforms put range/Doppler/angle FFTs in fixed-function hardware and leave the GPU for perception) **[corrob]** | Not available to us: **the Orin Nano has no DLA and no PVA** **[corrob]** — everything shares one 1024-core GPU. |
 
@@ -265,12 +340,17 @@ the frame**:
 ~30 s  ── dwell commit: presence decision + vital signs + confidences   (ML, soft)
 ```
 
-Published radar networks are far from 20 Hz — one self-supervised denoise+classify
-network reports **0.26 s per sample**, a hybrid method **~1.7 s on a desktop GTX
-1080 Ti** **[corrob]** — and that is fine here, because at 1 Hz the first costs
-26 % of the GPU and at dwell cadence under 1 %. A model too slow for frame-rate
-inference can be entirely appropriate for a decision the operator waits 30 seconds
-for anyway. The full cadence arithmetic is in
+Published radar networks are far from 20 Hz — corrected against the primaries
+**[prim]**: the self-supervised denoise+classify network (DPDCNet, IET RSN 2024,
+activity recognition) reports **0.26 s per 10-s sample on an RTX 3090** (denoiser
+0.19 s + classifier 0.07 s), and the multi-radar fusion pipeline previously
+misquoted as "~1.7 s" actually reports **3.719 s per 10-s sample on a GTX
+1080 Ti — 3.157 s of which is CPU-side RoI selection**, the network itself
+0.006 s. That is fine here, because at 1 Hz the first costs ~26 % of a 3090-class
+GPU and at dwell cadence under 1 % — and the second's cost is CPU-bound, so it
+scales with core count, not GPU tier. A model too slow for frame-rate inference
+can be entirely appropriate for a decision the operator waits 30 seconds for
+anyway. The full cadence arithmetic is in
 [`radar_realtime_budget.md`](radar_realtime_budget.md) §C.3.
 
 What that buys, and what it costs:
@@ -344,13 +424,13 @@ Ordered so that each step can kill the next one cheaply. Steps 1–4 need no air
 |---|---|---|
 | D1 | Static corner reflector, 60 s: phase noise floor and drift; look for the ~1 Hz APLL step | σ_d measured; no unexplained periodic step in 0.8–3 Hz, or the step characterised |
 | D2 | Calibration stability across a session and across temperature | Residual phase drift quantified in rad and µm |
-| D3 | Seated subject, tripod, 1 m, chest strap reference — the reproduction baseline | Respiration within ~1–2 rpm and heart within ~3–5 BPM of reference, matching what published work achieves **[corrob]** |
+| D3 | Seated subject, tripod, 1 m, chest strap reference — the reproduction baseline | Respiration within ~1–2 rpm and heart within ~3–5 BPM of reference — a safe floor: published chains bracket it, and the best reach < 1 rpm respiration at ≤ 1.5 m **[prim, four independent primaries]**. Two placement rules from the literature: error vs distance is U-shaped with optimum ~0.7 m, and points below ~0.6 m are degraded by near-field/multipath — so 1 m is near-optimal and no short point should go below 0.6 m |
 | D4 | Same, sweeping standoff 1 → 3 → 5 → 8 → 10 m, and angle/posture | The range at which heart rate fails, measured rather than argued. **This single curve determines whether the concept is viable.** |
 | D5 | Empty dwells and mannequin dwells, same geometries | False-alarm rate measured; mannequin yields detection but no vitals |
 | D6 | Vegetation/tarp/water dwells in wind | Characterise the 0.1–0.5 Hz confounders; verify the spatial-coherence guard rejects them |
 | D7 | Rotor-on, aircraft on the ground, subject at 5 m | Isolates vibration + downwash from platform translation |
 | D8 | Downwash on a mannequin, blanket, dust, foliage at 3/5/10 m | If apparent displacement exceeds ~0.5 mm, airborne vitals is in serious doubt regardless of compensation |
-| D9 | Tethered hover, subject at 5 m, landed control in the same session | The degradation number; heartbeat likely survives only in hover **[unver]** |
+| D9 | Tethered hover, subject at 5 m, landed control in the same session | The degradation number. The published record now says: hover-respiration is solved at multiple bands including 77 GHz; hover-*heartbeat* exists only at ~7 GHz UWB below 5 m; translating-flight heartbeat is unpublished at any band **[prim, 2021–2025 airborne literature]** — so heartbeat-in-hover at 77 GHz at 5 m would itself be a first |
 | D10 | Ego-motion compensation A/B: scene-referenced vs IMU-aided vs both | Residual phase in rad, and rate error, per method |
 | D11 | Multi-subject separation at 1 m and 0.5 m apart | Only after D3/D4 pass |
 | D12 | Compression acceptance: re-quantise D3/D4 dwells offline at each k | The k at which rate estimates change measurably — sets the lossy policy |
@@ -364,15 +444,15 @@ Explicit non-goals. Each has cost someone a research programme.
 | Don't | Because |
 |---|---|
 | **Run ML inference at frame rate (20 Hz)** | Not because ML is unaffordable — because it is unnecessary. The decision is a window/dwell product; frame-rate inference costs 20–100× more for an answer nobody can use faster (§C.2). |
-| **Buried-victim detection at 77–81 GHz** | Physics. Concrete runs tens of dB/m and every fielded rubble/avalanche system uses 150 MHz–4 GHz **[corrob]**. This payload is a surface/line-of-sight sensor. |
+| **Buried-victim detection at 77–81 GHz** | Physics, now with the honest number: concrete runs **~1000 dB/m one-way (~10 dB/cm; ~20 dB/cm round trip)** at 77–81 GHz per ITU-R P.2040-4 — two orders worse than the 33–98 dB/m of the 1–4 GHz rescue bands **[prim]**. Every fielded rubble victim radar operates below ~10 GHz (FINDER ~3 GHz; Xaver 3–10 GHz; LifeLocator UWB); DELSAR is seismic/acoustic, not radar, and RECCO is harmonic radar detecting a worn reflector, not a body **[prim]**. This payload is a surface/line-of-sight sensor. |
 | **Chasing sensitivity** — more virtual channels, more averaging, lower noise figure | At 5–30 m nothing is SNR-limited; the limits are clutter, platform motion and geometry (A4/A5). Spend the budget on uniform timing and clutter rejection. |
-| **Heart rate from a translating platform as an early milestone** | Even at sub-6 GHz, published airborne work recovered breathing in motion but heartbeat only in hover **[unver]**; at 79 GHz the same motion produces 3.3–10.8× more phase **[calc]**. Hover first, or don't bother. |
-| **TDA2-side signal processing to "offload the Jetson"** | The Orin's DSP cost is ~2 % of its GPU **[calc]**; the TDA2 route costs an EOL SDK, a firmware project, and the ability to change the algorithm **[corrob]**. |
+| **Heart rate from a translating platform as an early milestone** | The published airborne record (2021–2025): breathing survives translation, heartbeat has *never* been published from a translating platform at any band, and hover-heartbeat exists only at ~7 GHz UWB ≤ 5 m **[prim — the original "sub-6 GHz" attribution was wrong; the Rong et al. platform was 7–9 GHz XeThru-class UWB]**; at 79 GHz the same motion produces 3.3–10.8× more phase **[calc]**. Hover first, or don't bother. |
+| **TDA2-side signal processing to "offload the Jetson"** | The Orin's DSP cost is ~2 % of its GPU **[calc]**; the TDA2 route costs a de-facto-EOL SDK (last release Dec 2019, team disbanded, not AWR2243-compatible), a firmware project, and the ability to change the algorithm **[prim]**. |
 | **Full-cube 3D deep networks in real time** | 2–10 TFLOP/s at 20 Hz on a device with no DLA/PVA **[calc]**. Offline only. |
 | **Magnitude-only or pre-selected products as the archive** | Destroys the phase and bakes in in-flight decisions that ego-motion will have made wrong. |
 | **DDMA expecting a velocity-ambiguity fix** | Same ambiguity as TDM at equal chirp period and TX count; it is a power/SNR trade **[calc]**. |
 | **Elevation/SAR height estimation before pose accuracy is proven** | Needs cm-class pose *per chirp*; the aperture gives <2 elevation cells **[calc]**. |
-| **Inheriting TI's 0.8–2.0 Hz cardiac band** | 48–120 BPM **[corrob]** excludes a tachycardic casualty — precisely the person who matters. |
+| **Inheriting TI's 0.8–2.0 Hz cardiac band** | 48–120 BPM, enforced by both the search band *and* a hard `MAX_HEART_RATE_BPM = 120` cap **[prim]**, excludes a tachycardic casualty — precisely the person who matters. |
 | **Multi-person separation before single-person works landed** | Harder problem, same failure modes, no diagnostic value. |
 | **Tuning thresholds on synthetic traces alone** | The clutter and motion statistics are what simulators get wrong; the repo already learned this lesson with the health algorithms' false-positive audit. |
 | **Interpolating across dropped frames** | A2. It silently manufactures a phase error that looks like signal. |
@@ -383,9 +463,9 @@ Explicit non-goals. Each has cost someone a research programme.
 
 | Mechanism | Why it is dangerous | Structural guard |
 |---|---|---|
-| **Two-ray multipath fading** | λ/4 = 0.95 mm of platform motion sweeps a null; the fading is indistinguishable from breathing **[calc]** | Spatial-coherence requirement; anchor-referenced phase; empty-dwell FAR |
+| **Two-ray multipath fading** | Null-to-peak fade spacing is geometry-dependent, ~λ/4 to ~λ of platform motion (0.9–4 mm at 79 GHz, worst case λ/4 = 0.95 mm); the fading is indistinguishable from breathing **[calc — the mechanism as an airborne false-breathing source is this document's own synthesis; adjacent published evidence: indoor multipath ghost targets carrying fake vitals, and multipath corrupting static-anchor selection airborne]** | Spatial-coherence requirement; anchor-referenced phase; empty-dwell FAR |
 | Wind-moved vegetation, tarps, water | Sit squarely at 0.1–0.5 Hz | D6 dwells; spatial extent test (physiology is compact, foliage is not) |
-| **Rotor downwash on fabric/foliage** | Correlated with the platform, so naive common-mode rejection *will not* remove it | D8; require a harmonic/cardiac structure, not just band energy |
+| **Rotor downwash on fabric/foliage** | Correlated with the platform, so naive common-mode rejection *will not* remove it. Nearest published treatment: downwash-driven *grass* motion measured under a hovering UAV fits Gaussian / mixed-Gaussian statistics (which is exactly why higher-order-statistics BSS can reject it), and blade echo appears at ~3.5 Hz **[prim, Jing et al. 2025]** — downwash on *clothing/chest surrogates* remains unmeasured anywhere, so D8 retains full novelty | D8; require a harmonic/cardiac structure, not just band energy |
 | Aliased vibration lines | Land at `f_vib mod f_frame` | Record rotor state; predict and notch |
 | Respiration harmonics | Land on 0.8–2.0 Hz and are often stronger than the cardiac line **[calc]** | Explicit harmonic cancellation; HMUSIC; cross-estimator agreement |
 | Aircraft's own structure/props in near bins | Constant, strong | Range gating; static-anchor identification |
@@ -404,17 +484,52 @@ stops working is the most useful number in the whole programme.
 
 ---
 
-## Part H — Open questions worth a literature pass on an unblocked network
+## Part H — The five open questions, answered (2026-08 literature pass)
 
-1. Any peer-reviewed mmWave vital-sign result beyond ~3 m, and what SNR/window it
-   needed **[open]** — this is the single most decisive unknown for the concept.
-2. Measured σ⁰ for grass, soil, gravel, rubble at 76–81 GHz across 20–90°
-   depression, and human RCS *viewed from above* in standing/supine/prone poses.
-   Both appear unmeasured in the accessible literature, and both are exactly the
-   geometry this payload flies **[open]**.
-3. AWR2243 phase noise and cascade coherency over a 30 s window — sets the
-   achievable floor when everything else is perfect **[open]**.
-4. Whether rotor downwash moves a clothed casualty enough to swamp respiration
-   **[open]** — no literature found; D8 answers it.
-5. The airborne compensation methods' portability from 7.3–24 GHz to 79 GHz
-   **[open]**.
+The questions this section used to hold were answered by the primary-source pass;
+full evidence in [`radar_primary_source_findings.md`](radar_primary_source_findings.md).
+
+1. **mmWave vitals beyond ~3 m — answered: the published frontier is 7 m.**
+   Wang et al. (arXiv:2304.11057): 77 GHz AWR1843 on a tripod, camera-guided
+   TX+RX beamforming + weighted multi-channel VMD — respiration 0.14→0.26 rpm
+   error from 1→7 m, heart rate 1.08–3.6 BPM, and the authors state ~7 m is
+   their maximum. Independent 5 m corroboration exists (arXiv:2511.21255);
+   everything else clusters below ~2 m. Common ingredients past 3 m:
+   beamforming on the subject, 12.8–50 s windows, static subjects, VMD-class
+   decomposition. **Nobody has published 57–81 GHz vitals beyond 7 m.** Our
+   192-virtual-channel cascade buys roughly +12 to +23 dB over those papers'
+   8–12 channels — ~14–26 m in purely SNR-limited terms — and the same cascade
+   has already produced SCG-validated chest measurements at 3–4 m
+   (arXiv:2411.09201). Conclusion: SNR is not the binding constraint over the
+   5–30 m envelope; clutter, geometry, window coherence and ego-motion are.
+   **D4's measured curve past 7 m is a novel result, not a reproduction.**
+2. **σ⁰ and human RCS — half-answered; the doc's "unmeasured" claim was too
+   strong.** A large measured 94/95 GHz terrain corpus exists (Ulaby/
+   Nashashibi/Sarabandi, IEEE TAP 1997/1998): e.g. rough soil σ⁰_VV −3 to −8 dB
+   at 10–50°, grasses −3 to −8 dB at 60–70°, dry asphalt −12 dB at 70°, with
+   the all-terrain envelope spanning ~0 to −45 dB — 15–40 dB of terrain-class
+   dynamic range. Genuinely still unmeasured: calibrated σ⁰ at 76–81 GHz for
+   natural terrain at 20–70° incidence, **rubble/debris σ⁰ at any W-band
+   frequency**, and **whole-body human RCS from elevated aspects** (nearest
+   data: standing −6.6 dBsm mean at 76–81 GHz horizontal; supine 0.33 m² vs
+   prone 2.9 m² from above at 2.4 GHz — a 9.5 dB pose effect). The harness
+   itself can measure all three gaps.
+3. **AWR2243 coherency over 30 s — answered from TI's documents** (§B.1): no
+   coherence-duration spec exists, but with runtime cals frozen the documented
+   residuals (smooth thermal drift, chirp-start jitter, −96/−94 dBc/Hz phase
+   noise with range correlation) do not preclude a 30 s window; the one
+   undocumented residual is the non-disableable 1 s APLL/VCO cal — E10, now
+   instrumented via calibration reports, is the remaining gate.
+4. **Rotor downwash on a clothed casualty — confirmed unmeasured.** The nearest
+   published work characterises downwash-driven *vegetation* motion as Gaussian
+   clutter and notches blade echo at ~3.5 Hz; clothing/chest-surrogate motion
+   appears in no study. **D8 is a genuinely novel measurement.**
+5. **Portability of airborne compensation to 79 GHz — answered: demonstrated.**
+   Stöckel et al. flew anchor-referenced compensation at 77 GHz (98 % motion
+   removal, 1.33 % respiration error), and the predicted phase-scaling problem
+   materialised exactly as this document's A5 arithmetic said it would —
+   classical unwrapping fails at 77 GHz airborne, requiring a second-derivative
+   unwrapping algorithm. Dual-radar reference cancellation flew at 24 GHz in
+   2025 with sub-mm displacement recovery. What remains unpublished: any
+   airborne vitals at 5–30 m standoff, translating-flight heartbeat at any
+   band, and the beam-as-reference-channel experiment unique to this aperture.

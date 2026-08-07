@@ -6,7 +6,8 @@ costs, and what could actually overload the companion computer.**
 
 Tags: **[calc]** arithmetic here · **[meas]** measured on this machine (x86
 container — indicative only for the Orin) · **[corrob]** search extracts ·
-**[unver]** inference.
+**[unver]** inference · **[prim]** primary document read (2026-08 verification
+pass — see [`radar_primary_source_findings.md`](radar_primary_source_findings.md)).
 
 ---
 
@@ -57,10 +58,13 @@ Per frame, SCAN-12 (12 TX × 16 RX × 16 loops × 256 samples), FFT cost taken a
 | Angle FFT | 4096 × 256-pt | 41.9 M | 839 MFLOP/s |
 | **Total** | | **89.1 M** | **≈ 1.8 GFLOP/s** |
 
-Orin Nano: 1024 Ampere CUDA cores, 32 tensor cores, ~40 TOPS INT8, 68 GB/s
-LPDDR5, 6× Cortex-A78AE — and **no DLA, no PVA** **[corrob]**. FP32 peak is
-roughly 1.3 TFLOP/s **[calc]**, so the whole DSP chain is **~0.14 % of peak**, or
-~1–2 % at realistic FFT efficiency.
+Orin Nano: 1024 Ampere CUDA cores, 32 tensor cores, 40 sparse / 20 dense INT8
+TOPS, 68 GB/s LPDDR5, 6× Cortex-A78AE — and **no DLA, no PVA** **[prim,
+DS-11105-001 v1.5: absent by product spec; the datasheet states "CUDA Core
+Performance: 1.28 FP32 TFLOPs"]**, so the whole DSP chain is **~0.14 % of
+peak**, or ~1–2 % at realistic FFT efficiency. JetPack 6's MAXN_SUPER operating
+point raises the ceiling further (2.08 FP32 TFLOPs, 67 sparse TOPS, 102 GB/s)
+at a thermal cost the flight enclosure must earn (M7) **[prim]**.
 
 Memory traffic matters more than FLOPs: ~8 passes over a 3 MiB cube at 20 Hz is
 ≈ **0.6 GB/s against 68 GB/s ≈ 0.9 %** **[calc]**.
@@ -76,7 +80,7 @@ For the VITALS modes the same chain is 20–100× smaller again.
 |---|---|---|---|
 | Wire/ingest rate | 62.9 MB/s (503 Mbit/s) | 3.93 MB/s | ~110 MB/s practical on 1 GbE **[calc]** |
 | Transform + zstd-1 | ~0.4 core (assuming ~165 MB/s/core on A78AE, from 380–400 MB/s measured on x86) | ~0.03 core | 6 cores **[meas-derived, must re-measure]** |
-| Stored rate at ~2× lossless | ~32 MB/s | ~2 MB/s | 200–350 MB/s NVMe sustained **[corrob]** |
+| Stored rate at ~2× lossless | ~32 MB/s | ~2 MB/s | NVMe sustained: plan at 200–350 MB/s floor; community fio spans ~100–800 MB/s by drive (Gen3 ×4 slot) — bench the chosen drive (M2) **[prim]** |
 | Parquet index rows | 20/s | 20/s | trivial |
 | HTE edges | 20/s | 20/s | trivial |
 | Bracket IMU @1 kHz | ~32 kB/s | same | trivial (but needs a low-jitter reader) |
@@ -99,11 +103,15 @@ Orin Nano run a model" but **"at what cadence"**. Same model, three cadences
 | 3D net on the full cube, ~100–500 GFLOP | **2–10 TFLOP/s — impossible** | 100–500 GFLOP/s (8–40 %) | 50–250 GFLOP/s | 3–17 GFLOP/s (~1 %) |
 
 And in wall-clock duty-cycle terms, which is the honest unit for published models
-**[corrob]**: a network taking **0.26 s per inference** costs 26 % of the GPU at
-1 Hz, 13 % at 0.5 Hz, and under 1 % once per dwell. A method taking ~1.7 s on a
-desktop 1080 Ti might take 8–17 s on this device — still viable *once per dwell*,
-because a decision that arrives a few seconds after a 30 s hover is operationally
-fine.
+**[prim, corrected against the primaries]**: DPDCNet takes **0.26 s per 10-s
+sample on an RTX 3090** — 26 % of that GPU at 1 Hz, under 1 % once per dwell; on
+this device expect a few× slower, still dwell-viable. The pipeline previously
+misquoted as "~1.7 s on a 1080 Ti" actually reports 3.719 s per 10-s sample of
+which 3.157 s is **CPU-bound RoI selection** (network inference 0.006 s), so the
+earlier "8–17 s on this device" GPU-ratio extrapolation was invalid — the cost
+scales with the A78AE cores, not the GPU. Either way the conclusion stands: a
+decision that arrives a few seconds after a 30 s hover is operationally fine
+*once per dwell*.
 
 **So the architecture places ML at window and dwell cadence, and the deadline is
 explicitly soft.** That is the whole reason it fits.
@@ -115,7 +123,7 @@ Rules the harness enforces rather than trusting to discipline:
   and recorded — the report then carries `CC_VF_ML_STALE` and a growing
   `decision_age_ms` instead of a stale answer presented as fresh.
 * ML runs in a **low-priority CUDA stream**; the frame-rate DSP runs high-priority.
-  With no DLA and no PVA **[corrob]**, stream priority is the only isolation the
+  With no DLA and no PVA **[prim]**, stream priority is the only isolation the
   device offers.
 * Online models are **quantised (INT8/FP16) and distilled**; the FP32 research model
   stays in the offline path, and both are recorded by model hash so a live decision

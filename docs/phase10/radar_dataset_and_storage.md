@@ -11,7 +11,8 @@ trustworthy. Design goal, stated as a test:
 
 Tags: **[meas]** measured on this machine · **[calc]** arithmetic here ·
 **[code]** read from source/docs on GitHub · **[corrob]** search extracts ·
-**[unver]** inference.
+**[unver]** inference · **[prim]** primary document read (2026-08 verification
+pass — see [`radar_primary_source_findings.md`](radar_primary_source_findings.md)).
 
 ---
 
@@ -20,7 +21,7 @@ Tags: **[meas]** measured on this machine · **[calc]** arithmetic here ·
 | Candidate | Verdict for the **recorder** | Verdict for **publication** |
 |---|---|---|
 | **Flat length-prefixed shards + Parquet index** | ✅ Append-only, crash-safe, zero-dependency, memory-mappable; the pattern `raw_mavlink.bin` already proves in this repo | ✅ with documented readers |
-| HDF5 | ❌ single-writer lock, poor append/crash story **[corrob]** | ✅ great for consumers; produce by offline export |
+| HDF5 | ❌ single-writer only; SWMR appends can't create objects mid-flight, exclude variable-length types, and journaling never shipped (2008 RFC still "under investigation" per HDF Group, 2024) — crash recovery is an external utility, not a library guarantee **[prim, HDF Group docs + forum]** | ✅ great for consumers; produce by offline export |
 | Zarr | ❌ many small objects per frame in the RT path | ✅ ideal for chunked N-D cloud access; offline export |
 | Parquet with the cube in a binary column | ❌ as the live recorder | ✅✅ **the MATLAB-friendly variant** — see §E.3 |
 
@@ -94,7 +95,7 @@ dataset (each earned by a failure mode in the survey):
 
 | Table | Why it exists |
 |---|---|
-| `device_state` | Four die temperatures, RX gain, TX mask, MIMO scheme, calibration/monitoring events per frame. Phase-vs-temperature drift and the suspected ~1 Hz APLL recalibration are only removable offline if they sit beside the phase **[unver, and test E10]** |
+| `device_state` | Four die temperatures, RX gain, TX mask, MIMO scheme, calibration/monitoring events per frame. Phase-vs-temperature drift and the **documented, non-disableable 1 Hz APLL/synth-VCO recalibration** are only removable offline if they sit beside the phase — record the `ENABLE_CAL_REPORT` async reports (timestamp, die temperature, hardware-updated flag) in this table, and note the internal temperature sensor is only ±7 °C accurate **[prim, SPRACF4C + ICD; test E10]** |
 | `edge_ledger` | The only µs-class time base; also the authoritative frame count for drop detection |
 | `motion_ref` | ≥1 kHz bracket IMU: the platform-motion channel every compensation method needs |
 | `scene` | Standoff, depression angle, surface, subject posture, wind, and `control_kind` ∈ {`airborne`,`tethered`,`landed`,`empty`}. **Empty dwells are the false-alarm denominator** |
@@ -201,10 +202,11 @@ data in the same domain the clutter-cancelling first stage wants.
 | VITALS-3 (3.93 MB/s) | 118 MB | 59 MB | ~1.8 GB |
 | SCAN-12 (62.9 MB/s) | 1.9 GB | 950 MB | ~28 GB |
 
-Against Orin Nano NVMe sustained writes of 200–350 MB/s **[corrob]**, even the
-worst case has 3–5× headroom. **Storage is not the constraint people assume it
-is** — provided the transform+codec runs in the recorder, which costs well under
-one core.
+Against an Orin Nano NVMe planning floor of 200–350 MB/s (Gen3 ×4 slot;
+community measurements span ~100–800 MB/s by drive — bench the chosen one, M2)
+**[prim]**, even the worst case has 3–5× headroom. **Storage is not the
+constraint people assume it is** — provided the transform+codec runs in the
+recorder, which costs well under one core.
 
 ---
 
@@ -214,7 +216,7 @@ The dataset's value is proportional to how falsifiable it is:
 
 | Channel | Requirement |
 |---|---|
-| **Reference vital signs** | A chest-strap ECG/PPG device, sampled and stored with **its own clock plus a recorded alignment procedure**. Use a Polar-H10-class strap, because existing public mmWave vital-sign datasets validate against exactly that — which makes our data comparable rather than isolated **[corrob]** |
+| **Reference vital signs** | A chest-strap ECG/PPG device, sampled and stored with **its own clock plus a recorded alignment procedure**. Use a Polar-H10-class strap — the recent public mmWave vital-sign dataset (Twente 2024) validates against exactly that; note the clinical-grade Erlangen radar datasets use a Task Force Monitor (ECG/ICG/continuous BP) instead, so the strap buys comparability with the newer mmWave sets, not the clinical ones **[prim, the datasets' own papers]** |
 | **Scene calibration** | A corner reflector at a surveyed position in every session: absolute phase/amplitude reference, and the static anchor the compensation methods need |
 | **Empty dwells** | Identical geometry, no human. The false-alarm denominator; without them "it detected someone" is unfalsifiable |
 | **Landed control** | Every airborne session includes a landed/tripod dwell on the same subject, so platform degradation is *measured* rather than argued |
@@ -290,5 +292,8 @@ within a month.
   obligations: pseudonymous `subject_id` with the mapping stored outside the
   dataset, consent records outside the dataset, encryption at rest, an explicit
   retention clock, access control, and a budgeted secure-erase turnaround
-  **[corrob]**. A published dataset needs a review before release, and the
-  `DATASET_CARD.md` must state the consent basis.
+  **[corrob]**. Ethics review must be in place **before human data collection
+  begins**, not merely before release — the published radar-vitals datasets all
+  cite committee approvals obtained ahead of the experiments (FAU 85_15B;
+  U Twente CIS 230671) **[prim]** — and the `DATASET_CARD.md` must state the
+  approval and consent basis.

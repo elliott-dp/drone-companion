@@ -27,11 +27,14 @@
 **Sourcing tags** used throughout: **[calc]** arithmetic done here · **[meas]**
 measured on this machine · **[code]** read from source code or project
 documentation on GitHub · **[corrob]** multiple independent search extracts,
-primary document not read · **[unver]** single source or inference.
-`ti.com`, `arxiv.org`, `ieeexplore`, `pmc.ncbi.nlm.nih.gov`, `ecfr.gov`,
-`docs.nvidia.com`, `expresslrs.org` and `docs.px4.io` are all blocked by this
-session's egress policy; **only GitHub was reachable**, so [code] facts are the
-strongest class available here and §H lists what must still be opened.
+primary document not read · **[unver]** single source or inference · **[prim]**
+primary document read.
+History: the first drafting session had `ti.com`, `arxiv.org`, `ieeexplore`,
+`pmc.ncbi.nlm.nih.gov`, `ecfr.gov`, `docs.nvidia.com`, `expresslrs.org` and
+`docs.px4.io` blocked, so §H listed what still had to be opened. The **2026-08
+primary-source verification pass** opened them; the per-claim record — verdicts,
+exact citations, and the corrections applied here — lives in
+[`radar_primary_source_findings.md`](radar_primary_source_findings.md).
 
 ---
 
@@ -68,7 +71,7 @@ cost almost nothing:
 
 | Route | Mechanism | Verdict |
 |---|---|---|
-| **Primary** | PX4's onboard stream set already includes `RC_CHANNELS`; the companion reads an AUX channel and edge-detects it **[corrob]** | **Zero PX4 code.** Build this first. |
+| **Primary** | PX4's onboard stream set already includes `RC_CHANNELS`; the companion reads an AUX channel and edge-detects it **[prim, `mavlink_main.cpp`: ONBOARD profile streams it at 20 Hz — as does ONBOARD_LOW_BANDWIDTH, so the route survives a profile downgrade]** | **Zero PX4 code.** Build this first. |
 | Hardening | A `CC_PAYLOAD_COMMAND` in the CC dialect, emitted by the fork on an RC edge, carrying an explicit command + monotonic sequence | Better semantics (debounce and edge detection live where the RC data lives), but needs fork code. Phase 10.3. |
 
 Failure semantics, which matter more than the mechanism:
@@ -98,8 +101,9 @@ Two design points worth stating here because they are easy to get wrong:
 not-yet-answered question into a negative result — the failure mode that gets
 people missed), and *a rate of 0 means "no estimate", never a guess.*
 
-Sized against measured ELRS MAVLink-mode bandwidth **[code, ExpressLRS docs]** —
-MAVLink mode forces a 1:2 telemetry ratio:
+Sized against measured ELRS MAVLink-mode bandwidth **[prim, confirmed against
+the `expresslrs.org/software/mavlink` throughput tables; every percentage
+re-derived]** — MAVLink mode forces a 1:2 telemetry ratio:
 
 | ELRS mode | Downlink | One 48 B report at 1 Hz costs |
 |---|---|---|
@@ -113,31 +117,74 @@ MAVLink mode forces a 1:2 telemetry ratio:
 links is the **rate** (`CC_PL_TEL_HZ` → 0.2 Hz), not a second message format —
 MAVLink 2's zero-truncation already shrinks a report that has no estimate yet.
 
-**The EU 868 constraint matters more than the byte count.** In the EU868 domain
-ELRS uses Listen Before Talk, and **a busy channel aborts that packet interval**
-**[corrob]** — so the downlink loses slots non-deterministically and the effective
-bandwidth sits below the table. That is precisely why the report is designed to be
-**self-contained and idempotent**: no deltas, no implied state, absolute values
-plus `decision_age_ms`, so any single packet that lands is fully interpretable and
-lost packets cost only freshness. Plan at ~50 % of nominal.
+**The EU 868 constraint matters more than the byte count — but the mechanism is
+not the one this document previously described.** The primary-source pass
+refuted the LBT premise **[prim]**: ELRS implements Listen Before Talk only in
+the 2.4 GHz CE build (`Regulatory_Domain_EU_CE_2400`); the EU868 build compiles
+no-op stubs and no duty-cycle limiter — it is plain 13-channel FHSS across
+863.275–869.575 MHz, with EN 300 220 compliance (25 mW e.r.p. in those
+sub-bands; no 100 mW tier exists) resting on the operator. The real downlink
+loss model in MAVLink mode is RF packet loss plus the TX module's 16-message
+buffer shedding whole messages when oversubscribed, with a *stubborn sender*
+retrying undelivered telemetry — so reports arrive **late rather than never**.
+The design consequence is unchanged and now better-founded: the report is
+**self-contained and idempotent** — no deltas, no implied state, absolute values
+plus `decision_age_ms`, so any single packet that lands is fully interpretable
+whether it was delayed, retried, or its neighbours were shed. Plan at ~50 % of
+nominal, and never oversubscribe `MAV_x_RATE` (details in
+[`radar_fc_integration.md`](radar_fc_integration.md) §G).
 
 Operator display has two paths that differ a lot in effort — a GCS speaking the CC
 dialect works with only the PX4 changes, while handset-only (EdgeTX) display needs
-a custom CRSF frame plus a Lua widget, because ELRS renders only mapped CRSF
-sensors and a custom dialect message will not appear **[corrob]**. Both are
-specified in [`radar_fc_integration.md`](radar_fc_integration.md) §G.3.
+a custom CRSF frame plus a Lua widget, because ELRS converts MAVLink→CRSF through
+a fixed `msgid` switch and a custom dialect message hits no case **[prim,
+`MAVLink.cpp`]**. Two facts recovered from the source soften this: PX4 streams
+its profile set from boot (no GCS needed for the mapped sensors to appear), and
+`STATUSTEXT` is forwarded as Yaapu passthrough — a zero-display-code interim
+alert channel. Both paths are specified in
+[`radar_fc_integration.md`](radar_fc_integration.md) §G.3.
 
 ### A.2 The one hard gate: airborne transmit inhibit
 
 Unchanged from the previous revision of this document, and it survives the
 reframing intact, because it is a legal constraint rather than an engineering
-one: **47 CFR § 95.3333 prohibits 76–81 GHz radar aboard aircraft in flight and
-requires "a mechanism that will prevent operations once the aircraft becomes
-airborne"** **[corrob, two independent CFR extracts]**. § 95.3331's permitted-use
-list is closed (vehicular; airport air-operations-area; aircraft-mounted for
-**ground use only**), and 60 GHz is closed for aircraft too. In the EU the
-harmonised 76–81 GHz designation is scoped to ground-based vehicle and
-infrastructure radar, so a UAV payload falls outside the exemption **[unver]**.
+one — now verified against the current eCFR text and the EU instruments
+**[prim]**:
+
+* **US, 76–81 GHz:** § 95.3333 prohibits the service aboard aircraft in flight
+  and requires "a mechanism that will prevent operations once the aircraft
+  becomes airborne" (quote matches the rule text verbatim). § 95.3331's
+  permitted-use list is closed (vehicular; airport air-operations-area;
+  aircraft-mounted for **ground use only**), and the FCC's stated rationale is
+  Radio Astronomy Service protection — so a waiver is unlikely, and **FCC
+  Part 5 experimental licensing is the only identified US airborne route**
+  (Form 442 or STA; the grant must expressly authorise airborne operation;
+  expect non-interference and possible RAS-coordination conditions). Ground
+  and tripod work is licence-by-rule (§ 95.3305) at 50 dBm average / 55 dBm
+  peak EIRP (§ 95.3367) — this payload sits far below the limit.
+* **US, 60 GHz — the previous claim "closed for aircraft too" was wrong:**
+  47 CFR § 15.255(b)(3) (added July 2023) permits field-disturbance-sensor/radar
+  on **unmanned aircraft at 60–64 GHz**, unlicensed: ≤ 20 dBm peak EIRP,
+  off-times ≥ 2 ms summing ≥ 16.5 ms per 33 ms (~50 % duty), ≤ 400 ft AGL.
+* **EU, 76–81 GHz:** the exclusion is real but works by **closed scoping, not
+  an explicit airborne prohibition**: 77–81 GHz is designated only for
+  automotive SRR ("road vehicle based radar functions", Decision 2004/545/EC;
+  EN 302 264 requires permanent fixed installation on a wheels/rails vehicle —
+  aircraft count only while taxiing), and the sole airborne 76–77 GHz category
+  is obstacle detection on **manned** (EASA CS-27/CS-29) rotorcraft. Airborne
+  trials need an individual national experimental authorisation (the EU
+  analogue of the Part 5 grant this document's `authorization` field already
+  anticipates). ETSI TR 104 078 (2025) has formally asked CEPT/ECC to open
+  76–77 GHz for onboard UAS radar — track it.
+* **EU, 57–64 GHz:** generic SRD (100 mW e.i.r.p., EN 305 550) **already
+  permits airborne use** — no individual licence needed.
+
+⇒ Strategic consequence the earlier draft could not see: **60 GHz is the lawful
+airborne band in *both* jurisdictions today.** The 77–81 GHz cascade remains
+the ground/tripod instrument and the reason the harness is built first; if the
+airborne phase stalls on authorisations, a 60–64 GHz TI sensor (IWR6843-class)
+is the legal airborne fallback at the cost of aperture and range — and the
+harness, dataset format and FC contract carry over unchanged.
 
 ```
 permit_tx(airborne_state, rc_command, authorization, config) -> Permit | Inhibit(reason)
@@ -273,13 +320,17 @@ What *can* overload the Orin Nano — and the harness must budget each explicitl
   (~1–2 GFLOP/inference) is ~2 % of FP32 peak at 20 Hz; a 3D model over
   256 × 64 × 192 cells is easily 100–500 GFLOP/inference = **2–10 TFLOP/s at
   20 Hz, i.e. beyond the device** [calc]. And published radar denoising networks
-  are far from real time to begin with: 0.26 s/sample for one self-supervised
-  denoise+classify network, ~1.7 s for a hybrid on a desktop 1080 Ti **[corrob]**.
+  are far from real time to begin with: 0.26 s per 10-s sample (RTX 3090) for the
+  self-supervised denoise+classify network; the "hybrid ~1.7 s" figure previously
+  cited traces to no paper — the real number is 3.719 s per 10-s sample on a
+  1080 Ti, dominated by CPU-side RoI selection **[prim]**.
 * **Naive ingest.** 63 MB/s through a socket with per-frame allocation and two
   copies costs more than the FFTs do.
-* **No priority separation.** The Orin Nano has **no DLA and no PVA** **[corrob]** —
-  every model and every FFT contends for one 1024-core GPU. Without stream
-  priorities and a drop policy, an ML experiment starves the live tier.
+* **No priority separation.** The Orin Nano has **no DLA and no PVA** **[prim,
+  DS-11105-001 v1.5 — absent by product spec, present in the AGX Orin
+  datasheet]** — every model and every FFT contends for one 1024-core GPU.
+  Without stream priorities and a drop policy, an ML experiment starves the
+  live tier.
 
 ⇒ **Design rule: ML is a first-class pipeline stage, and its deadline is the
 window or the dwell — not the frame.** That distinction is what makes it
@@ -306,10 +357,13 @@ That trade is real but it is **a link-bandwidth trade, not a CPU trade** — and
 paying it in DSP-side firmware is expensive:
 
 * The Orin has the compute headroom (C.1). It does not need the help.
-* TI's cascade real-time demos are EOL and not AWR2243-firmware-compatible
-  **[corrob]**, so TDA2-side processing means owning a firmware project on a dead
-  SDK, in exchange for *losing* the ability to change the algorithm and losing raw
-  for ML.
+* TI's cascade real-time demos are de-facto EOL (last SDK release Dec 2019, the
+  demo team disbanded per TI staff) and Radar SDK 3.7/3.8 does not work with the
+  AWR2243 cascade kit **[prim, TI FAQ + E2E staff answers]** — so TDA2-side
+  processing means owning a firmware project on a dead SDK, in exchange for
+  *losing* the ability to change the algorithm and losing raw for ML. TI's own
+  supported evaluation flow for this EVM is raw capture to SSD plus offline
+  MATLAB post-processing.
 * What the TDA2 *is* genuinely needed for: **getting the data off the board at
   all.** 20 Hz × 3.00 MiB = **62.9 MB/s = 503 Mbit/s**, ~50 % of a 1 GbE link
   **[calc]**, on a path TI does not recommend for raw.
@@ -349,8 +403,13 @@ Three findings worth carrying into the design:
 
 The resulting sortie economics are encouraging **[calc]**: a 30 s dwell is
 1.9 GB raw, ~950 MB at 2× lossless; **30 dwells ≈ 57 GB raw / ~28 GB
-compressed** — comfortably inside one NVMe, and inside the Orin Nano's measured
-200–350 MB/s sustained write with 3–5× headroom **[corrob]**.
+compressed** — comfortably inside one NVMe. The write-rate floor: the devkit
+M.2 is PCIe Gen3 ×4, and community measurements span ~100 MB/s (poor drive /
+×2 slot) to ~700–800 MB/s (Gen3 ×4 TLC drive) sustained sequential write —
+200–350 MB/s is a conservative planning floor, not a measured devkit property,
+and even the worst observed case clears the ~32 MB/s stored rate with 3×
+headroom. The chosen drive must be bench-verified post-SLC-cache (M2)
+**[prim, carrier spec + community fio results]**.
 
 ### C.4 "No dataset like this exists on the internet"
 
@@ -359,10 +418,10 @@ from the community dataset index + dataset READMEs]**:
 
 | What exists | Examples |
 |---|---|
-| Cascade (12 TX/16 RX, TIDEP-01012) **raw ADC** datasets | Gao's carry-object (~3000 frames) and automotive (~19 800 frames) sets, with synchronised camera + labels; ColoRadar (AWR2243 cascade + AWR1843) for odometry |
-| mmWave **vital-sign** datasets | 60 GHz child vital signs (raw ADC), 24 GHz GUARDIAN (IQ), a 10-participant FMCW set with Polar H10 ground truth covering distance/angle/orientation/elevated-HR, and a 2026 age-balanced referenced set |
+| Cascade (12 TX/16 RX, TIDEP-01012) **raw ADC** datasets | Radatron (ECCV 2022: 152K frames / 4.2 h, stereo camera + 16K manually annotated); RaDelft (2024: lidar-supervised detector training on the same MMWCAS hardware); ColoRadar (AWR2243 cascade + AWR1843, pose-only ground truth); Gao's carry-object and automotive sets **[prim, the datasets' own papers]** |
+| mmWave **vital-sign** datasets | 60 GHz child vital signs (raw ADC), 24 GHz GUARDIAN (IQ), the Twente 10-participant FMCW set with Polar H10 ground truth (40–160 cm standoff only), the clinical Erlangen sets (Task Force Monitor reference), and a 2026 age-balanced referenced set. The MMWCAS cascade itself has produced SCG-validated chest measurements at 3–4 m (arXiv:2411.09201) — but no public dataset |
 | **Drone-mounted** radar datasets | ODA (24 GHz, obstacle avoidance, processed only) |
-| **What does not exist** | A **drone-borne, cascade-MIMO, raw-ADC, human-and-vital-sign dataset with synchronised flight state, pose, and clinical ground truth.** No overlap of those five properties was found anywhere. |
+| **What does not exist** | A **drone-borne, cascade-MIMO, raw-ADC, human-and-vital-sign dataset with synchronised flight state, pose, and clinical ground truth.** No overlap of those five properties was found anywhere — and the 2026 literature pass reinforced it: no public mmWave vitals dataset approaches the 5–30 m UAV geometry. |
 
 That is a real, publishable contribution — and it raises the bar on the harness,
 because a dataset is only valuable if it is *interpretable by strangers*. Hence
@@ -407,19 +466,30 @@ Phase 10 is done when a stranger can attach a pipeline and trust the data.
 
 ---
 
-## Part H — What must still be read or measured
+## Part H — What has been read, and what must still be measured
 
-**Documents (blocked here; open on an unrestricted network):**
-SWRU553A (MMWCAS-RF-EVM UG — antenna gain/elevation aperture, the sync net and
-U8 fanout, regulatory notice) · SPRUIS6 (DSP-EVM UG — SSD capacity, Ethernet
-path, power) · AWR2243 datasheet + SPRACV2/SWRA574B (phase-vs-temperature,
-cascade calibration, APLL recalibration cadence) · mmWave Studio Cascade UG and
-`rl_sensor.h` frame constraints · 47 CFR §§ 95.3331/95.3333 and the Subpart M
-power section · ETSI EN 302 264 scope + ERC/REC 70-03 · Jetson Linux Developer
-Guide (HTE/Generic Timestamp Engine chapter) · the ELRS bandwidth tables (already
-read via GitHub, worth confirming on site).
+**Documents — all opened in the 2026-08 primary-source pass** (per-claim record
+in [`radar_primary_source_findings.md`](radar_primary_source_findings.md)):
+SWRU553A + SWRA574B (antennas, sync net, U8 fan-out, `EXT_DIG_SYNC`; the UG has
+**no** regulatory notice) · SPRUIS6 (512 GB NVMe SSD, DP83867 GbE, 12 V/5 A;
+predates the AWR2243 board revision) · AWR2243 datasheet SWRS223D + SPRACV2 +
+SPRACF4C + the mmWaveLink ICD (phase-vs-temperature magnitudes, the always-on
+1 s APLL/VCO cal, the cascade freeze-and-anchor recipe) · mmWave Studio Cascade
+UG + `rl_sensor.h` (frame constraints; 20 Hz is TI's own worked example) ·
+47 CFR Part 95 Subpart M + 15.255 + Part 5 (verbatim; the 60 GHz UAV carve-out)
+· EN 302 264 + EN 300 220 + ERC 70-03 + (EU) 2025/105 (closed scoping; 25 mW
+reality; the manned-rotorcraft-only airborne category) · Jetson Linux Developer
+Guide + Orin datasheets (HTE/TSC, PTP, CSI, DLA/PVA) · the ELRS MAVLink
+throughput tables and firmware (numbers confirmed; the LBT premise corrected) ·
+plus the four literature sweeps that answered the survey's Part H questions
+(range frontier 7 m; the Fraunhofer 77 GHz airborne line; the W-band clutter
+corpus; the airborne-compensation portability evidence).
 
-**Bench measurements that gate design choices:** listed per topic in the
-companion documents — the transport go/no-go (§transport §E), the timing budget
-(§transport §D.5), compression on *real* captures (§dataset §C.5), and the
-compute/latency budget on the actual Orin (§realtime §E).
+**Bench measurements that gate design choices — unchanged, and now sharper:**
+the transport go/no-go (§transport §E, with E3 expected to fail on stock
+firmware and E10 instrumented via calibration reports), the timing budget
+(§transport §D.5), compression on *real* captures (§dataset §C.5), the
+compute/latency budget on the actual Orin (§realtime §E) — and three
+measurements the literature pass showed **nobody has published**, which this
+harness can produce: rubble/debris σ⁰ at W-band, elevated-aspect human RCS at
+76–81 GHz, and downwash-induced motion of clothing on a chest surrogate (D8).
