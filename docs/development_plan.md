@@ -282,24 +282,36 @@ Gate each stage on the previous stage's logs; change one variable at a time.
 
 ---
 
-## Phase 10 (proposed) — TI MMWCAS radar: human-detection & vital-signs payload
+## Phase 10 (proposed) — the radar harness (TI MMWCAS human detection & vital signs)
 
-**Goal:** locate people and estimate respiration / heart rate from the air, and
-record the result as part of a mission — a search-and-rescue **sensing payload**,
-never a navigation or obstacle sensor. Nothing it produces reaches PX4's flight
-logic.
+**Goal:** a **harness**, not an algorithm. (1) The MMWCAS ↔ Jetson link works with
+known timing; (2) everything is recorded — compressed raw plus every synchronised
+context channel — as an organised, documented dataset; (3) any signal-processing or
+ML pipeline (Rust, Python, MATLAB) can attach offline or online without touching
+the recorder. The vital-signs and detection algorithms themselves are Phase 11+,
+built *against* this harness.
 
-Design, budgets, exit criteria: [`phase10/phase10_radar_mmwcas.md`](phase10/phase10_radar_mmwcas.md).
-Two findings gate the phase: **airborne 76–81 GHz radar is prohibited in the US**
-absent an experimental authorization (47 CFR § 95.3333, which also mandates an
-airborne-inhibit mechanism), and **76–81 GHz cannot find buried people** — it is a
-surface / line-of-sight sensor. So the phase order is bench-first:
-10.0 regulatory + bench feasibility (the measurements that can invalidate the
-concept); 10.1 control plane + inhibit interlock + landed captures; 10.2 the µs
-time domain + coherent phase recording + an offline, replayable vital-sign
-estimator validated against belt/PPG ground truth; 10.3 tethered/hover with
-scene-referenced ego-motion compensation; 10.4 monitoring stream + operator
-downlink. Any radar → PX4 path stays out of scope. Nothing here is built yet.
+**PX4's role is deliberately thin:** it relays the pilot's RC start/stop (from the
+RadioMaster over ELRS) to the companion, supplies flight state and the airborne
+flag, and forwards one compact `CC_VITALS_REPORT` (~25 B payload, ≤1 Hz) back down
+the ELRS telemetry link to the operator. Radar content never enters
+`cc_safety_monitor` — no policy, no action, no failsafe.
+
+Design and budgets: [`phase10/phase10_radar_harness.md`](phase10/phase10_radar_harness.md)
+plus companions on [transport & sync](phase10/radar_transport_and_sync.md),
+[dataset & storage](phase10/radar_dataset_and_storage.md),
+[the DSP/ML survey](phase10/radar_dsp_ml_survey.md) and
+[the real-time budget](phase10/radar_realtime_budget.md).
+
+Two constraints still gate the phase: **airborne 76–81 GHz radar is prohibited in
+the US** absent an experimental authorization (47 CFR § 95.3333, which also
+mandates an airborne-inhibit mechanism — implemented here as a fail-safe policy
+gate), and **76–81 GHz cannot find buried people** — it is a surface /
+line-of-sight sensor. Phase order: 10.0 bench feasibility (the measurements that
+can invalidate a data path); 10.1 control plane + inhibit interlock + landed
+captures; 10.2 compressed raw recording with all context channels; 10.3 the
+pipeline extension point, live tier, and the FC relay; 10.4 dataset v1
+publication. Nothing here is built yet.
 
 ---
 
