@@ -34,8 +34,9 @@ already applies to telemetry.
 | Class | Tasks | Deadline | If missed |
 |---|---|---|---|
 | **Hard (for data integrity, not for flight)** | Receive every frame from the transport; capture every SYNC edge; hand every frame to the writer; seal/fsync on schedule | 50 ms per frame; edges immediately (hardware-timestamped, so software latency is irrelevant to *accuracy* — only to not losing the event) | **A gap in the record.** Counted, recorded, and surfaced. Never silently absorbed. |
-| **Soft** | Live-tier DSP → tracks → rate estimate → `CC_VITALS_REPORT`; operator display | ~200 ms; report at ≤1 Hz | Skip the tick. The report carries `quality_flags` saying the estimate is stale. |
-| **Best-effort** | ML inference, visualisation, offline export, compression re-pack | none | Dropped freely; a lossy reader is *told* how many frames it missed. |
+| **Soft** | Live-tier DSP → tracks → range/angle products → `CC_VITALS_REPORT` assembly; operator display | ~200 ms; report at ≤1 Hz | Skip the tick. The report carries `quality_flags` saying the estimate is stale. |
+| **Deferred (the decision path)** | Band separation, rate estimation, and the **ML presence classifier** — the stage that decides `human_present` and releases the vital signs | window cadence (1–2 s) or dwell cadence (~30 s); **explicitly allowed to be late** | Skip the invocation, set `CC_VF_ML_STALE`, and let `decision_age_ms` grow. Emit "undecided" — never a fabricated presence or rate. |
+| **Best-effort** | Offline/heavy ML, visualisation, export, compression re-pack | none | Dropped freely; a lossy reader is *told* how many frames it missed. |
 
 Nothing about flight safety appears in this table, and that is deliberate: the
 radar subsystem's worst failure is a lost dwell.
@@ -84,27 +85,44 @@ Headroom is 3–5× on every axis for SCAN-12 and ~50× for the VITALS modes. Th
 the design target: **if a mode does not leave 3× headroom on all four axes, it is
 not a supported mode.**
 
-### C.3 ML is the only thing that can plausibly saturate the device
+### C.3 ML in the pipeline: the cadence decides everything
 
-| Model shape | Cost/inference | At 20 Hz | Verdict |
-|---|---|---|---|
-| 2D net on a range-Doppler map (256 × 64) | ~1–2 GFLOP | 20–40 GFLOP/s | ~2–3 % of FP32 peak — **fine** |
-| 2D net on range-azimuth, several beams | ~5–10 GFLOP | 100–200 GFLOP/s | ~8–15 % — **fine with a budget** |
-| 3D net on the full cube (256 × 64 × 192) | ~100–500 GFLOP | **2–10 TFLOP/s** | **beyond the device** |
-| Published radar denoise+classify network | 0.26 s/sample **[corrob]** | ≈ 4 Hz | offline only |
-| Published hybrid method on a desktop 1080 Ti | ~1.7 s **[corrob]** | ≈ 0.6 Hz | offline only |
+ML is part of the pipeline — the presence decision, and therefore whether vital
+signs are emitted at all, comes out of its end. The question is never "can the
+Orin Nano run a model" but **"at what cadence"**. Same model, three cadences
+**[calc]**:
 
-Rules that follow, and they are enforced by the harness rather than by discipline:
+| Model | every frame (20 Hz) | every 1 s | every 2 s | once per 30 s dwell |
+|---|---|---|---|---|
+| 2D net, range-Doppler (256 × 64), ~1–2 GFLOP | 20–40 GFLOP/s (~3 %) | ~2 GFLOP/s | ~1 GFLOP/s | negligible |
+| 2D net over several beams, ~5–10 GFLOP | 100–200 GFLOP/s (~15 %) | ~10 GFLOP/s (~0.8 %) | ~5 GFLOP/s | negligible |
+| 3D net on the full cube, ~100–500 GFLOP | **2–10 TFLOP/s — impossible** | 100–500 GFLOP/s (8–40 %) | 50–250 GFLOP/s | 3–17 GFLOP/s (~1 %) |
 
-* Every online model declares a **frame budget in milliseconds**; the runtime
-  measures actual cost and **skips inference when late**, recording the skip.
-* Online models run in a **low-priority CUDA stream**; the live tier runs in a high-
-  priority stream. On a single-GPU device with no DLA/PVA, stream priority is the
-  only isolation available.
-* Models are **quantised (INT8/FP16) and distilled** for online use; the FP32
-  research model stays offline.
-* An ML process that dies, hangs or OOMs must be invisible to the recorder —
-  hence out-of-process (§D.2).
+And in wall-clock duty-cycle terms, which is the honest unit for published models
+**[corrob]**: a network taking **0.26 s per inference** costs 26 % of the GPU at
+1 Hz, 13 % at 0.5 Hz, and under 1 % once per dwell. A method taking ~1.7 s on a
+desktop 1080 Ti might take 8–17 s on this device — still viable *once per dwell*,
+because a decision that arrives a few seconds after a 30 s hover is operationally
+fine.
+
+**So the architecture places ML at window and dwell cadence, and the deadline is
+explicitly soft.** That is the whole reason it fits.
+
+Rules the harness enforces rather than trusting to discipline:
+
+* Every stage declares a **budget in milliseconds and a cadence**. The runtime
+  measures actual cost, and when a stage runs long the *next* invocation is skipped
+  and recorded — the report then carries `CC_VF_ML_STALE` and a growing
+  `decision_age_ms` instead of a stale answer presented as fresh.
+* ML runs in a **low-priority CUDA stream**; the frame-rate DSP runs high-priority.
+  With no DLA and no PVA **[corrob]**, stream priority is the only isolation the
+  device offers.
+* Online models are **quantised (INT8/FP16) and distilled**; the FP32 research model
+  stays in the offline path, and both are recorded by model hash so a live decision
+  is reproducible.
+* A model process that dies, hangs or OOMs must be **invisible to the recorder** —
+  hence out-of-process with a lossy reader (§D.2). The pipeline degrades to
+  "undecided", which is a legitimate answer; it never degrades the record.
 
 ---
 

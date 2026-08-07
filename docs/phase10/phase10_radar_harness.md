@@ -21,7 +21,8 @@
 | [`radar_transport_and_sync.md`](radar_transport_and_sync.md) | The four possible data paths off the RF-EVM, the control plane, and the timing/sync architecture with its measured-vs-assumed budget |
 | [`radar_dataset_and_storage.md`](radar_dataset_and_storage.md) | The dataset layout, schemas, **measured compression results**, ground-truth channels, and readers for Rust / Python / MATLAB |
 | [`radar_dsp_ml_survey.md`](radar_dsp_ml_survey.md) | The extensive algorithm survey: every stage, its alternatives, the ML landscape, and what should and should not be tested |
-| [`radar_realtime_budget.md`](radar_realtime_budget.md) | Hard/soft/best-effort task classes, the compute budget with arithmetic, and the answer to "will the monitoring tier overload the CC?" |
+| [`radar_realtime_budget.md`](radar_realtime_budget.md) | Task classes and deadlines (including the deferred ML decision path), the compute budget with arithmetic, and the answer to "will the monitoring tier overload the CC?" |
+| [`radar_fc_integration.md`](radar_fc_integration.md) | **The PX4-side specification**: dialect additions (54014–54016 + one extension field), uORB topics, the `cc_payload_bridge` module, stream classes, receiver-gauntlet entries, parameters, files touched, and the 868 MHz ELRS downlink path to the operator |
 
 **Sourcing tags** used throughout: **[calc]** arithmetic done here · **[meas]**
 measured on this machine · **[code]** read from source code or project
@@ -81,49 +82,50 @@ Failure semantics, which matter more than the mechanism:
   dwell started.
 * The **airborne-transmit interlock overrides start** unconditionally (§A.2).
 
-**CC → FC → operator, the report.** One compact fixed-size message, ≤ 1 Hz:
+**CC → FC → operator, the report.** One compact, **self-contained** message at
+≤ 1 Hz: presence (3-state: no / yes / *undecided*), track count, best range and
+azimuth, respiration and heart rate with per-estimate confidences, elapsed coherent
+dwell seconds, `decision_age_ms`, quality flags, payload state, and
+`last_command_seq` as the command ack. 36 B payload → ~48 B on the wire **[calc]**.
 
-| Field | Bytes | Notes |
-|---|---|---|
-| `sequence` | 4 | monotonic per `cc_boot_id` |
-| `dwell_id` | 4 | joins the downlink to the recorded dataset |
-| `human_present` | 1 | the bool the operator actually wants |
-| `n_tracks` | 1 | |
-| `best_range_dm` | 2 | decimetres, best track |
-| `best_azimuth_cdeg` | 2 | centidegrees |
-| `resp_rpm_x10` | 2 | 0 = no estimate (never a fabricated value) |
-| `resp_confidence` | 1 | 0–100 |
-| `heart_bpm_x10` | 2 | 0 = no estimate |
-| `heart_confidence` | 1 | 0–100 |
-| `dwell_secs_elapsed` | 1 | lets the operator see the 30 s window filling |
-| `quality_flags` | 2 | motion-corrupted, clutter-dominated, window-incomplete, clock-unlocked… |
-| `payload_state` | 1 | IDLE / CONFIGURING / CAPTURING / INHIBITED / FAULT |
-| `schema_version` | 1 | |
-| **total payload** | **25** | ~37 B on the wire with MAVLink 2 framing **[calc]** |
+Full field-by-field definition, the enums, the PX4-side plumbing and the reasons
+behind each choice live in **[`radar_fc_integration.md`](radar_fc_integration.md)** —
+that document is the single source of truth for the wire contract, so this one does
+not duplicate the table.
+
+Two design points worth stating here because they are easy to get wrong:
+*presence is three-state* (collapsing "undecided" into "no" turns a
+not-yet-answered question into a negative result — the failure mode that gets
+people missed), and *a rate of 0 means "no estimate", never a guess.*
 
 Sized against measured ELRS MAVLink-mode bandwidth **[code, ExpressLRS docs]** —
 MAVLink mode forces a 1:2 telemetry ratio:
 
-| ELRS mode | Downlink | One 37 B report at 1 Hz costs |
+| ELRS mode | Downlink | One 48 B report at 1 Hz costs |
 |---|---|---|
-| 2.4 GHz F1000 | ~2375 B/s | 1.6 % |
-| 2.4 GHz 333 Hz Full | ~1470 B/s | 2.5 % |
-| 900 MHz K1000 Full | ~4420 B/s | 0.8 % |
-| 900 MHz 200 Hz Full | ~880 B/s | 4.2 % |
-| 2.4 GHz 50 Hz | ~110 B/s | **34 %** |
+| **868/900 MHz K1000 Full** (LR1121) | ~4420 B/s | 1.1 % |
+| **868/900 MHz 200 Hz Full** | ~880 B/s | 5.5 % |
+| 2.4 GHz F1000 | ~2375 B/s | 2.0 % |
+| 2.4 GHz 333 Hz Full | ~1470 B/s | 3.3 % |
+| 2.4 GHz 50 Hz | ~110 B/s | **44 %** |
 
-⇒ 1 Hz is comfortable except on the slowest modes, where the design must fall
-back to a 8-byte summary (presence + two rates + flags) at 0.2 Hz. That
-degradation is a requirement, not an optimisation: the link budget is shared with
-all of PX4's own telemetry.
+⇒ 1 Hz is comfortable on the realistic 868 MHz modes; the lever for constrained
+links is the **rate** (`CC_PL_TEL_HZ` → 0.2 Hz), not a second message format —
+MAVLink 2's zero-truncation already shrinks a report that has no estimate yet.
 
-Two operator-display realities to bench-test early (§H): ELRS converts MAVLink
-telemetry into CRSF sensors for EdgeTX, so a **custom dialect message will not
-render on the handset** — a GCS (QGroundControl on a tablet) speaking the CC
-dialect will. Mirroring 2–3 scalars into standard messages is the pragmatic path
-for handset visibility. Also, in MAVLink mode the FC waits to be asked for
-streams, so EdgeTX can show nothing until a GCS connects **[code, ELRS
-discussion]** — plan for the GCS-less case explicitly.
+**The EU 868 constraint matters more than the byte count.** In the EU868 domain
+ELRS uses Listen Before Talk, and **a busy channel aborts that packet interval**
+**[corrob]** — so the downlink loses slots non-deterministically and the effective
+bandwidth sits below the table. That is precisely why the report is designed to be
+**self-contained and idempotent**: no deltas, no implied state, absolute values
+plus `decision_age_ms`, so any single packet that lands is fully interpretable and
+lost packets cost only freshness. Plan at ~50 % of nominal.
+
+Operator display has two paths that differ a lot in effort — a GCS speaking the CC
+dialect works with only the PX4 changes, while handset-only (EdgeTX) display needs
+a custom CRSF frame plus a Lua widget, because ELRS renders only mapped CRSF
+sensors and a custom dialect message will not appear **[corrob]**. Both are
+specified in [`radar_fc_integration.md`](radar_fc_integration.md) §G.3.
 
 ### A.2 The one hard gate: airborne transmit inhibit
 
@@ -279,10 +281,24 @@ What *can* overload the Orin Nano — and the harness must budget each explicitl
   every model and every FFT contends for one 1024-core GPU. Without stream
   priorities and a drop policy, an ML experiment starves the live tier.
 
-⇒ **Design rule: ML is offline-first.** The dataset is the ML substrate; a
-*distilled, quantised* subset may be promoted to the live tier only with a
-measured budget and a hard drop policy. That is a harness feature (§B.3), not a
-constraint on ambition.
+⇒ **Design rule: ML is a first-class pipeline stage, and its deadline is the
+window or the dwell — not the frame.** That distinction is what makes it
+affordable. Frame-rate inference at 20 Hz would be brutal; a decision every 1–2 s,
+or once per dwell, is cheap:
+
+| Cadence | A 10 GFLOP model | A 500 GFLOP model | A model taking 0.26 s wall time |
+|---|---|---|---|
+| every frame (20 Hz) | 200 GFLOP/s — tight | impossible | impossible |
+| every 1 s (sliding window) | 10 GFLOP/s ≈ 0.8 % of peak | 500 GFLOP/s — too much | 26 % GPU duty |
+| once per 30 s dwell | negligible | 16.7 GFLOP/s ≈ 1.3 % of peak | < 1 % GPU duty |
+
+So the pipeline ends in ML by design: classical DSP folds every frame, a sliding
+window feeds a classifier every 1–2 s, and the **presence decision plus the vital
+signs are committed at window or dwell granularity** — carrying
+`decision_age_ms` so the operator can see how fresh the answer is. What stays
+non-negotiable is *independence*: the recorder never waits for the model, a model
+that hangs or OOMs is invisible to the record, and every inference is stamped with
+its model hash so the same decision can be reproduced offline (§B.3).
 
 ### C.2 "The idea of the radar pre-processing was to lower CC overhead"
 
@@ -380,7 +396,7 @@ Phase 10 is done when a stranger can attach a pipeline and trust the data.
 | **R2** | Two data paths by design: bulk raw for the record, a reduced tier for live use. They are joined by frame index + SYNC ledger, never by timestamps alone. |
 | **R3** | The live tier stays — it is ~2 % of the GPU and it is the only way an operator knows the payload works. But it is *derived*, never the record. |
 | **R4** | Reduce the live tier by decimation and coarse beamforming, never by selecting range-angle cells. |
-| **R5** | ML is offline-first. Promotion to the live tier requires a measured budget, a quantised model, and a drop policy. |
+| **R5** | ML is a pipeline stage, not an afterthought: the pipeline **ends** in a presence decision (classifier or classical, declared per pipeline), and vital signs are emitted only when presence is asserted. Its deadline is the window/dwell, and it reports `decision_age_ms` rather than blocking. The recorder never waits for it. |
 | **R6** | Raw is stored compressed, losslessly by default (transform + zstd), with an optional per-dwell controlled-loss mode whose error is recorded in micrometres. |
 | **R7** | A pipeline can never back-pressure the recorder, and must be attachable in Rust, Python or MATLAB with proven output parity. |
 | **R8** | The FC relays only: start/stop in, one compact report out. Radar content never enters `cc_safety_monitor`. |

@@ -292,10 +292,22 @@ the recorder. The vital-signs and detection algorithms themselves are Phase 11+,
 built *against* this harness.
 
 **PX4's role is deliberately thin:** it relays the pilot's RC start/stop (from the
-RadioMaster over ELRS) to the companion, supplies flight state and the airborne
-flag, and forwards one compact `CC_VITALS_REPORT` (~25 B payload, ≤1 Hz) back down
-the ELRS telemetry link to the operator. Radar content never enters
-`cc_safety_monitor` — no policy, no action, no failsafe.
+RadioMaster over 868 MHz ELRS) to the companion, supplies flight state plus a
+`landed_state` extension field so the airborne interlock *knows* rather than
+infers, and re-streams one compact self-contained `CC_VITALS_REPORT` (36 B payload,
+≤1 Hz) back down the ELRS telemetry link to the operator. Radar content never
+enters `cc_safety_monitor` — no policy, no action, no failsafe; the isolation is
+asserted by a test, not assumed. The full PX4-side specification (three new dialect
+messages, uORB topics, the `cc_payload_bridge` module, stream classes, receiver
+gauntlet, parameters, files touched) is in
+[`phase10/radar_fc_integration.md`](phase10/radar_fc_integration.md).
+
+**ML is part of the pipeline, not an afterthought:** the chain terminates in a
+presence decision (classifier or classical, declared per pipeline), and vital signs
+are released only when presence is asserted. Its deadline is the sliding window
+(1–2 s) or the dwell (~30 s) rather than the frame, which is what makes real models
+affordable on an Orin Nano; a late decision reports its age instead of answering
+stale, and the recorder never waits for it.
 
 Design and budgets: [`phase10/phase10_radar_harness.md`](phase10/phase10_radar_harness.md)
 plus companions on [transport & sync](phase10/radar_transport_and_sync.md),

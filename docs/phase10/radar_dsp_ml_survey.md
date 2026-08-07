@@ -252,21 +252,38 @@ SNR/RCS and treat detection as probabilistic.
 | Generative/GAN and diffusion methods for high-resolution imaging from degraded input **[unver]** | Interesting for imaging, high risk for a measurement whose output is a *number a medic will act on*. |
 | Hardware-accelerated DSP front ends (automotive platforms put range/Doppler/angle FFTs in fixed-function hardware and leave the GPU for perception) **[corrob]** | Not available to us: **the Orin Nano has no DLA and no PVA** **[corrob]** — everything shares one 1024-core GPU. |
 
-### C.2 The latency reality check
+### C.2 Where ML sits in the pipeline, and the latency that makes it affordable
 
-Published radar denoising/classification networks are *far* from 20 Hz: one
-self-supervised denoise+classify network reports **0.26 s per sample** (≈4 Hz) and
-a hybrid method **~1.7 s on a desktop GTX 1080 Ti** **[corrob]**. The Orin Nano is
-a fraction of that GPU.
+ML is **in** the chain, not beside it. The pipeline's terminal stage is a decision:
+*is a human present?* — and only if that asserts do vital signs get released. The
+enabling insight is that **this decision's deadline is the window or the dwell, not
+the frame**:
 
-Therefore:
-* **Offline/batch ML is unconstrained** — use the whole dataset, use big models.
-* **Online ML must be earned**: distil/quantise, budget it explicitly, and give it
-  a drop policy. A 2D model on a range-Doppler map (~1–2 GFLOP) is ~2 % of FP32
-  peak at 20 Hz; a 3D model over 256×64×192 cells is 100–500 GFLOP/inference =
-  **2–10 TFLOP/s at 20 Hz, beyond the device** **[calc]**.
-* The harness's pipeline contract (out-of-process, lossy reader, recorded model
-  hash) exists precisely so an ML experiment can never take the recorder down.
+```
+20 Hz  ── range FFT · clutter removal · phase extraction · tracking     (classical)
+1–2 s  ── sliding-window features → presence classifier                 (ML, soft)
+~30 s  ── dwell commit: presence decision + vital signs + confidences   (ML, soft)
+```
+
+Published radar networks are far from 20 Hz — one self-supervised denoise+classify
+network reports **0.26 s per sample**, a hybrid method **~1.7 s on a desktop GTX
+1080 Ti** **[corrob]** — and that is fine here, because at 1 Hz the first costs
+26 % of the GPU and at dwell cadence under 1 %. A model too slow for frame-rate
+inference can be entirely appropriate for a decision the operator waits 30 seconds
+for anyway. The full cadence arithmetic is in
+[`radar_realtime_budget.md`](radar_realtime_budget.md) §C.3.
+
+What that buys, and what it costs:
+
+* **Buys:** big models are usable *online*, not just offline. A window-cadence
+  classifier and a dwell-cadence committer can both be real networks.
+* **Costs nothing in record integrity**, provided three things hold: the recorder
+  never waits for the model; a late invocation is skipped and reported
+  (`decision_age_ms`, `CC_VF_ML_STALE`) rather than answered stale; and the model
+  hash is recorded so any live decision can be reproduced from the dataset.
+* **Requires a three-state output.** "Undecided" must be expressible, because a
+  classifier that has not yet seen 30 s of coherent data has genuinely not answered
+  — and reporting that as "no human" is the failure mode that gets people missed.
 
 ### C.3 Where ML most plausibly pays off here — ranked
 
@@ -276,8 +293,10 @@ Therefore:
    airborne input, landed target — and it is a far better-posed learning problem
    than generic denoising. **This is the highest-value ML idea in this document.**
 2. **Presence/absence classification** on short windows, cross-modally supervised
-   by camera + mannequin/empty controls. Robust to the fact that rate estimation is
-   hard: knowing *someone is alive there* is most of the operational value.
+   by camera + mannequin/empty controls. **This is the pipeline's terminal stage**
+   (§C.2) and it is robust to the fact that rate estimation is hard: knowing
+   *someone is alive there* is most of the operational value, and it gates whether
+   vital signs are released at all.
 3. **Quality/confidence prediction** — learn to predict whether a dwell will yield
    a trustworthy rate, from the first few seconds. Operationally this is huge: it
    tells the pilot to keep hovering or move on, and it is a much easier target than
@@ -344,6 +363,7 @@ Explicit non-goals. Each has cost someone a research programme.
 
 | Don't | Because |
 |---|---|
+| **Run ML inference at frame rate (20 Hz)** | Not because ML is unaffordable — because it is unnecessary. The decision is a window/dwell product; frame-rate inference costs 20–100× more for an answer nobody can use faster (§C.2). |
 | **Buried-victim detection at 77–81 GHz** | Physics. Concrete runs tens of dB/m and every fielded rubble/avalanche system uses 150 MHz–4 GHz **[corrob]**. This payload is a surface/line-of-sight sensor. |
 | **Chasing sensitivity** — more virtual channels, more averaging, lower noise figure | At 5–30 m nothing is SNR-limited; the limits are clutter, platform motion and geometry (A4/A5). Spend the budget on uniform timing and clutter rejection. |
 | **Heart rate from a translating platform as an early milestone** | Even at sub-6 GHz, published airborne work recovered breathing in motion but heartbeat only in hover **[unver]**; at 79 GHz the same motion produces 3.3–10.8× more phase **[calc]**. Hover first, or don't bother. |
