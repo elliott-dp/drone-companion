@@ -257,7 +257,11 @@ Ranked by expected value on this platform:
    *displacement waveform* — sub-mm recovery under > 100 mm of platform motion,
    < 1 % rate error, 100 s hovers. With 192 virtual channels, a *beam* can serve
    as the second channel at no hardware cost — still unpublished anywhere, and
-   the one genuinely novel experiment this aperture uniquely enables.
+   the one genuinely novel experiment this aperture uniquely enables. **This
+   idea is now developed into a full method proposal —
+   [`radar_rbec_method.md`](radar_rbec_method.md)** — combining this row with
+   item 1's anchor least squares, SAR autofocus theory, and the cascade's
+   shared-LO common-mode structure, with budgets and a validation ladder.
 4. **IMU-aided, µs-aligned** — as a *coarse* pre-correction and a validity gate,
    not as the primary. Timing budget: −20 dB of a 100 Hz line needs 159 µs
    alignment; −30 dB needs 50 µs **[calc]**. The demotion is now published

@@ -23,6 +23,8 @@
 | [`radar_dsp_ml_survey.md`](radar_dsp_ml_survey.md) | The extensive algorithm survey: every stage, its alternatives, the ML landscape, and what should and should not be tested |
 | [`radar_realtime_budget.md`](radar_realtime_budget.md) | Task classes and deadlines (including the deferred ML decision path), the compute budget with arithmetic, and the answer to "will the monitoring tier overload the CC?" |
 | [`radar_fc_integration.md`](radar_fc_integration.md) | **The PX4-side specification**: dialect additions (54014–54016 + one extension field), uORB topics, the `cc_payload_bridge` module, stream classes, receiver-gauntlet entries, parameters, files touched, and the 868 MHz ELRS downlink path to the operator |
+| [`radar_rbec_method.md`](radar_rbec_method.md) | **Method proposal (RBEC)**: reference-beam ego-motion cancellation — target + reference beams from one datacube, the anchor least-squares/ANC estimators, the shared-LO common-mode analysis, budgets, failure modes, and a six-rung validation ladder. The developed form of the survey's §B.10 "beam as second channel" idea |
+| [`radar_primary_source_findings.md`](radar_primary_source_findings.md) | The 2026-08 primary-source verification record: per-claim verdicts, citations, corrections applied, and the answers to the survey's five open questions |
 
 **Sourcing tags** used throughout: **[calc]** arithmetic done here · **[meas]**
 measured on this machine · **[code]** read from source code or project
