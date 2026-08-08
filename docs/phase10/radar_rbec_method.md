@@ -1,13 +1,20 @@
 # RBEC — reference-beam ego-motion cancellation: a method proposal
 
-> **Status: method proposal. No code, no measurements.** Companion to
+> **Status: method proposal, numerically validated on paper.** Companion to
 > [`radar_dsp_ml_survey.md`](radar_dsp_ml_survey.md) §B.10, which ranks
 > ego-motion compensation strategies and flags "a *beam* can serve as the
 > second channel at no hardware cost" as the one experiment this aperture
 > uniquely enables. This document develops that idea into a specified,
 > falsifiable method, against primary sources read in the 2026-08 research
 > passes (sourcing record in §K; tags as in the survey — **[prim]** primary
-> document read · **[calc]** arithmetic here · **[open]** unresolved).
+> document read · **[calc]** arithmetic here · **[meas]** computed on this
+> machine · **[open]** unresolved). The V1-groundwork simulations —
+> [`radar_rbec_validation.md`](radar_rbec_validation.md), code in
+> [`tools/phase10/rbec/`](../../tools/phase10/rbec/README.md) — answer this
+> document's open budget questions: **the budget closes on paper**,
+> including a combined worst-realistic case at 0.095 rad vs the 0.110
+> budget, with the corrections and new requirements folded into §C.1, §C.3,
+> §F.3 below.
 
 **The idea in one paragraph.** Each 20 Hz frame of the 4×AWR2243 cascade is a
 192-virtual-channel datacube. From that *same* cube, digitally synthesize
@@ -130,6 +137,16 @@ RAIM-style outlier exclusion (a wrong integer on one anchor is a gross LS
 residual) or joint integer LS (LAMBDA lineage). Honest requirement: 20 Hz
 Doppler resolution alone predicts inter-frame displacement only to ~1.5 mm >
 λ/4, so **the IMU prior is mandatory, not optional** **[prim + calc]**.
+The numerical validation sharpened this into two distinct requirements
+(**[meas]**, [`radar_rbec_validation.md`](radar_rbec_validation.md) §D):
+anchors fail on plain λ/4 Gaussian arithmetic, but the **target track fails
+first** — the chest's own respiration velocity consumes up to ~2/3 of the π
+margin across a 47 ms gap — so (a) the IMU must be good to ≲100 µm per gap
+(~3× margin over accelerometer arithmetic, not the 10× first assumed), and
+(b) the target-track integer fix needs a **chest-velocity prior** (an
+extrapolated respiration slope) that the anchors don't. One IMU error is
+common to all tracks, so integer failures co-occur — RAIM exclusion must be
+designed for correlated, not independent, faults.
 Stöckel's second-derivative unwrapper (integer-counter correction of
 first-derivative jumps, IMU-seeded initialisation, 30·2π divergence reset)
 is the documented fallback for frame-rate-only processing.
@@ -173,13 +190,17 @@ Langley). Three rules follow:
    sector-clustered anchors it is nearly collinear with boresight translation
    (boresight DOP inflates 0.41 → 2.36 **[calc]**). Common instrument phase
    is handled by the differencing (§E), which needs no extra unknown.
-3. **Coplanarity is the operational limit**: anchors that are all ground
-   patches at one depression angle have coplanar LOS tips → singular solve.
-   A hovering radar over flat featureless ground is RBEC's worst case; the
-   mitigation is structures, a deployed corner reflector (pair-GDOP
-   √2/|sin γ| quantifies its placement value; γ → 90° reaches the floor √2),
-   or accepting compensation only along observed axes, declared in the
-   output quality flags.
+3. **Rank deficiency is the operational limit** (corrected by the numerical
+   validation — the earlier "coplanar LOS tips → singular" claim was the
+   GNSS clock-column theorem, which applies only with the common-phase
+   column rule 2 forbids): the translation-only solve is singular when the
+   anchor LOS *directions* span rank < 3 — zero height or collapsed azimuth
+   spread. A single-depression ground ring is ill-conditioned cross-sector
+   (condition number ~10²) but keeps DOP(u_t) ≈ 0.6 for an on-cone target.
+   The mitigations stand: structures, a deployed corner reflector
+   (pair-GDOP √2/|sin γ|; γ → 90° reaches the floor √2), or per-axis
+   quality flags. Numbers in
+   [`radar_rbec_validation.md`](radar_rbec_validation.md) §C.
 
 **C.4 Anchor management.** Composite admission/weighting rule, every part
 from a primary-read source:
@@ -354,11 +375,18 @@ first sidelobe −31.5 dB → combined ≥60 dB), **or** carry an anchor echo
 and angle-only separation the leaked respiration is ~10 % of cardiac
 amplitude — quantified, tolerable, and reported; with a 20 dB-weaker anchor
 it equals the cardiac signal and the method self-cancels — prohibited by the
-admission rule. Caveat carried in the paper: the σ²/N floor assumes i.i.d.
-per-channel errors; the cascade's residual is partly *correlated* per chip,
-which can produce discrete spurious lobes above the floor — a Monte Carlo
-with the measured calibration vector is required before trusting the floor
-(§H, V1).
+admission rule. The correlated-error caveat has been **resolved by the V1
+Monte Carlo with a nuance** (**[meas]**,
+[`radar_rbec_validation.md`](radar_rbec_validation.md) §B): at matched total
+variance, per-chip correlation raises neither the leakage table nor the mean
+floor — but a fixed chip map concentrates chip-common error power into
+**discrete spurs at predictable angles** (sin θ = k/8 for the assumed map's
+period-16 block structure, ~−44 dB, ~23 dB above the median excess). The
+admission rule gains a clause — no anchors at the map's spur angles relative
+to the casualty — and two refinements landed with it: separation must be
+**≥ 3° at any steering** (2° sits on the mainlobe shoulder, and is −12 dB at
+a 40°-steered anchor), and the measured cal vector still supersedes the
+Gaussian model for the final spur levels.
 
 **F.4 Compute.** One steered beam at one range-Doppler cell = 192 complex
 MACs. Ten beams × ~4 range bins at 20 Hz ≈ 1.2 MFLOP/s — 0.07 % of the
