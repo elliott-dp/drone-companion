@@ -20,6 +20,11 @@ rotation-induced beam-gain modulation, real hover PSDs) are stated in each
 module docstring and in the results document; pushing past them is what
 validation rungs V2–V6 in the method paper are for.
 
+To feed the simulation **measured** hover motion instead of the synthetic
+sway: fly the [HOVER_CAPTURE.md](HOVER_CAPTURE.md) flight card, then
+`python3 -m tools.phase10.rbec.hover_ingest <logs...>` (needs `pyulog`) and
+pass `SimConfig(motion_npz=...)`.
+
 | Module | Contents |
 |---|---|
 | `core.py` | Constants (79 GHz, 4π/λ), vital bands, band-RMS (Parseval-checked), shaped hover noise |

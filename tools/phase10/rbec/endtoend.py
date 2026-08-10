@@ -36,10 +36,12 @@ class SimConfig:
     frame_hz: float = 20.0
     chirps_per_burst: int = 12
     chirp_spacing_s: float = 250e-6
-    # platform motion
+    # platform motion — synthetic by default, or a measured hover replay
     sway_rms_m: float = 0.02          # per axis; knee 0.3 Hz
     sway_knee_hz: float = 0.3
     vib_lines: tuple = ((93.0, 76e-6), (187.0, 30e-6))   # (Hz, m) per axis z
+    motion_npz: str | None = None     # hover_ingest.py output: replay real sway
+    motion_segment: int = 0
     # scene
     n_anchors: int = 9
     anchor_az_span_deg: float = 100.0
@@ -102,10 +104,26 @@ def chest_waveform(t: np.ndarray, cfg: SimConfig) -> np.ndarray:
 
 def platform_motion(t_grid: np.ndarray, fs: float, cfg: SimConfig,
                     rng: np.random.Generator) -> np.ndarray:
-    """(len(t),3) displacement on a uniform grid."""
+    """(len(t),3) displacement on a uniform grid — synthetic shaped noise, or
+    a measured hover trajectory replayed from a hover_ingest.py npz (the
+    replay is band-limited by the log's EKF position rate, so the synthetic
+    vibration lines are still added on top to cover the rotor band)."""
     n = t_grid.size
-    d = np.stack([shaped_noise(n, fs, cfg.sway_knee_hz, cfg.sway_rms_m, rng)
-                  for _ in range(3)], axis=1)
+    if cfg.motion_npz is not None:
+        z = np.load(cfg.motion_npz, allow_pickle=False)
+        i = cfg.motion_segment
+        ts, xyz = z[f"seg{i}_t"], z[f"seg{i}_xyz"]
+        if ts[-1] < t_grid[-1]:
+            raise ValueError(
+                f"hover segment {i} is {ts[-1]:.0f}s < sim {t_grid[-1]:.0f}s")
+        # random time offset within the segment so seeds differ
+        off = rng.uniform(0.0, ts[-1] - t_grid[-1])
+        d = np.stack([np.interp(t_grid + off, ts, xyz[:, k])
+                      for k in range(3)], axis=1)
+        d -= d.mean(axis=0)
+    else:
+        d = np.stack([shaped_noise(n, fs, cfg.sway_knee_hz, cfg.sway_rms_m,
+                                   rng) for _ in range(3)], axis=1)
     for f_hz, amp in cfg.vib_lines:
         ph = rng.uniform(0, 2 * np.pi, 3)
         d += amp * np.sin(2 * np.pi * f_hz * t_grid[:, None] + ph[None, :])

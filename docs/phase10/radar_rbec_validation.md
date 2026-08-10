@@ -300,10 +300,18 @@ MMIC are drawn independently. Follow-ups, in order:
    chest prior dropped; post-hoc repair shown structurally unable at the
    cliff. Remaining engineering: RAIM outlier-robustness when an anchor
    itself slips (currently plain LS over all anchors).
-3. Replace the synthetic sway with a measured PX4 hover PSD — **blocked**:
-   no project hover ULog exists (checked; the only .ulg in the tree is an
-   upstream PX4 boat-test sample), and SITL/SIH cannot yet fly (Phase 6
-   note: fails preflight). Unblocks when either is fixed.
+3. Replace the synthetic sway with a measured PX4 hover PSD — **ready to
+   execute**: the pilot has offered hover flights, and the capture kit is
+   built — flight card in
+   [`tools/phase10/rbec/HOVER_CAPTURE.md`](../../tools/phase10/rbec/HOVER_CAPTURE.md)
+   (`SDLOG_PROFILE = 17`, Loiter/Position hovers ≥ 2 min per segment),
+   ingestion via `hover_ingest.py` (auto-detects hover segments, reports
+   per-axis band RMS, writes the replay npz), and the simulator replays it
+   through `SimConfig(motion_npz=...)`. Pipeline smoke-tested end-to-end on
+   the upstream boat-test sample (which, at 5–12 m of travelling motion,
+   also served as an unplanned stress case: 0.20 rad residual, zero unwrap
+   failures). Once the real logs land, exp3/exp4 re-run on measured
+   trajectories re-derives T3, the seam rates and the budget verdict.
 4. Frame-random vs per-dwell-systematic angle-error characterisation (V2
    bench question that decides the WLS story).
 5. ~~The real chip map~~ **done** (TIDUEN5A Fig. 5/6 read visually, §E2):
