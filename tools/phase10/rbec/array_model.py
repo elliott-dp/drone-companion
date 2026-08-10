@@ -30,18 +30,39 @@ N_CHIPS = 4        # master + 3 slaves
 
 def chip_map(rng: np.random.Generator | None = None,
              permute: bool = False) -> tuple[np.ndarray, np.ndarray]:
-    """Return (tx_chip, rx_chip) per virtual element, each in 0..3.
+    """Return (tx_chip, rx_chip) per virtual element, each in 0..3
+    (0 = master, 1..3 = slaves/devices 2..4).
 
-    Default mapping: virtual element p is produced by azimuth TX
-    t = p // 10 (clipped to 0..8; 9 TX assigned to chips 1,2,3 three each)
-    and RX r = p % 16 with RX chip = r // 4. ``permute=True`` shuffles both
-    assignments with ``rng`` for the mapping-sensitivity ablation.
+    REAL map, primary-sourced from TIDUEN5A Figures 5 and 6 (read visually,
+    2026-08): azimuth TX at lambda/2 positions {0,4,...,32} — TX12/11/10 on
+    device 4 at {0,4,8}, TX9/8/7 on device 3 at {12,16,20}, TX6/5/4 on
+    device 2 at {24,28,32}; the master's TX1-3 are elevation-only. RX at
+    positions {0..3} = device 4, {11..14} = master, {46..49} = device 3,
+    {50..53} = device 2 (RX-B/C/A blocks, total span 26.5 lambda as
+    annotated). Virtual position p = tx + rx covers 0..85 exactly; of the
+    144 (tx,rx) pairs, overlapped positions are resolved deterministically
+    in favour of the lowest TX position (TI's channel selection may differ —
+    the 86-of-144 subset choice; measured cal data supersedes).
+
+    ``permute=True`` shuffles both assignments with ``rng`` — the
+    mapping-sensitivity ablation (a FIXED permutation; hold it constant
+    across MC draws).
     """
-    p = np.arange(N_AZ)
-    tx_idx = np.clip(p // 10, 0, 8)
-    tx_chip = 1 + tx_idx // 3               # chips 1..3 (slaves)
-    rx_idx = p % 16
-    rx_chip = rx_idx // 4                   # chips 0..3
+    tx_pos = np.array([0, 4, 8, 12, 16, 20, 24, 28, 32])
+    tx_chips = np.array([3, 3, 3, 2, 2, 2, 1, 1, 1])
+    rx_pos = np.array(list(range(0, 4)) + list(range(11, 15))
+                      + list(range(46, 50)) + list(range(50, 54)))
+    rx_chips = np.array([3] * 4 + [0] * 4 + [2] * 4 + [1] * 4)
+
+    tx_chip = np.full(N_AZ, -1)
+    rx_chip = np.full(N_AZ, -1)
+    for ti in np.argsort(tx_pos):                 # lowest TX position wins
+        for ri in range(rx_pos.size):
+            p = tx_pos[ti] + rx_pos[ri]
+            if tx_chip[p] == -1:
+                tx_chip[p] = tx_chips[ti]
+                rx_chip[p] = rx_chips[ri]
+    assert (tx_chip >= 0).all(), "virtual array not fully covered"
     if permute:
         assert rng is not None
         tx_chip = rng.permutation(tx_chip)

@@ -66,6 +66,13 @@ class SimConfig:
     # heterogeneous-anchor option: anchor 0 becomes a corner reflector
     # (angle error x0.05, +20 dB SNR) — the case WLS exists for
     corner_anchor: bool = False
+    # mitigations (validation follow-up 2)
+    chest_prior: bool = False      # chest-velocity prior on the target seam
+    raim_seam: bool = False        # anchor-consensus IMU correction per seam
+    slip_repair: bool = False      # post-track 2pi cycle-slip repair
+    # leakage topologies (validation follow-up 1)
+    leak_topology: str = "all"     # 'all' anchors leak, or 'single' (anchor 0)
+    target_leak_ratio: float = 0.0  # anchor-0 echo into the TARGET beam
 
 
 @dataclass
@@ -170,15 +177,26 @@ def run(cfg: SimConfig, seed: int, motion_on: bool = True,
     sig_ak = 1.0 / np.sqrt(2 * 10 ** (snr_k / 10))
     sig_t = 1.0 / np.sqrt(2 * 10 ** (cfg.target_snr_db / 10))
     phi_target_geo = K_DISP * (d @ u_t) + K_DISP * chest
-    phi_t = (phi_target_geo + psi_common + chip_steps @ mism_t
-             + sig_t * rng.standard_normal(t_chirp.size))
+    if cfg.target_leak_ratio > 0:
+        # anchor-0 echo entering the target beam through its sidelobe: the
+        # reverse leakage direction the review flagged (anchors are strong)
+        anchor0_phase = K_DISP * (d @ U_true[0]) + psi_common
+        t_clean = np.exp(1j * (phi_target_geo + psi_common + chip_steps @ mism_t))
+        t_leak = cfg.target_leak_ratio * np.exp(1j * anchor0_phase)
+        phi_t = (np.angle(t_clean + t_leak)
+                 + sig_t * rng.standard_normal(t_chirp.size))
+    else:
+        phi_t = (phi_target_geo + psi_common + chip_steps @ mism_t
+                 + sig_t * rng.standard_normal(t_chirp.size))
 
     phi_a = np.empty((cfg.n_anchors, t_chirp.size))
     for k in range(cfg.n_anchors):
         geo = K_DISP * (d @ U_true[k])
         inst = psi_common + chip_steps @ mism_a[k]
         clean = np.exp(1j * (geo + inst))
-        leak = cfg.leak_amp_ratio * np.exp(1j * (phi_target_geo + inst))
+        rho = cfg.leak_amp_ratio if (cfg.leak_topology == "all" or k == 0) \
+            else 0.0
+        leak = rho * np.exp(1j * (phi_target_geo + inst))
         noisy = clean + leak
         phi_a[k] = np.angle(noisy) + sig_ak[k] * rng.standard_normal(t_chirp.size)
 
@@ -200,39 +218,114 @@ def run(cfg: SimConfig, seed: int, motion_on: bool = True,
     chest_gap = np.abs(chest[gap_idx] - chest[gap_idx - 1]).max()
     assert K_DISP * chest_gap < np.pi, "chest motion per gap exceeds pi"
 
-    def track(phi_wrapped: np.ndarray, u: np.ndarray,
-              is_target: bool) -> np.ndarray:
-        nonlocal n_fail_anchor, n_fail_target
-        ph = phi_wrapped.reshape(n_frames, C).copy()
-        out = np.empty_like(ph)
-        out[0] = np.unwrap(ph[0])
-        for f in range(1, n_frames):
-            burst_u = np.unwrap(ph[f])
-            i_prev, i_now = f * C - 1, f * C
-            delta_true = d[i_now] - d[i_prev]
-            delta_imu = delta_true + imu_err[f]
-            pred = out[f - 1, -1] + K_DISP * (delta_imu @ u)
+    wrap = lambda x: (x + np.pi) % (2 * np.pi) - np.pi
+
+    # Unified per-frame tracking: anchors are fixed FIRST each seam so that
+    # (raim_seam) their sub-integer innovations — which contain the shared
+    # IMU error projected on each u_k and no chest term — can be LS-solved
+    # for the common IMU error and the correction applied to the TARGET's
+    # prediction before its integer fix. This is the RAIM design the method
+    # paper promises, exploiting exactly the failure asymmetry exp3 found:
+    # anchors are unambiguous where the target seam is not.
+    ph_t = phi_t.reshape(n_frames, C)
+    ph_a = phi_a.reshape(cfg.n_anchors, n_frames, C)
+    out_t = np.empty_like(ph_t)
+    out_a = np.empty_like(ph_a)
+    out_t[0] = np.unwrap(ph_t[0])
+    for k in range(cfg.n_anchors):
+        out_a[k, 0] = np.unwrap(ph_a[k, 0])
+
+    # anti-cascade chest prior: median of the last 5 WRAPPED res-diffs.
+    # A slipped frame shifts res by 2pi persistently — wrapped diffs are
+    # unaffected except for one transition sample, which the median rejects
+    # (the first, cascading implementation of this prior is why the naive
+    # res_prev1 - res_prev2 version failed catastrophically; see exp4).
+    cum_imu = np.zeros(3)
+    res_hist: list[float] = []
+    diff_hist: list[float] = []
+
+    for f in range(1, n_frames):
+        i_prev, i_now = f * C - 1, f * C
+        delta_true = d[i_now] - d[i_prev]
+        delta_imu = delta_true + imu_err[f]
+
+        innov = np.empty(cfg.n_anchors)
+        for k in range(cfg.n_anchors):
+            burst_u = np.unwrap(ph_a[k, f])
+            pred = out_a[k, f - 1, -1] + K_DISP * (delta_imu @ U_true[k])
             n_cyc = np.round((pred - burst_u[0]) / (2 * np.pi))
-            true_cyc = np.round(((out[f - 1, -1]
-                                  + K_DISP * (delta_true @ u))
+            true_cyc = np.round(((out_a[k, f - 1, -1]
+                                  + K_DISP * (delta_true @ U_true[k]))
                                  - burst_u[0]) / (2 * np.pi))
             if n_cyc != true_cyc:
-                if is_target:
-                    n_fail_target += 1
-                else:
-                    n_fail_anchor += 1
-            out[f] = burst_u + 2 * np.pi * n_cyc
-        return out.ravel()
+                n_fail_anchor += 1
+            out_a[k, f] = burst_u + 2 * np.pi * n_cyc
+            innov[k] = (burst_u[0] + 2 * np.pi * n_cyc) - pred
 
-    phi_t_u = track(phi_t, u_t, is_target=True)
-    phi_a_u = np.stack([track(phi_a[k], U_true[k], is_target=False)
-                        for k in range(cfg.n_anchors)])
+        delta_for_target = delta_imu
+        if cfg.raim_seam:
+            # innov_k ~= -K (imu_err[f] . u_k) + noise  ->  LS estimate
+            err_hat, *_ = np.linalg.lstsq(U_true, -innov / K_DISP, rcond=None)
+            delta_for_target = delta_imu - err_hat
+
+        burst_u = np.unwrap(ph_t[f])
+        pred = out_t[f - 1, -1] + K_DISP * (delta_for_target @ u_t)
+        if cfg.chest_prior and len(diff_hist) >= 2:
+            pred += float(np.median(diff_hist[-5:]))
+        n_cyc = np.round((pred - burst_u[0]) / (2 * np.pi))
+        true_cyc = np.round(((out_t[f - 1, -1]
+                              + K_DISP * (delta_true @ u_t))
+                             - burst_u[0]) / (2 * np.pi))
+        if n_cyc != true_cyc:
+            n_fail_target += 1
+        out_t[f] = burst_u + 2 * np.pi * n_cyc
+
+        cum_imu = cum_imu + delta_imu
+        res = out_t[f, -1] - K_DISP * (cum_imu @ u_t)
+        if res_hist:
+            diff_hist.append(float(wrap(res - res_hist[-1])))
+        res_hist.append(float(res))
+
+    phi_t_u = out_t.ravel()
+    phi_a_u = out_a.reshape(cfg.n_anchors, -1)
     n_fail = n_fail_anchor + n_fail_target
 
     # --- per-frame solve --------------------------------------------------
     fmean = lambda x: x.reshape(-1, n_frames, C).mean(axis=2)
     ya = fmean(phi_a_u)                    # (N, F)
     yt = fmean(phi_t_u[None, :])[0]        # (F,)
+
+    n_repairs = 0
+    if cfg.slip_repair:
+        # GNSS-style cycle-slip repair (causal per frame): reference each
+        # track to the IMU-integrated platform prediction; a residual
+        # frame-to-frame jump near a 2pi multiple is a slipped integer and
+        # is snapped back. Works because everything else in the residual
+        # (chest slope, noise, steps) is << pi per frame — except when the
+        # IMU itself is so bad the detector's own noise nears pi, which the
+        # results table shows honestly. NOTE: one shared IMU error means
+        # slips co-occur across tracks; this per-track repair still works
+        # because the reference subtracts the same shared prediction.
+        cum = np.cumsum(imu_err, axis=0)   # IMU-error part of the reference
+        cum[0] = 0.0
+
+        def repair(y: np.ndarray, u: np.ndarray) -> np.ndarray:
+            nonlocal n_repairs
+            # platform prediction from IMU = true motion + accumulated error
+            d_frame = fmean((d @ u)[None, :])[0]
+            ref = K_DISP * (d_frame + cum @ u)
+            r = y - ref
+            dr = np.diff(r)
+            k = np.round(dr / (2 * np.pi))
+            k[np.abs(dr - 2 * np.pi * k) > 0.9 * np.pi] = 0  # ambiguous: skip
+            n_repairs += int(np.count_nonzero(k))
+            corr = np.concatenate([[0.0], np.cumsum(2 * np.pi * k)])
+            return y - corr
+
+        yt = repair(yt, u_t)
+        for kk in range(cfg.n_anchors):
+            ya[kk] = repair(ya[kk], U_true[kk])
+
     ya = ya - ya[:, :1]
     yt = yt - yt[0]
 
@@ -276,6 +369,7 @@ def run(cfg: SimConfig, seed: int, motion_on: bool = True,
         integer_fail_anchor=n_fail_anchor,
         n_seams=(n_frames - 1) * (cfg.n_anchors + 1),
         step_cmrr_db=None,
+        extras={"n_repairs": n_repairs},
     )
 
     if steps_only and cfg.apll_step_rad > 0:

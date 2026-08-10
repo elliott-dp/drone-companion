@@ -213,6 +213,59 @@ a 4 mm signal.
    angle errors are systematic or frame-random" is now a V2 bench goal —
    it decides the estimator.
 
+## Part E2 — Exp4: mitigations and leakage topologies (follow-ups 1–2, executed)
+
+**The real chip map** (follow-up 5, done): TIDUEN5A Figures 5–6 were read
+visually from the primary PDF — azimuth TX at λ/2-positions {0,4,…,32}
+(slaves only; the master's three TX are elevation), RX blocks at {0–3}
+(device 4), {11–14} (master), {46–49} (device 3), {50–53} (device 2),
+spanning exactly the annotated 26.5 λ and tiling virtual positions 0–85.
+On the real map the chip-error spur moves to **2.6° off boresight**
+(−40.9 dB at 0.8° chip error) — into the anchor-separation zone — costing
+2–4 dB of p90 leakage margin at exactly 3° separation (−35.7 → −33.4/−31.6
+dB) and fading by 4–5°. **Rule refined: ≥ 3° acceptable, ≥ 4° preferred.**
+
+**The seam mitigations, measured** (at the 200 µm/gap cliff onset; 8 seeds):
+
+| Mitigation | Target failures | Cardiac residual |
+|---|---|---|
+| bare | 15 | 0.579 rad — FAIL |
+| chest-velocity prior (anti-cascade, median-of-wrapped-diffs) | 11 | 0.379 — FAIL |
+| **seam-RAIM (anchor-consensus IMU correction)** | **0** | **0.0228 — nominal** |
+| prior + RAIM | 8 | 0.355 — FAIL (the prior's noise *hurts* RAIM) |
+
+Three findings, one of them the design answer:
+
+1. **Seam-RAIM eliminates the cliff at its onset.** Anchors carry the same
+   shared IMU error but no chest term and don't fail at 200 µm — so their
+   per-seam sub-integer innovations LS-solve the common IMU error, and
+   correcting the target's prediction with it removes the ambiguity
+   entirely. The IMU requirement relaxes from ≲100 µm to **≲300 µm per
+   gap** (the hard wall becomes the anchors' own λ/4 Gaussian limit at
+   ~450 µm, where everything fails together). Margin over the ~30 µm
+   achievable: ~10×, restored.
+2. **Post-hoc slip repair cannot work at the cliff, by construction** —
+   instrumentation showed the failing seams' residuals land at ~±3.1 rad,
+   exactly the ambiguity zone where a slip and a legitimate excursion are
+   indistinguishable from one track. (It still cleans up gross multi-slip
+   cases: 12 repairs cut a 0.36 rad residual to 0.16.)
+3. **Honest negative #3: the chest-velocity prior is dropped.** Even
+   implemented anti-cascade (the naive version cascaded catastrophically —
+   one slip poisoned its memory for the rest of the dwell), it removes only
+   ~a quarter of failures and its noise degrades RAIM when combined. The
+   method paper's C.1 recommendation becomes seam-RAIM, not the prior.
+
+**Leakage topologies** (follow-up 1): a single contaminated anchor is
+*milder* than all-anchors at the same ratio (0.026 vs 0.064 rad at −10 dB —
+the solve averages one bad equation down by ~1/N). The binding topology is
+the **reverse direction**: a strong anchor echo entering the *target* beam
+(anchors are ~10 dB above the chest echo) — at an effective amplitude ratio
+of 0.316 the cardiac residual hits 0.113 rad, the one modelled case that
+fails budget outside the unwrap cliff. Design consequence: the target
+beam's isolation *toward the anchors* matters as much as the reverse, which
+strengthens the ≥ 3–4° separation rule (it is symmetric) and is the
+concrete case for an LCMV null on the strongest anchor in the target beam.
+
 ## Part F — Verification status and follow-ups
 
 The stack was self-tested (Parseval, tone RMS, K·λ/4 = π, taper SLLs against
@@ -241,15 +294,17 @@ beam leakage (the reverse direction — anchors are stronger, ~0.1 rad
 cardiac-scale worst case) is unmodelled, and the TX/RX residuals of one
 MMIC are drawn independently. Follow-ups, in order:
 
-1. Anchor→target beam leakage (the reverse, stronger direction the review
-   flagged) and single-contaminated-anchor leakage (the worst T8 topology).
-2. Chest-velocity prior in the target-track integer fix, then RAIM-style
-   detection + exclusion (with the shared-IMU co-occurrence caveat), then
-   re-measure the cliff with repair active.
-3. Replace the synthetic sway with a measured PX4 hover PSD (ULog from any
-   existing flight) — the one input this stack fakes that the fleet already
-   has real data for.
+1. ~~Leakage topologies~~ **done** (exp4, §E2): single-anchor milder;
+   reverse anchor→target is the binding case → LCMV null candidate.
+2. ~~Seam mitigations~~ **done** (exp4, §E2): seam-RAIM is the answer;
+   chest prior dropped; post-hoc repair shown structurally unable at the
+   cliff. Remaining engineering: RAIM outlier-robustness when an anchor
+   itself slips (currently plain LS over all anchors).
+3. Replace the synthetic sway with a measured PX4 hover PSD — **blocked**:
+   no project hover ULog exists (checked; the only .ulg in the tree is an
+   upstream PX4 boat-test sample), and SITL/SIH cannot yet fly (Phase 6
+   note: fails preflight). Unblocks when either is fixed.
 4. Frame-random vs per-dwell-systematic angle-error characterisation (V2
    bench question that decides the WLS story).
-5. The real SWRU553A Fig. 27 chip map, replacing the parameterised one —
-   which also pins the real spur angles from §B finding 2.
+5. ~~The real chip map~~ **done** (TIDUEN5A Fig. 5/6 read visually, §E2):
+   real spur at 2.6°; separation rule refined to ≥ 3° / ≥ 4° preferred.

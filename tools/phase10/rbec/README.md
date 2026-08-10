@@ -11,6 +11,7 @@ Pure Python + NumPy. Run from the repo root:
 python3 -m tools.phase10.rbec.exp1_sidelobe_mc   # correlated-cal sidelobe MC (~20 s)
 python3 -m tools.phase10.rbec.exp2_gdop          # anchor-geometry DOP maps  (<1 s)
 python3 -m tools.phase10.rbec.exp3_endtoend      # end-to-end solve sweeps   (~60 s)
+python3 -m tools.phase10.rbec.exp4_mitigations   # seam-RAIM + leakage topologies (~35 s)
 ```
 
 All experiments are seeded and bit-reproducible. Model boundaries (what these
