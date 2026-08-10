@@ -31,15 +31,24 @@ chain (calibrate → range FFT → virtual-array beamform), and scores the RBEC
 anchor solve against the dataset's ground-truth poses. The bridge is
 validated by a synthetic-fixture round-trip
 (`python3 -m tools.phase10.rbec.coloradar_bridge`) so it runs the moment
-data is on disk. **Data acquisition status**: the historical anonymous
-routes are dead (SharePoint share removed; the 2021 Google Drive links
-revoked; Radatron distributes heatmaps only, no raw ADC) — the live channel
-is the ColoRadar+ Globus collection, which needs a (free) Globus login.
-Download `calib.zip` + one small sequence (e.g. `ec_hallways_run4`, 90 s),
-lay them out as `<root>/calib/` + `<root>/kitti/<sequence>/`, then:
+data is on disk — and it has been validated against the **real** cascade
+calibration (a public vendored copy of the dataset's calib files; fetch
+with `./tools/phase10/rbec/fetch_coloradar_calib.sh <root>`): 86 unique
+azimuth virtual positions spanning 0–85, λ = 3.831 mm, 5.93 cm range bins,
+coupling matrix (12, 16, 128) parsed and applied.
+
+**Data acquisition status**: only the *sequence* archives remain. The
+historical anonymous routes are dead (SharePoint share removed; the 2021
+Google Drive links revoked; Radatron distributes heatmaps only, no raw
+ADC) — the live channel is the ColoRadar+ Globus collection
+(`arpg.colorado.edu/coloradarplus`), which needs a (free) Globus login.
+Best target: **`2_24_2021_aspen_run9`** (83 s, and ASPEN sequences carry
+**Vicon mm-class ground truth**, far better for scoring the solve than the
+unquantified pose-graph GT elsewhere); fallback `ec_hallways_run4` (90 s,
+wall-rich). Lay out as `<root>/kitti/<sequence>/`, then:
 
 ```bash
-python3 -m tools.phase10.rbec.exp5_coloradar <root> ec_hallways_run4
+python3 -m tools.phase10.rbec.exp5_coloradar <root> 2_24_2021_aspen_run9
 ```
 
 | Module | Contents |

@@ -327,7 +327,11 @@ MMIC are drawn independently. Follow-ups, in order:
    residual on real data, not blind unwrapping. Blocked only on data
    acquisition: every anonymous download route is dead (SharePoint removed,
    2021 GDrive links revoked, Radatron ships heatmaps only); the live route
-   is the ColoRadar+ Globus collection (free login) — `calib.zip` + one
-   90 s sequence ≈ a few GB.
+   is the ColoRadar+ Globus collection (free login). The real cascade
+   calibration is already in hand via a public vendored copy (fetch script
+   committed) and verified through the bridge — 86 azimuth positions
+   spanning 0–85, λ = 3.831 mm, coupling matrix applied — so only one
+   sequence archive is needed. ASPEN sequences carry **Vicon mm-class
+   ground truth**; best target `2_24_2021_aspen_run9` (83 s).
 5. ~~The real chip map~~ **done** (TIDUEN5A Fig. 5/6 read visually, §E2):
    real spur at 2.6°; separation rule refined to ≥ 3° / ≥ 4° preferred.

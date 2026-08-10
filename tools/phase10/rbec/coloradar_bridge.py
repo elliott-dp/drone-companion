@@ -48,7 +48,8 @@ def _read_kv(path: str) -> dict:
                 continue
             parts = line.strip().replace(":", " ").split()
             key = parts[0].lower()
-            vals = parts[1:]
+            # values may be whitespace- or comma-separated (coupling data)
+            vals = [v for tok in parts[1:] for v in tok.split(",") if v]
             if key in ("rx", "tx"):
                 out.setdefault(key + "l", []).append([int(x) for x in vals])
             elif len(vals) == 1:
@@ -72,9 +73,25 @@ class CascadeCalib:
                            + float(wf.get("ramp_end_time", 0.0)))
 
         ant = _read_kv(os.path.join(calib_dir, "cascade", "antenna_cfg.txt"))
-        self.f_design = float(ant["f_design"]) if "f_design" in ant else None
+        fd = float(ant["f_design"]) if "f_design" in ant else None
+        if fd is not None and fd < 1e3:   # dataset ships GHz (e.g. 76.8)
+            fd *= 1e9
+        self.f_design = fd
         self.txl = np.array(ant["txl"])   # rows: [idx, az, el] in lambda/2
         self.rxl = np.array(ant["rxl"])
+
+        # coupling calibration: one complex value per (tx, rx, pos-range-bin),
+        # subtracted from the range FFT (dataset paper Eq. 3)
+        self.coupling = None
+        cpath = os.path.join(calib_dir, "cascade", "coupling_calib.txt")
+        if os.path.exists(cpath):
+            cc = _read_kv(cpath)
+            if "data" in cc:
+                d = np.asarray(cc["data"], dtype=float)
+                d = d[::2] + 1j * d[1::2]
+                nrb = int(cc.get("num_range_bins", d.size
+                                 // (self.num_tx * self.num_rx)))
+                self.coupling = d.reshape(self.num_tx, self.num_rx, 1, nrb)
 
         with open(os.path.join(calib_dir, "cascade",
                                "phase_frequency_calib.txt")) as fh:
@@ -121,11 +138,22 @@ class CascadeSequence:
         self.calib = calib
         self.dir = os.path.join(seq_dir, "cascade", "adc_samples")
         self.times = np.loadtxt(os.path.join(self.dir, "timestamps.txt"))
-        gt_dir = os.path.join(seq_dir, "groundtruth")
-        self.gt_times = np.loadtxt(os.path.join(gt_dir, "timestamps.txt"))
-        # groundtruth_poses: x y z qx qy qz qw per row (dev-kit convention)
-        self.gt_poses = np.loadtxt(
-            os.path.join(gt_dir, "groundtruth_poses.txt"))
+        # Prefer Vicon ground truth when present (ASPEN sequences: mm-class
+        # mocap) over the lidar-inertial pose graph (accuracy unquantified).
+        vicon_dir = os.path.join(seq_dir, "vicon")
+        if os.path.isdir(vicon_dir):
+            self.gt_times = np.loadtxt(
+                os.path.join(vicon_dir, "timestamps.txt"))
+            self.gt_poses = np.loadtxt(
+                os.path.join(vicon_dir, "vicon_poses.txt"))
+            self.gt_source = "vicon"
+        else:
+            gt_dir = os.path.join(seq_dir, "groundtruth")
+            self.gt_times = np.loadtxt(os.path.join(gt_dir, "timestamps.txt"))
+            # groundtruth_poses: x y z qx qy qz qw per row
+            self.gt_poses = np.loadtxt(
+                os.path.join(gt_dir, "groundtruth_poses.txt"))
+            self.gt_source = "pose-graph"
 
     def n_frames(self) -> int:
         return self.times.size
@@ -145,10 +173,17 @@ class CascadeSequence:
 # the cube chain
 # --------------------------------------------------------------------------
 
-def range_fft(cube: np.ndarray, window: bool = True) -> np.ndarray:
+def range_fft(cube: np.ndarray, window: bool = True,
+              calib: CascadeCalib | None = None) -> np.ndarray:
+    """Range FFT; if ``calib`` with coupling data is given, subtracts the
+    dataset's antenna-coupling calibration from the positive range bins."""
     n = cube.shape[-1]
     w = np.blackman(n) if window else np.ones(n)
-    return np.fft.fft(cube * w, axis=-1)
+    rf = np.fft.fft(cube * w, axis=-1)
+    if calib is not None and calib.coupling is not None:
+        nrb = calib.coupling.shape[-1]
+        rf[..., :nrb] = rf[..., :nrb] - calib.coupling
+    return rf
 
 
 def steer_beam(rng_fft: np.ndarray, calib: CascadeCalib, az: float,
@@ -183,7 +218,7 @@ def energy_map(seq: CascadeSequence, frames: range, az_grid: np.ndarray,
     c = seq.calib
     acc = np.zeros((az_grid.size, max_bin))
     for fi in frames:
-        rf = range_fft(seq.frame(fi))
+        rf = range_fft(seq.frame(fi), calib=c if "c" in dir() else seq.calib)
         for ai, az in enumerate(az_grid):
             for rb in range(max_bin):
                 acc[ai, rb] += np.abs(steer_beam(rf, c, az, rb)) ** 2
