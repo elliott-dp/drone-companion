@@ -21,7 +21,22 @@ random-walk biasing the fundamental, a fusion tolerance loose enough for a
 bad estimate to drag the cluster, and sub-period MUSIC aperture in the
 respiration band.
 
-Next (pending the dataset scout): loaders + benchmarks on the public
-Twente (77 GHz FMCW, Polar H10) and Erlangen (24 GHz CW, clinical TFM)
-datasets, VMD and HMUSIC per their primary specifications, and fixture
-export for the 10.3 parity tests.
+`bank.py` assembles the full chain (`process_window` / `sliding`), now
+including VMD (spec-faithful ADMM per Dragomiretskiy-Zosso) and HMUSIC
+(per arXiv:2408.01951, with a declared sum-of-reciprocals deviation), plus
+`cw.py` ellipse-fit I/Q correction for CW radars.
+
+Benchmark on the Erlangen clinical dataset (24 GHz Six-Port CW, clinical
+ECG reference, CC BY 4.0 — figshare DOI 10.6084/m9.figshare.12186516):
+
+```bash
+python3 -m tools.phase10.vitals.exp_erlangen <subjects_zip> --probe   # once
+python3 -m tools.phase10.vitals.exp_erlangen <subjects_zip> --scenario Resting
+```
+
+Dataset decisions from the 2026-08 scout: Erlangen first (direct HTTPS,
+per-10-subject zips ~2 GB); the Twente Polar-H10 set is deferred — it
+ships as a SINGLE ~181 GiB RAR with no per-subject access; the 2026
+Zenodo 110-participant 60 GHz set is a noted candidate. Fixture
+redistribution: Erlangen is CC BY 4.0 (fixtures OK with attribution);
+Twente is CC BY-NC-SA.
