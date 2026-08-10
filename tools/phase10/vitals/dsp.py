@@ -11,9 +11,14 @@ from __future__ import annotations
 import numpy as np
 
 RESP_BAND = (0.1, 0.5)      # Hz
-CARDIAC_BAND = (0.8, 3.5)   # Hz — deliberately wider than TI's 0.8-2.0
-                            # (survey Part E: a 120 BPM cap excludes the
-                            # tachycardic casualty)
+CARDIAC_BAND = (0.6, 4.0)   # Hz — wider than TI's 0.8-2.0 on BOTH ends:
+                            # the survey's Part E argues the 120 BPM cap
+                            # excludes the tachycardic casualty, and the
+                            # Erlangen benchmark found a clinical resting
+                            # subject at 46 BPM below a 0.8 Hz floor
+                            # (GDN0010) — bradycardia is real too. Matches
+                            # the (0.6, 4) Hz band the Erlangen-tuned
+                            # literature converged on.
 
 
 def bandpass(x: np.ndarray, fs: float, band: tuple[float, float],
@@ -56,7 +61,7 @@ def remove_impulses(x: np.ndarray, thresh: float = 1.5) -> np.ndarray:
 
 def harmonic_notch(x: np.ndarray, fs: float, f0: float,
                    harmonics: range = range(2, 6),
-                   rel_bw: float = 0.04) -> np.ndarray:
+                   rel_bw: float = 0.04, rel_bw_k2: float = 0.08) -> np.ndarray:
     """Notch k*f0 for k in ``harmonics`` (survey B.8: respiration harmonics
     3..5 land on the cardiac band and are often stronger than the cardiac
     line; TI's chain only treats k=2 — we treat 2..5 by default)."""
@@ -67,7 +72,11 @@ def harmonic_notch(x: np.ndarray, fs: float, f0: float,
     h = np.ones_like(f)
     for k in harmonics:
         fk = k * f0
-        h[np.abs(f - fk) <= max(rel_bw * fk, 2.0 * fs / n)] = 0.0
+        # the 2nd harmonic is by far the strongest in-band competitor
+        # (Erlangen benchmark: a 0.6 Hz band floor put it in-band and a
+        # narrow notch let it win on some subjects) — notch it wider
+        bw = rel_bw_k2 if k == 2 else rel_bw
+        h[np.abs(f - fk) <= max(bw * fk, 2.0 * fs / n)] = 0.0
     return np.fft.irfft(X * h, n)
 
 

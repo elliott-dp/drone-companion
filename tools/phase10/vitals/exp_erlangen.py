@@ -101,6 +101,23 @@ def ecg_hr_reference(ecg: np.ndarray, fs: float,
                 last = i
     if len(peaks) < 5:
         return np.full_like(t_grid, np.nan)
+    # amplitude post-filter: the first pass catches T-waves as well as
+    # R-peaks (alternating strong/weak heights — found on GDN0001, where
+    # the raw detector reported 142 "bpm" at rest); keep only peaks near
+    # the strong-peak level, then re-enforce the refractory period
+    peaks = np.array(peaks)
+    h = e[peaks]
+    keep = h >= 0.35 * np.percentile(h, 80)
+    peaks = peaks[keep]
+    filtered = [int(peaks[0])]
+    for p in peaks[1:]:
+        if p - filtered[-1] >= int(0.35 * fs):
+            filtered.append(int(p))
+        elif e[p] > e[filtered[-1]]:
+            filtered[-1] = int(p)
+    peaks = filtered
+    if len(peaks) < 5:
+        return np.full_like(t_grid, np.nan)
     tp = np.array(peaks) / fs
     rr = np.diff(tp)
     ok = (rr > 0.3) & (rr < 2.0)
@@ -119,7 +136,7 @@ def main() -> None:
     args = ap.parse_args()
     subjects = args.subjects.split(",") if args.subjects else None
 
-    hr_errs, rows = [], []
+    hr_errs, confs, rows = [], [], []
     for label, buf in iter_mats(args.root, args.scenario, subjects):
         d = load_mat(buf)
         if args.probe:
@@ -157,6 +174,7 @@ def main() -> None:
         e = np.array([x[0] for x in errs])
         rows.append((label, e))
         hr_errs.append(e)
+        confs.append(np.array([x[4] for x in errs]))
         print(f"{label}: {e.size} windows, HR MAE {e.mean():.2f} BPM, "
               f"p90 {np.percentile(e, 90):.2f}, median ref "
               f"{np.median([x[1] for x in errs]):.0f} BPM, mean conf "
@@ -166,9 +184,19 @@ def main() -> None:
 
     if hr_errs:
         all_e = np.concatenate(hr_errs)
+        all_c = np.concatenate(confs)
         print(f"\nTOTAL: {all_e.size} windows over {len(rows)} recordings — "
               f"HR MAE {all_e.mean():.2f} BPM, median {np.median(all_e):.2f}, "
               f"p90 {np.percentile(all_e, 90):.2f}")
+        # confidence-gated view: the payload's three-state doctrine means a
+        # low-confidence window is reported "undecided", not as a number —
+        # so the operational metric is (coverage, error-when-confident)
+        for gate in (0.4, 0.5, 0.6):
+            sel = all_c >= gate
+            if sel.any():
+                print(f"  conf>={gate}: coverage {sel.mean()*100:4.0f} %, "
+                      f"MAE {all_e[sel].mean():5.2f}, "
+                      f"p90 {np.percentile(all_e[sel], 90):5.2f}")
 
 
 if __name__ == "__main__":

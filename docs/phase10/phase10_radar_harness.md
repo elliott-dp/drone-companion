@@ -26,6 +26,7 @@
 | [`radar_rbec_method.md`](radar_rbec_method.md) | **Method proposal (RBEC)**: reference-beam ego-motion cancellation — target + reference beams from one datacube, the anchor least-squares/ANC estimators, the shared-LO common-mode analysis, budgets, failure modes, and a six-rung validation ladder. The developed form of the survey's §B.10 "beam as second channel" idea |
 | [`radar_rbec_validation.md`](radar_rbec_validation.md) | **RBEC numerical validation (V1 groundwork)**: seeded simulations ([`tools/phase10/rbec/`](../../tools/phase10/rbec/README.md)) showing the budget closes on paper, the chest-velocity unwrap requirement, the calibration-spur nuance, and the geometry results — adversarially reviewed, defects fixed |
 | [`radar_primary_source_findings.md`](radar_primary_source_findings.md) | The 2026-08 primary-source verification record: per-claim verdicts, citations, corrections applied, and the answers to the survey's five open questions |
+| [`radar_vitals_bank_validation.md`](radar_vitals_bank_validation.md) | **Vitals estimator bank, benchmarked on real clinical radar data** (Erlangen 24 GHz CW, ECG reference): confidence-gated HR MAE 3.05 BPM at 30 % coverage — the three-state doctrine validated at the estimator layer; code in `tools/phase10/vitals/` |
 
 **Sourcing tags** used throughout: **[calc]** arithmetic done here · **[meas]**
 measured on this machine · **[code]** read from source code or project
