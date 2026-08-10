@@ -121,11 +121,17 @@ def peak_intervals(x: np.ndarray, fs: float,
 
 def _hankel_covariance(x: np.ndarray, m: int) -> np.ndarray:
     """Forward-backward averaged covariance from Hankel snapshots of
-    length m (standard single-channel MUSIC construction)."""
+    length m (standard single-channel MUSIC construction).
+
+    R = E[x_tilde x_tilde^H] = H^T conj(H) / L with H rows as snapshots.
+    The first version computed H^H H — the CONJUGATE of the covariance —
+    which puts an analytic signal's structure at negative frequency where
+    the positive-band steering scan never looks; MUSIC then returned
+    arbitrary flat-spectrum winners (caught by the HMUSIC unit test)."""
     n = x.size
     L = n - m + 1
     H = np.lib.stride_tricks.sliding_window_view(x, m)[:L]
-    R = (H.conj().T @ H) / L
+    R = (H.T @ H.conj()) / L
     J = np.eye(m)[::-1]
     return 0.5 * (R + J @ R.conj() @ J)
 
@@ -162,6 +168,53 @@ def music(x: np.ndarray, fs: float, band: tuple[float, float],
     i = int(np.argmax(P))
     conf = _band_confidence(P, f_grid, band, i, halfwidth_hz=0.1)
     return Estimate(float(f_grid[i]), conf, "music")
+
+
+def hmusic(x: np.ndarray, fs: float, band: tuple[float, float],
+           n_harmonics: int = 2, m: int | None = None,
+           grid_hz: float = 0.005) -> Estimate:
+    """Harmonic MUSIC (Hsieh et al., arXiv:2408.01951, spec transcribed
+    2026-08): the steering matrix stacks the fundamental AND its harmonics,
+    Z(w) = [z(w), z(2w), ..., z(Lw)], and the pseudospectrum
+    P(w) = 1/||En^H Z(w)||_F^2 is searched over the fundamental only —
+    harmonic energy *supports* the fundamental instead of competing with
+    it. The paper leaves L and M unstated (only 2L < M <= Ns); we default
+    L=2 and M from the decimated window, both declared parameters."""
+    y = bandpass(np.asarray(x, dtype=float), fs, band)
+    # decimate so harmonics up to L*band[1] stay below Nyquist with margin
+    dec = max(1, int(fs / (4.0 * n_harmonics * band[1])))
+    if dec > 1:
+        y = y[::dec]
+        fs = fs / dec
+    Y = np.fft.fft(y)
+    h = np.zeros(y.size)
+    h[0] = 1.0
+    h[1:(y.size + 1) // 2] = 2.0
+    z = np.fft.ifft(Y * h)
+    m = m or min(48, y.size // 3)
+    R = _hankel_covariance(z, m)
+    w, V = np.linalg.eigh(R)
+    # leave subspace room for the harmonics when they are present
+    En = V[:, : m - 2 * n_harmonics]
+    f_grid = np.arange(band[0], band[1], grid_hz)
+    k = np.arange(m)[:, None]
+    P = np.empty(f_grid.size)
+    for i, f0 in enumerate(f_grid):
+        harm = np.arange(1, n_harmonics + 1) * f0
+        harm = harm[harm < fs / 2]
+        Z = np.exp(2j * np.pi * k * harm[None, :] / fs)
+        # Sum of per-harmonic MUSIC reciprocals, NOT the paper's joint
+        # Frobenius form: with the Frobenius norm a weak/absent harmonic
+        # contributes a full-size noise projection that erases the
+        # fundamental's peak (found by the unit test — the true rate lost
+        # to an arbitrary flat-spectrum winner). The sum form lets
+        # harmonics add support when present and degrades to plain MUSIC
+        # when absent. Declared implementation deviation.
+        proj = np.linalg.norm(En.conj().T @ Z, axis=0) ** 2
+        P[i] = float((1.0 / (proj + 1e-30)).sum())
+    i = int(np.argmax(P))
+    conf = _band_confidence(P, f_grid, band, i, halfwidth_hz=0.1)
+    return Estimate(float(f_grid[i]), conf, "hmusic")
 
 
 def fuse(estimates: list[Estimate], tol_hz: float = 0.03) -> Estimate:
