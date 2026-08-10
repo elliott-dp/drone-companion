@@ -314,5 +314,20 @@ MMIC are drawn independently. Follow-ups, in order:
    trajectories re-derives T3, the seam rates and the budget verdict.
 4. Frame-random vs per-dwell-systematic angle-error characterisation (V2
    bench question that decides the WLS story).
+4b. **Track 1 — the RBEC solve on real cascade data: kit built, data
+   pending.** `coloradar_bridge.py` parses ColoRadar's 4×AWR2243 raw ADC +
+   calibration (format taken from the dataset's own dev-kit code — which
+   independently confirms the TIDUEN5A chip-row ordering) and passes a
+   synthetic-fixture round-trip (angle exact, phase step within 1.6 %);
+   `exp5_coloradar.py` scores the anchor solve against ground-truth pose
+   increments plus a held-out static-cell residual that needs no ground
+   truth. Honest scoping: at ColoRadar's cascade frame rate and walking
+   speed, inter-frame motion is tens of wraps, so integers are GT/IMU-
+   seeded — the experiment validates the LS geometry and sub-wavelength
+   residual on real data, not blind unwrapping. Blocked only on data
+   acquisition: every anonymous download route is dead (SharePoint removed,
+   2021 GDrive links revoked, Radatron ships heatmaps only); the live route
+   is the ColoRadar+ Globus collection (free login) — `calib.zip` + one
+   90 s sequence ≈ a few GB.
 5. ~~The real chip map~~ **done** (TIDUEN5A Fig. 5/6 read visually, §E2):
    real spur at 2.6°; separation rule refined to ≥ 3° / ≥ 4° preferred.

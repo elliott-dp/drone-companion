@@ -25,6 +25,23 @@ sway: fly the [HOVER_CAPTURE.md](HOVER_CAPTURE.md) flight card, then
 `python3 -m tools.phase10.rbec.hover_ingest <logs...>` (needs `pyulog`) and
 pass `SimConfig(motion_npz=...)`.
 
+**Real-cascade-data track** (`coloradar_bridge.py` + `exp5_coloradar.py`):
+parses ColoRadar's cascade (4×AWR2243) raw ADC + calibration, runs the cube
+chain (calibrate → range FFT → virtual-array beamform), and scores the RBEC
+anchor solve against the dataset's ground-truth poses. The bridge is
+validated by a synthetic-fixture round-trip
+(`python3 -m tools.phase10.rbec.coloradar_bridge`) so it runs the moment
+data is on disk. **Data acquisition status**: the historical anonymous
+routes are dead (SharePoint share removed; the 2021 Google Drive links
+revoked; Radatron distributes heatmaps only, no raw ADC) — the live channel
+is the ColoRadar+ Globus collection, which needs a (free) Globus login.
+Download `calib.zip` + one small sequence (e.g. `ec_hallways_run4`, 90 s),
+lay them out as `<root>/calib/` + `<root>/kitti/<sequence>/`, then:
+
+```bash
+python3 -m tools.phase10.rbec.exp5_coloradar <root> ec_hallways_run4
+```
+
 | Module | Contents |
 |---|---|
 | `core.py` | Constants (79 GHz, 4π/λ), vital bands, band-RMS (Parseval-checked), shaped hover noise |
