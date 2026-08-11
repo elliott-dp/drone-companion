@@ -159,9 +159,17 @@ class CascadeSequence:
         return self.times.size
 
     def frame(self, i: int) -> np.ndarray:
-        """Complex cube (tx, rx, chirps, samples), calibrated."""
+        """Complex cube (tx, rx, chirps, samples), calibrated. ``i`` is
+        0-based against ``times``; ColoRadar+ ships 1-indexed filenames
+        (frame_1.bin first), detected and mapped automatically."""
         c = self.calib
-        path = os.path.join(self.dir, "data", f"frame_{i}.bin")
+        if not hasattr(self, "_one_indexed"):
+            self._one_indexed = (not os.path.exists(
+                os.path.join(self.dir, "data", "frame_0.bin"))
+                and os.path.exists(
+                    os.path.join(self.dir, "data", "frame_1.bin")))
+        path = os.path.join(self.dir, "data",
+                            f"frame_{i + 1 if self._one_indexed else i}.bin")
         raw = np.fromfile(path, dtype=np.int16).reshape(
             c.num_tx, c.num_rx, c.num_chirps, c.num_samples, 2)
         cube = raw[..., 0].astype(np.float32) \

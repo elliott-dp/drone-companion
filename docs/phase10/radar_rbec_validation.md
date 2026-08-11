@@ -314,8 +314,21 @@ MMIC are drawn independently. Follow-ups, in order:
    trajectories re-derives T3, the seam rates and the budget verdict.
 4. Frame-random vs per-dwell-systematic angle-error characterisation (V2
    bench question that decides the WLS story).
-4b. **Track 1 — the RBEC solve on real cascade data: kit built, data
-   pending.** `coloradar_bridge.py` parses ColoRadar's 4×AWR2243 raw ADC +
+4b. **Track 1 — the RBEC solve on real cascade data: FIRST RESULTS.**
+   The pilot's ColoRadar+ download (`ec_hallways_run4`, a 2024
+   re-recording: 2192 cascade frames at 5 Hz, ~7 min, pose-graph GT at
+   1.3 Hz) ran through the bridge and exp5 (frames 100–250, 9 anchors,
+   GT-seeded integers): **horizontal increment agreement 0.23/0.35 mm RMS
+   (x/y) against 50/68 mm RMS of real walking motion, and 555 µm RMS
+   residual on held-out static cells** — the no-ground-truth metric. Every
+   frame parsed at the paper's exact 3,145,728 B layout. Honest caveats:
+   the quick harness solves 2-D only (z unobservable by construction —
+   elevation LOS not yet wired), the sparse interpolated GT flatters the
+   increment comparison, the anchor picker lacks the quality gates
+   (identical-range anchor clusters suggest sidelobe/ring artifacts — the
+   C.4 admission rules are not yet in exp5), and the held-out metric wraps
+   at ±π. Next: 3-D LOS + anchor quality gates + IMU-seeded (not
+   GT-seeded) integers + full-sequence run. Original kit description: `coloradar_bridge.py` parses ColoRadar's 4×AWR2243 raw ADC +
    calibration (format taken from the dataset's own dev-kit code — which
    independently confirms the TIDUEN5A chip-row ordering) and passes a
    synthetic-fixture round-trip (angle exact, phase step within 1.6 %);
