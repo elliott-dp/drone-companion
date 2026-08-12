@@ -38,6 +38,20 @@ Ratios should transfer; **throughput must be re-measured on the Orin's A78AE**
 (expect roughly a third to a half), and the compression acceptance test must
 ultimately run on *real* captures, not synthetic ones.
 
+## `bench/` — the Phase 10.0 bench analysis stack
+
+See [`bench/README.md`](bench/README.md). Turns the E-test inventory into
+analyses that run before the hardware exists: `*_idx.bin` parsing, drop-rate
+reporting (E2/E4/E5), three-way ledger reconciliation and drift fitting
+(E7/E8), and the calibration-step estimator with its detection-power sizing
+(E10/D1). `python3 -m tools.phase10.bench.selftest` proves all eleven analyses
+recover injected ground truth. Protocols that consume it:
+[`docs/phase10/phase10_bench_manual.md`](../../docs/phase10/phase10_bench_manual.md).
+
+## `rbec/` — RBEC numerical validation
+
+See [`rbec/README.md`](rbec/README.md).
+
 ## Planned (not yet written)
 
 * `fake_radar.py` — control-plane test double (TCP:5001 session emulating the
