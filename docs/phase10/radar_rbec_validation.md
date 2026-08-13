@@ -328,7 +328,16 @@ MMIC are drawn independently. Follow-ups, in order:
    (identical-range anchor clusters suggest sidelobe/ring artifacts — the
    C.4 admission rules are not yet in exp5), and the held-out metric wraps
    at ±π. Next: 3-D LOS + anchor quality gates + IMU-seeded (not
-   GT-seeded) integers + full-sequence run. Original kit description: `coloradar_bridge.py` parses ColoRadar's 4×AWR2243 raw ADC +
+   GT-seeded) integers + full-sequence run — **the first two items are
+   re-scoped by exp6/exp7**
+   ([radar_rbec_validation_exp67.md](radar_rbec_validation_exp67.md)):
+   "wire 3-D LOS" is replaced by the per-dwell z-aliasing gain α (keep the
+   2-D solve where α ≈ 0, as in exp5's hallway geometry — which is *why*
+   exp5's 2-D result held; constrain z from the IMU/rangefinder where α is
+   large, because the elevation aperture's achievable 1.75° cannot meet
+   the 3-D solve's 0.94° need), and the C.4 quality gates must be backed
+   by a subset-consensus solve (D_A is structurally ghost-blind; consensus
+   absorbs up to 50 % anchor contamination). Original kit description: `coloradar_bridge.py` parses ColoRadar's 4×AWR2243 raw ADC +
    calibration (format taken from the dataset's own dev-kit code — which
    independently confirms the TIDUEN5A chip-row ordering) and passes a
    synthetic-fixture round-trip (angle exact, phase step within 1.6 %);

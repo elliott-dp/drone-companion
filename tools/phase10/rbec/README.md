@@ -3,7 +3,10 @@
 Numerical validation (rung V1 groundwork) for the method proposed in
 [`docs/phase10/radar_rbec_method.md`](../../../docs/phase10/radar_rbec_method.md).
 Results and interpretation live in
-[`docs/phase10/radar_rbec_validation.md`](../../../docs/phase10/radar_rbec_validation.md).
+[`docs/phase10/radar_rbec_validation.md`](../../../docs/phase10/radar_rbec_validation.md)
+(exp1–exp5) and
+[`docs/phase10/radar_rbec_validation_exp67.md`](../../../docs/phase10/radar_rbec_validation_exp67.md)
+(exp6–exp7).
 
 Pure Python + NumPy. Run from the repo root:
 
@@ -12,6 +15,9 @@ python3 -m tools.phase10.rbec.exp1_sidelobe_mc   # correlated-cal sidelobe MC (~
 python3 -m tools.phase10.rbec.exp2_gdop          # anchor-geometry DOP maps  (<1 s)
 python3 -m tools.phase10.rbec.exp3_endtoend      # end-to-end solve sweeps   (~60 s)
 python3 -m tools.phase10.rbec.exp4_mitigations   # seam-RAIM + leakage topologies (~35 s)
+python3 -m tools.phase10.rbec.exp6_zaxis         # z-aliasing gain: is 3-D the right exp5 upgrade? (~1 s)
+python3 -m tools.phase10.rbec.exp7_ghost_anchors # ghost anchors vs robust solves (~6 s)
+python3 -m tools.phase10.rbec.exp67_report       # regenerate docs/phase10/results/exp67.{json,png} (~10 s; --check verifies)
 ```
 
 All experiments are seeded and bit-reproducible. Model boundaries (what these
