@@ -156,6 +156,18 @@ drone-companion/
 └── tools/                SITL test harnesses (drive a simulated PX4 instance end to end)
 ```
 
+Each crate under `crates/` has its own `README.md` with full technical
+documentation — public API, internal architecture, design rationale, and
+test coverage: [cc-protocol](crates/cc-protocol/README.md) ·
+[cc-link](crates/cc-link/README.md) ·
+[cc-timesync](crates/cc-timesync/README.md) ·
+[cc-ingest](crates/cc-ingest/README.md) ·
+[cc-config](crates/cc-config/README.md) ·
+[cc-mission-log](crates/cc-mission-log/README.md) ·
+[cc-health-tx](crates/cc-health-tx/README.md) ·
+[cc-ai-health](crates/cc-ai-health/README.md) ·
+[cc-replay](crates/cc-replay/README.md).
+
 ---
 
 ## The PX4 fork
