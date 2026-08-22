@@ -5,12 +5,16 @@ additions to the exp5 machinery, per the re-scoping in
 radar_rbec_validation.md §F.4 and radar_rbec_validation_exp67.md §B.4/§C.4/§D:
 
   A. **Per-dwell z-aliasing gain alpha** (exp67 B.4): the exp6 closed form
-     computed from the dwell's anchor geometry. Wall/hallway anchors carry no
-     measured elevation, so alongside the nominal value the report carries a
-     seeded Monte-Carlo p95 |alpha| over an elevation bound (default +-5 deg)
-     — the quantity that justifies keeping the 2-D solve when it stays under
-     the ~0.02 gate. (alpha's own full uncertainty propagation is P2, not
-     here.)
+     computed from the dwell's anchor geometry. Wall/hallway anchors carry
+     no measured elevation, and with all-zero elevations the nominal value
+     degenerates to a constant — so on azimuth-only data the report carries
+     ONLY the seeded Monte-Carlo p95 |alpha| bound over an elevation bound
+     (default +-5 deg), and the 0.02 gate is applied to that bound
+     (conservative: certification below the gate then requires per-anchor
+     elevation knowledge or a tighter bound — the committed fixture's own
+     bundle shows the bound FAILING the gate at +-5 deg with 9 anchors,
+     while its true drawn geometry passes). A nominal alpha is reported
+     only when elevations are supplied. Full uncertainty propagation is P2.
   B. **Co-range structural pre-filter** (exp67 C.4): candidate anchors
      sharing a range bin (within ``corange_tol_bins``) are clustered before
      any solve; only the strongest of a cluster is admitted, the rest are
@@ -18,19 +22,30 @@ radar_rbec_validation.md §F.4 and radar_rbec_validation_exp67.md §B.4/§C.4/§
      per candidate and kept for its actual job — rejecting incoherent
      clutter — never cited as ghost protection.
   C. **Subset-consensus solve** (exp7, adapted 2-D): RANSAC-style minimal
-     3-anchor subsets over the dwell's frame pairs, agreement tolerance from
-     the a-priori sigma_phi + T3 variance model (frame-pair phase sigma is
-     sqrt(2)*sigma_phi; sigma_theta defaults to the 2.5-deg-grid DoA
-     quantization, 2.5/sqrt(12) ~ 0.72 deg), condition-guarded geometry
-     check, full refit on the winning set, plain-LS fallback. Consensus set
-     size is reported per dwell as the availability metric.
-  D. **IMU-seeded integers** (F.4 "IMU-seeded (not GT-seeded)"): a ColoRadar
-     ``imu/`` reader plus a deliberately honest dead-reckoning seed —
-     attitude assumed world-aligned and dwell-start velocity taken from
-     ground truth, acceleration double-integrated in between (a full INS
-     mechanisation is out of scope, as in endtoend.py's IMU note). Scored as
-     the fraction of frame pairs whose fixed integer agrees with the
-     GT-seeded fix — "how far IMU seeding gets", per the exp5 docstring.
+     3-anchor subsets over the dwell's frame pairs, agreement tolerance
+     from the a-priori sigma_phi + T3 variance model (frame-pair phase
+     sigma is sqrt(2)*sigma_phi; sigma_theta defaults to the 2.5-deg-grid
+     DoA quantization, ~0.72 deg). Two deliberate domain adaptations,
+     documented at consensus_solve: full-RMS agreement (differencing turns
+     exp7's ramp-shaped ghost signature into a DC offset that mean-removed
+     std cannot see) and a wrap-aware tolerance clamp with a per-dwell
+     ``consensus_regime_valid`` flag (integer fixing caps pair residuals
+     near lambda/4, so beyond ~0.1 m/s the model tolerance would otherwise
+     exceed the statistic's ceiling and admit everything — the walking-pace
+     regime of ec_hallways_run4 itself, where per-pair discrimination is
+     honestly degraded and stride/chirp-rate processing (C.1) is the real
+     fix). Consensus set size, the excluded anchors' azimuths, and the
+     regime flag are reported per dwell.
+  D. **IMU-seeded integers** (toward F.4's "IMU-seeded (not GT-seeded)"):
+     a ColoRadar ``imu/`` reader plus a GT-initialized hybrid seed —
+     attitude assumed world-aligned and the dwell-start velocity from a GT
+     central difference, acceleration double-integrated in between (a full
+     INS mechanisation is out of scope, as in endtoend.py's IMU note; the
+     v0 finite-difference error is part of what the metric measures).
+     Scored as the fraction of anchor-by-pair integer fixes agreeing with
+     the GT-seeded fix. When the IMU log is absent, malformed, or does not
+     cover the radar window, the run falls back to GT seeding and SAYS SO
+     (``int_seed_mode`` stays "gt").
   E. **Full-sequence run**: the sequence is streamed in dwells (default
      30 s); anchors are re-picked per dwell (anchor migration), and the
      per-dwell report carries alpha, the consensus set size, flagged
@@ -39,8 +54,11 @@ radar_rbec_validation.md §F.4 and radar_rbec_validation_exp67.md §B.4/§C.4/§
 
 Prediction on record (thesis_plan.md P1): the 555 um held-out residual
 improves once co-range ghosts are excluded, or the identical-range clusters
-were not ghosts — informative either way. This module measures exactly that
-via ``holdout_um_plain`` vs ``holdout_um_consensus``.
+were not ghosts — informative either way. Because the pre-filter runs
+before BOTH solves, plain-vs-consensus alone cannot isolate it; the
+``--baseline`` arm (no pre-filter, no D_A gate — the exp5-equivalent
+picker) exists precisely so the real-data rerun can compare
+baseline-vs-upgraded holdout residuals and attribute the change.
 
 Without a dataset the module validates end-to-end on a seeded synthetic
 fixture in the exact ColoRadar layout (multi-anchor scene, two injected
@@ -51,7 +69,8 @@ in the exp67_report sense (rtol 1e-9). With data:
     python3 -m tools.phase10.rbec.exp5b_upgrade --root <root> \
         --sequence ec_hallways_run4 [--frames 0:2192] [--seed-mode imu]
 
-writes ``exp5b_<sequence>.json`` + figure next to the fixture bundle.
+writes ``exp5b_<sequence>_<seedmode>[...].json`` + figure next to the
+fixture bundle; add ``--baseline`` for the exp5-equivalent ablation arm.
 
 IMU file layout note: the fixture and reader use ``imu/imu_data.txt`` rows
 ``ax ay az gx gy gz`` (m/s^2, rad/s) with ``imu/timestamps.txt`` — the
@@ -83,6 +102,7 @@ CONSENSUS_DRAWS = 200          # exp7's draw count
 CONSENSUS_TOL_MULT = 4.0       # exp7's consensus tolerance multiplier
 SIGMA_THETA_DEG = 2.5 / np.sqrt(12.0)   # 2.5-deg DoA grid quantization
 COND_MAX = 1e4                 # subset geometry condition guard (2-D)
+WRAP_TOL_FRAC = 0.5            # consensus tol clamp, fraction of lambda/4
 
 
 # --------------------------------------------------------------------------
@@ -104,11 +124,16 @@ def alpha_report(anchor_az: np.ndarray, target_az: float,
     p95/max of |alpha| over elevations drawn uniformly in +-el_bound_deg —
     the honest bound when wall-anchor elevation is not measured."""
     az = np.asarray(anchor_az, dtype=float)
-    el0 = np.zeros_like(az) if anchor_el is None \
-        else np.asarray(anchor_el, dtype=float)
     u_t = los_from_azel(target_az, target_el)
-    U0 = np.array([los_from_azel(a, e) for a, e in zip(az, el0)])
-    nominal = alpha_gain(U0, u_t)
+    if anchor_el is not None:
+        el0 = np.asarray(anchor_el, dtype=float)
+        U0 = np.array([los_from_azel(a, e) for a, e in zip(az, el0)])
+        nominal = alpha_gain(U0, u_t)
+    else:
+        # with all-zero elevations alpha degenerates to -sin(target_el)
+        # regardless of the azimuths — a dead constant, not a geometry
+        # readout — so no nominal is reported and only the bound stands
+        nominal = None
     rng = np.random.default_rng(seed)
     draws = np.empty(n_draws)
     b = np.deg2rad(el_bound_deg)
@@ -121,6 +146,7 @@ def alpha_report(anchor_az: np.ndarray, target_az: float,
     absd = np.abs(draws)
     p95 = float(np.percentile(absd, 95))
     return {"alpha_nominal": nominal,
+            "el_known": bool(anchor_el is not None),
             "alpha_abs_p95": p95,
             "alpha_abs_max": float(absd.max()),
             "el_bound_deg": float(el_bound_deg),
@@ -179,7 +205,9 @@ def amplitude_dispersion(seq: CascadeSequence, cells: list, frames) -> list:
 def pick_anchors_v2(seq: CascadeSequence, n_anchors: int, n_holdout: int,
                     f_start: int, warmup_frames: int = 10,
                     max_range_m: float = 15.0, min_sep_deg: float = 4.0,
-                    corange_tol_bins: int = 1) -> dict:
+                    corange_tol_bins: int | None = 1,
+                    da_gate: float | None = DA_GATE,
+                    f_end: int | None = None) -> dict:
     """exp5's energy-ranked picker + the co-range pre-filter + D_A.
     Returns admitted anchors, holdout cells, flagged co-range ghosts, and
     the diagnostics the per-dwell report carries."""
@@ -187,7 +215,8 @@ def pick_anchors_v2(seq: CascadeSequence, n_anchors: int, n_holdout: int,
     az_grid = np.deg2rad(np.linspace(-55, 55, 45))
     raxis = c.range_axis()
     max_bin = int(np.searchsorted(raxis, max_range_m))
-    wf = range(f_start, min(f_start + warmup_frames, seq.n_frames()))
+    hi = seq.n_frames() if f_end is None else min(f_end, seq.n_frames())
+    wf = range(f_start, min(f_start + warmup_frames, hi))
     emap = energy_map_fast(seq, wf, az_grid, max_bin)
     emap[:, :4] = 0.0                        # near-field/leakage guard
     order = np.argsort(emap.ravel())[::-1]
@@ -200,11 +229,18 @@ def pick_anchors_v2(seq: CascadeSequence, n_anchors: int, n_holdout: int,
         cands.append((float(az), int(rb), float(emap[ai, rb])))
         if len(cands) >= 3 * (n_anchors + n_holdout):
             break
-    admitted, flagged = corange_prefilter(cands, corange_tol_bins)
+    if corange_tol_bins is None:
+        admitted, flagged = list(cands), []
+    else:
+        admitted, flagged = corange_prefilter(cands, corange_tol_bins)
     pool = admitted[:2 * (n_anchors + n_holdout)]
     cells = [(az, rb) for az, rb, _ in pool]
     da = amplitude_dispersion(seq, cells, wf)
-    coherent = [(cell, d) for cell, d in zip(cells, da) if d < DA_GATE]
+    if da_gate is None:
+        coherent = list(zip(cells, da))
+    else:
+        coherent = [(cell, d) for cell, d in zip(cells, da) if d < da_gate]
+    n_da_dropped = len(pool) - len(coherent)
     cells = [cell for cell, _ in coherent][:n_anchors + n_holdout]
     da = [d for _, d in coherent][:n_anchors + n_holdout]
     anchors = cells[:n_anchors]
@@ -213,8 +249,7 @@ def pick_anchors_v2(seq: CascadeSequence, n_anchors: int, n_holdout: int,
         raise ValueError(
             f"anchor pool too thin after gates: {len(anchors)} anchors, "
             f"{len(holdout)} holdout (candidates {len(cands)}, co-range "
-            f"flagged {len(flagged)}, D_A dropped "
-            f"{len(cells) - len(coherent) if len(coherent) < len(cells) else 0})")
+            f"flagged {len(flagged)}, D_A dropped {n_da_dropped})")
     return {"anchors": anchors, "holdout": holdout,
             "flagged_corange": [(az, rb) for az, rb, _ in flagged],
             "d_a": da[:len(anchors)], "raxis": raxis, "emap": emap,
@@ -254,16 +289,39 @@ def consensus_solve(U2: np.ndarray, Y: np.ndarray, sigma_phi: float,
                     seed: int = 0, n_draws: int = CONSENSUS_DRAWS,
                     subset: int = 3, n_score_cols: int = 120) -> dict:
     """exp7's subset-consensus estimator, adapted to the 2-D frame-pair
-    solve. Y is (N, P) integer-fixed LOS increments in metres; the agreement
-    statistic is the per-anchor residual RMS over subsampled pairs, against
-    the a-priori tolerance from the sigma_phi + T3 variance model (frame-pair
-    phase sigma = sqrt(2)*sigma_phi)."""
+    solve. Y is (N, P) integer-fixed LOS increments in metres.
+
+    Two deliberate departures from a line-by-line port, both forced by the
+    frame-differenced domain:
+
+    * **Full RMS, not mean-removed std.** exp7 removed each anchor's mean
+      because absolute phases carry an arbitrary static bias b_k; the pair
+      domain has already differenced b_k away, and a mis-attributed anchor
+      under sustained platform velocity produces a *constant* per-pair
+      residual — the one component std cannot see. RMS (mean included)
+      restores exp7's sensitivity: its linear-in-time ghost signature is
+      exactly this DC term after differencing.
+    * **Wrap-aware tolerance.** Y passed through integer fixing, so every
+      residual is capped near lambda/4 of the seeded prediction; the model
+      tolerance (which grows with d_rms through T3) would cross that
+      ceiling at ~0.1 m/s platform speed and admit everything. The
+      effective tolerance is clamped at WRAP_TOL_FRAC * lambda/4 and the
+      returned ``regime_valid`` flag records whether the model tolerance
+      stayed below the clamp — when False, per-pair residual discrimination
+      is saturated (sigma_theta * d_pair approaching lambda/4) and the
+      dwell's consensus verdicts must be read as degraded (the C.1
+      chirp-rate/stride reduction, not a bigger tolerance, is the honest
+      fix in that regime)."""
     N, P = Y.shape
     x_all = np.linalg.lstsq(U2, Y, rcond=None)[0]           # (2, P)
     d_rms = float(np.sqrt(np.mean(np.sum(x_all ** 2, axis=0))))
     sig_pair = np.sqrt(2.0) * sigma_phi
     t3 = k_disp * np.deg2rad(sigma_theta_deg) * d_rms
-    tol_m = CONSENSUS_TOL_MULT * np.sqrt(sig_pair ** 2 + t3 ** 2) / k_disp
+    tol_model = CONSENSUS_TOL_MULT * np.sqrt(sig_pair ** 2 + t3 ** 2) \
+        / k_disp
+    tol_clamp = WRAP_TOL_FRAC * np.pi / k_disp              # frac of lam/4
+    tol_m = min(tol_model, tol_clamp)
+    regime_valid = tol_model < tol_clamp
     rs = np.random.default_rng(seed + 77)
     cols = np.linspace(0, P - 1, min(P, n_score_cols)).astype(int)
     best_keep, best_score = None, -1
@@ -272,10 +330,10 @@ def consensus_solve(U2: np.ndarray, Y: np.ndarray, sigma_phi: float,
         Us = U2[idx]
         sv = np.linalg.svd(Us, compute_uv=False)
         if sv[-1] < 1e-9 or sv[0] / sv[-1] > COND_MAX:
-            continue                          # rank/condition guard
+            continue                          # rank guard (belt-and-braces)
         x = np.linalg.lstsq(Us, Y[np.ix_(idx, cols)], rcond=None)[0]
         r = Y[:, cols] - U2 @ x
-        agree = r.std(axis=1) < tol_m
+        agree = np.sqrt((r ** 2).mean(axis=1)) < tol_m
         if agree.sum() > best_score:
             best_score, best_keep = int(agree.sum()), agree.copy()
     keep = best_keep if best_keep is not None and best_keep.sum() >= subset \
@@ -288,7 +346,8 @@ def consensus_solve(U2: np.ndarray, Y: np.ndarray, sigma_phi: float,
         keep = np.ones(N, dtype=bool)
         x = x_all
     return {"d_hat": x.T, "keep": keep, "set_size": int(keep.sum()),
-            "tol_m": float(tol_m)}
+            "tol_m": float(tol_m), "tol_model_m": float(tol_model),
+            "regime_valid": bool(regime_valid)}
 
 
 def holdout_residual_um(ph_h: np.ndarray, Uh2: np.ndarray,
@@ -314,25 +373,33 @@ def read_imu(seq_dir: str):
     try:
         t = np.loadtxt(os.path.join(d, "timestamps.txt"))
         data = np.loadtxt(os.path.join(d, "imu_data.txt"))
-        if data.ndim != 2 or data.shape[1] < 3 or t.size != data.shape[0]:
-            return None
-        return t, data[:, :3]
-    except OSError:
+    except (OSError, ValueError) as e:
+        print(f"  imu/ unreadable ({e.__class__.__name__}) -- GT seeding")
         return None
+    if data.ndim != 2 or data.shape[1] < 6 or t.size != data.shape[0]:
+        print("  imu/ layout unexpected "
+              f"(shape {getattr(data, 'shape', None)}) -- GT seeding")
+        return None
+    return t, data[:, :3]
 
 
 def imu_increments(imu_t: np.ndarray, accel: np.ndarray,
                    radar_times: np.ndarray, gpos: np.ndarray,
-                   dwell_start: int, gravity: float = 9.80665) -> np.ndarray:
+                   dwell_start: int,
+                   gravity: float = 9.80665) -> np.ndarray | None:
     """Dead-reckoned per-frame-pair displacement increments over one dwell.
 
     Honesty note (mirrors endtoend.py's IMU treatment): attitude is assumed
     world-aligned (the fixture convention; real runs must rotate accel by
     the GT attitude — extrinsics TODO, as in exp5's gt_increments), gravity
     is subtracted as a constant +z, and the initial velocity comes from the
-    GT finite difference at the dwell start; from there acceleration is
-    double-integrated. This measures "how far IMU seeding gets", not
-    full-INS performance."""
+    GT central difference at the dwell start; from there acceleration is
+    double-integrated. The measured integer-agreement statistic therefore
+    bundles v0 finite-difference error (the dominant term at radar-rate
+    GT), integrator error, bias and noise — the seeding error budget of
+    the method as actually run, not an isolated IMU spec. Returns None
+    when the IMU log does not cover the radar window (the caller must fall
+    back to GT seeding *and say so*)."""
     t0 = radar_times[dwell_start]
     k = dwell_start
     if 0 < k < radar_times.size - 1:
@@ -350,10 +417,15 @@ def imu_increments(imu_t: np.ndarray, accel: np.ndarray,
     a[:, 2] -= gravity
     sel = imu_t >= t0
     ts, asel = imu_t[sel], a[sel]
-    if ts.size < 2:
-        return np.diff(gpos, axis=0)
+    if ts.size < 2 or ts[-1] < radar_times[-1] - 0.5:
+        return None          # no/partial IMU coverage: caller falls back
+    # prepend t0 itself so the first frame pair does not lose v0*(ts[0]-t0)
+    # to the interp clamp (up to one IMU period of motion — above lambda/4
+    # at walking pace)
+    ts = np.concatenate([[t0], ts])
+    aseg = np.vstack([asel[:1], asel])       # accel per integration segment
     dt = np.diff(ts)
-    v = np.concatenate([[v0], v0 + np.cumsum(asel[:-1] * dt[:, None],
+    v = np.concatenate([[v0], v0 + np.cumsum(aseg[:-1] * dt[:, None],
                                              axis=0)])
     p = np.concatenate([[np.zeros(3)],
                         np.cumsum(v[:-1] * dt[:, None], axis=0)])
@@ -370,11 +442,19 @@ def run_dwell_real(seq: CascadeSequence, f0: int, f1: int, n_anchors: int,
                    n_holdout: int, seed: int, target_az_deg: float = 0.0,
                    sigma_phi: float = 0.0115,
                    sigma_theta_deg: float = SIGMA_THETA_DEG,
-                   seed_mode: str = "gt") -> dict:
-    """One dwell of the upgraded pipeline; returns a JSON-ready dict."""
+                   seed_mode: str = "gt", baseline: bool = False) -> dict:
+    """One dwell of the upgraded pipeline; returns a JSON-ready dict.
+
+    ``baseline=True`` disables the co-range pre-filter and the D_A gate —
+    the exp5-equivalent picker — so the pre-filter's own contribution to
+    the P1 prediction is measurable as an ablation, not conflated with the
+    consensus solve's."""
     c = seq.calib
     k_disp = 4 * np.pi / c.lam
-    pick = pick_anchors_v2(seq, n_anchors, n_holdout, f0)
+    pick = pick_anchors_v2(
+        seq, n_anchors, n_holdout, f0, f_end=f1,
+        corange_tol_bins=None if baseline else 1,
+        da_gate=None if baseline else DA_GATE)
     anchors, holdout = pick["anchors"], pick["holdout"]
     az = np.array([a for a, _ in anchors])
     U2 = np.stack([np.cos(az), np.sin(az)], axis=1)
@@ -387,18 +467,18 @@ def run_dwell_real(seq: CascadeSequence, f0: int, f1: int, n_anchors: int,
     gpos = gt_positions(seq)
     dinc_gt = np.diff(gpos, axis=0)[f0:f1 - 1]
     imu_used = False
+    dinc_seed = dinc_gt
     if seed_mode == "imu":
         seq_root = os.path.dirname(os.path.dirname(seq.dir.rstrip("/")))
         imu = read_imu(seq_root)
-        if imu is None:
-            print("  imu/ absent or malformed -- falling back to GT seeding")
-            dinc_seed = dinc_gt
+        inc = None if imu is None else imu_increments(
+            imu[0], imu[1], seq.times, gpos, f0)
+        if inc is None:
+            print("  IMU unavailable or not covering the radar window -- "
+                  "GT seeding (int_seed_mode will say so)")
         else:
-            dinc_seed = imu_increments(imu[0], imu[1], seq.times,
-                                       gpos, f0)[f0:f1 - 1]
+            dinc_seed = inc[f0:f1 - 1]
             imu_used = True
-    else:
-        dinc_seed = dinc_gt
 
     Y = integer_fixed_increments(ph_a, U2, dinc_seed[:, :2], k_disp)
     Y_gt = integer_fixed_increments(ph_a, U2, dinc_gt[:, :2], k_disp)
@@ -422,6 +502,13 @@ def run_dwell_real(seq: CascadeSequence, f0: int, f1: int, n_anchors: int,
         "alpha": alpha,
         "consensus_set_size": cons["set_size"],
         "consensus_excluded": int(len(anchors) - cons["set_size"]),
+        "consensus_excluded_az_deg": [float(np.rad2deg(a))
+                                      for a, keep_it
+                                      in zip(az, cons["keep"])
+                                      if not keep_it],
+        "consensus_tol_um": cons["tol_m"] * 1e6,
+        "consensus_tol_model_um": cons["tol_model_m"] * 1e6,
+        "consensus_regime_valid": cons["regime_valid"],
         "int_seed_mode": "imu" if imu_used else "gt",
         "int_agreement_vs_gt": int_agree,
         "gt_inc_rms_mm": [float(x * 1e3)
@@ -438,7 +525,7 @@ def run_dwell_real(seq: CascadeSequence, f0: int, f1: int, n_anchors: int,
 def run_sequence(root: str, sequence: str, frames: str | None = None,
                  dwell_s: float = 30.0, n_anchors: int = 9,
                  n_holdout: int = 3, seed: int = 0,
-                 seed_mode: str = "gt") -> dict:
+                 seed_mode: str = "gt", baseline: bool = False) -> dict:
     calib = CascadeCalib(os.path.join(root, "calib"))
     seq = CascadeSequence(os.path.join(root, "kitti", sequence), calib)
     f0, f1 = 0, seq.n_frames()
@@ -453,16 +540,31 @@ def run_sequence(root: str, sequence: str, frames: str | None = None,
     while s + max(per_dwell // 2, 8) <= f1:
         e = min(s + per_dwell, f1)
         print(f"dwell {len(dwells)}: frames {s}:{e}")
-        dwells.append(run_dwell_real(seq, s, e, n_anchors, n_holdout,
-                                     seed + len(dwells),
-                                     seed_mode=seed_mode))
+        try:
+            dwells.append(run_dwell_real(seq, s, e, n_anchors, n_holdout,
+                                         seed + len(dwells),
+                                         seed_mode=seed_mode,
+                                         baseline=baseline))
+        except ValueError as err:
+            # one thin dwell must not discard the rest of a long run
+            print(f"  dwell failed: {err}")
+            dwells.append({"f0": s, "f1": e, "error": str(err)})
         s = e
-    hp = [d["holdout_um_plain"] for d in dwells]
-    hc = [d["holdout_um_consensus"] for d in dwells]
+    dropped_tail = int(f1 - s)
+    if dropped_tail:
+        print(f"tail frames {s}:{f1} shorter than half a dwell -- dropped")
+    ok = [d for d in dwells if "error" not in d]
+    if not ok:
+        raise ValueError(
+            f"no processable dwell in frames {f0}:{f1} "
+            f"(window {f1 - f0} frames, dwell {per_dwell})")
+    hp = [d["holdout_um_plain"] for d in ok]
+    hc = [d["holdout_um_consensus"] for d in ok]
     return {
         "sequence": sequence, "gt_source": seq.gt_source,
         "n_frames": int(f1 - f0), "frame_dt_s": frame_dt,
-        "n_dwells": len(dwells),
+        "n_dwells": len(dwells), "n_dwells_ok": len(ok),
+        "frames_dropped_tail": dropped_tail,
         "holdout_um_plain_mean": float(np.mean(hp)),
         "holdout_um_consensus_mean": float(np.mean(hc)),
         "dwells": dwells,
@@ -510,8 +612,10 @@ def write_fixture_p1(root: str, n_frames: int = 96, fps: float = 10.0,
     # ghosts: coherent copies of parent anchor 1 (az -35 deg, r 6.3 m)
     parent = 1
     rres = float(calib.range_axis()[1])
+    # G1 amp ranks inside the baseline (no-pre-filter) anchor set so the
+    # ablation arm actually carries it; the pre-filter flags it regardless
     ghosts = [
-        {"az": np.deg2rad(12.5), "r": anchors_r[parent], "amp": 140.0},
+        {"az": np.deg2rad(12.5), "r": anchors_r[parent], "amp": 380.0},
         {"az": np.deg2rad(-15.0), "r": anchors_r[parent] + 3 * rres,
          "amp": 430.0},
     ]
@@ -556,19 +660,25 @@ def write_fixture_p1(root: str, n_frames: int = 96, fps: float = 10.0,
     for fi in range(n):
         cube = np.zeros((c.num_tx, c.num_rx, c.num_chirps, c.num_samples),
                         dtype=complex)
-        # true anchors: range modulated by own-LOS projection of d
+        # true anchors: range modulated by own-LOS projection of d.
+        # Geometric phase at the START frequency f0: the range FFT adds the
+        # window-centroid term 2*pi*fb*(N-1)/(2*fs) ~ another half sweep,
+        # so the peak-bin phase then evolves at the solver's mid-sweep
+        # k_disp exactly (writing it at lam=mid-sweep would inflate the
+        # phase-displacement gain by ~1.6% and dominate the error budget)
         for k in range(anchors_az.size):
             r = anchors_r[k] + U[k] @ d[fi]
             fb = 2 * c.slope * r / 2.998e8
             sig = amps[k] * np.exp(1j * (2 * np.pi * fb * t_fast
-                                         + 4 * np.pi * r / lam))
+                                         + 4 * np.pi * c.f0 * r / 2.998e8))
             cube += steer[k][:, :, None, None] * sig[None, None, None, :]
         # ghosts: believed direction g.az, but phase follows the PARENT LOS
         for gi, g in enumerate(ghosts):
             r = g["r"] + U[parent] @ d[fi]
             fb = 2 * c.slope * r / 2.998e8
             sig = g["amp"] * np.exp(1j * (2 * np.pi * fb * t_fast
-                                          + 4 * np.pi * r / lam))
+                                          + 4 * np.pi * c.f0 * r
+                                          / 2.998e8))
             cube += steer[anchors_az.size + gi][:, :, None, None] \
                 * sig[None, None, None, :]
         cube += rng.normal(0, 2.0, cube.shape) \
@@ -577,7 +687,9 @@ def write_fixture_p1(root: str, n_frames: int = 96, fps: float = 10.0,
                        dtype=np.int16)
         out[..., 0] = np.round(cube.real)
         out[..., 1] = np.round(cube.imag)
-        out.tofile(os.path.join(data_dir, f"frame_{fi}.bin"))
+        # 1-indexed filenames, as ColoRadar+ ships them — exercises the
+        # bridge's autodetect branch the real rerun will take
+        out.tofile(os.path.join(data_dir, f"frame_{fi + 1}.bin"))
 
     times = np.arange(n) / fps
     np.savetxt(os.path.join(seq_dir, "cascade", "adc_samples",
@@ -611,6 +723,9 @@ def build(root: str) -> dict:
                        n_holdout=2, seed=0, seed_mode="gt")
     out_imu = run_sequence(root, FIXTURE_SEQ, dwell_s=4.8, n_anchors=9,
                            n_holdout=2, seed=0, seed_mode="imu")
+    out_base = run_sequence(root, FIXTURE_SEQ, dwell_s=4.8, n_anchors=9,
+                            n_holdout=2, seed=0, seed_mode="gt",
+                            baseline=True)
     U = np.array([los_from_azel(a, e)
                   for a, e in zip(truth["anchors_az"], truth["anchors_el"])])
     u_t = los_from_azel(0.0, 0.0)
@@ -623,6 +738,13 @@ def build(root: str) -> dict:
                             for x in truth["d"].std(axis=0)],
         },
         "gt_seeded": out,
+        "baseline_no_prefilter": {
+            "holdout_um_plain_mean": out_base["holdout_um_plain_mean"],
+            "holdout_um_consensus_mean":
+                out_base["holdout_um_consensus_mean"],
+            "consensus_excluded": [d["consensus_excluded"]
+                                   for d in out_base["dwells"]],
+        },
         "imu_seeded": {
             "int_agreement_vs_gt": [d["int_agreement_vs_gt"]
                                     for d in out_imu["dwells"]],
@@ -637,12 +759,18 @@ def make_figure(data: dict, path: str) -> None:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    g = data["gt_seeded"]
-    dw = g["dwells"]
+    g = data.get("gt_seeded") or data["run"]
+    dw = [d for d in g["dwells"] if "error" not in d]
     fig, axs = plt.subplots(1, 3, figsize=(16.0, 4.6))
     a, b, c = axs
 
     x = np.arange(len(dw))
+    base = data.get("baseline_no_prefilter")
+    if base is not None:
+        a.axhline(base["holdout_um_plain_mean"], ls=":", color="tab:red")
+        a.text(0.02, base["holdout_um_plain_mean"] * 1.02,
+               "no pre-filter, plain (baseline mean)", color="tab:red",
+               fontsize=9)
     a.bar(x - 0.2, [d["holdout_um_plain"] for d in dw], 0.4,
           label="plain LS", color="gray")
     a.bar(x + 0.2, [d["holdout_um_consensus"] for d in dw], 0.4,
@@ -689,6 +817,9 @@ def _compare(new, old, path: str = "") -> list:
         else:
             for i, (x, y) in enumerate(zip(new, old)):
                 bad += _compare(x, y, f"{path}[{i}]")
+    elif new is None or old is None:
+        if new is not old:
+            bad.append(f"{path}: {new!r} != {old!r}")
     elif isinstance(new, bool) or isinstance(old, bool) \
             or isinstance(new, str) or isinstance(old, str):
         if new != old:
@@ -722,19 +853,70 @@ def _self_test(tmp_root: str) -> None:
         f"G2 not picked as anchor: {anchor_azs}"
 
     out = run_dwell_real(seq, 0, n, 9, 2, seed=0)
-    # (2) consensus excludes the admitted ghost
-    assert out["consensus_excluded"] >= 1, \
-        f"consensus excluded nothing: {out}"
+    # (2) consensus excludes exactly the admitted ghost — by IDENTITY, not
+    # count: the excluded azimuth must be G2's, and only G2's
+    assert out["consensus_excluded"] == 1, \
+        f"consensus exclusions != 1: {out}"
+    assert len(out["consensus_excluded_az_deg"]) == 1 and \
+        abs(out["consensus_excluded_az_deg"][0] - g2_az) < 1.5, \
+        f"excluded wrong anchor: {out['consensus_excluded_az_deg']}"
+    assert out["consensus_regime_valid"], out
+    # (2b) tight-tolerance arm — the exp67 C.5 mismatch trade, MEASURED:
+    # at sigma_theta=0.1 deg the tolerance (~25 um) no longer absorbs the
+    # elevation leak sin(el)*dz of the 2-D model (up to ~90 um at the
+    # fixture's +-5 deg els and mm-class z sway), so good anchors fall out
+    # alongside the ghost. The ghost must STILL be excluded, and the
+    # over-exclusion must be visible — the tolerance model on real 3-D
+    # motion has to absorb the el-leak term, which the default grid-sigma
+    # tolerance does at hallway scales.
+    out_tight = run_dwell_real(seq, 0, n, 9, 2, seed=0,
+                               sigma_theta_deg=0.1)
+    assert any(abs(a - g2_az) < 1.5
+               for a in out_tight["consensus_excluded_az_deg"]), \
+        f"tight arm kept the ghost: {out_tight['consensus_excluded_az_deg']}"
+    assert out_tight["consensus_excluded"] > out["consensus_excluded"], \
+        "tight arm did not exhibit the C.5 over-exclusion trade"
     # (3) consensus improves (or matches) the held-out residual
     assert out["holdout_um_consensus"] <= out["holdout_um_plain"] + 1e-9, \
         (out["holdout_um_plain"], out["holdout_um_consensus"])
-    # (4) the solve tracks the injected motion to sub-half-mm accuracy
-    assert max(out["inc_err_rms_mm_consensus"]) < 0.5, out
+    # (4) the solve tracks the injected motion to well under 0.1 mm now
+    # that the fixture phase scale is exact
+    assert max(out["inc_err_rms_mm_consensus"]) < 0.1, out
+    # (4b) baseline ablation: with the pre-filter and D_A off, both ghosts
+    # enter and consensus must drop both; plain holdout must be worse than
+    # the pre-filtered arm's
+    out_b = run_dwell_real(seq, 0, n, 9, 2, seed=0, baseline=True)
+    assert out_b["consensus_excluded"] >= 2, out_b
+    assert out_b["holdout_um_plain"] > out["holdout_um_plain"], \
+        (out_b["holdout_um_plain"], out["holdout_um_plain"])
     # (5) IMU-seeded integers mostly agree with GT-seeded
     out_imu = run_dwell_real(seq, 0, n, 9, 2, seed=0, seed_mode="imu")
     assert out_imu["int_seed_mode"] == "imu"
     assert out_imu["int_agreement_vs_gt"] > 0.9, \
         out_imu["int_agreement_vs_gt"]
+    # (5b) constant-velocity ghost, pure estimator level: the pair-domain
+    # residual of a mis-attributed anchor under sustained velocity is a DC
+    # offset — invisible to exp7's mean-removed std, caught by the RMS
+    # statistic this port uses
+    rngu = np.random.default_rng(3)
+    azu = np.deg2rad(np.linspace(-50, 50, 9))
+    U2u = np.stack([np.cos(azu), np.sin(azu)], axis=1)
+    v_pair = np.array([1.5e-3, 0.4e-3])          # 1.5 mm/pair sustained
+    ku = 4 * np.pi / calib.lam
+    Yu = (U2u @ v_pair)[:, None] + 0.0115 / ku * rngu.standard_normal(
+        (9, 200))
+    u_par = np.array([np.cos(np.deg2rad(-35)), np.sin(np.deg2rad(-35))])
+    Yu[4] = float(u_par @ v_pair) + 0.0115 / ku * rngu.standard_normal(200)
+    cu = consensus_solve(U2u, Yu, 0.0115, ku, sigma_theta_deg=0.1, seed=0)
+    assert not cu["keep"][4] and cu["set_size"] == 8, \
+        f"DC ghost not excluded: keep={cu['keep']}"
+    # (5c) wrap-regime clamp: at walking-pace d_rms the model tolerance
+    # exceeds the lambda/4 wrap ceiling and the dwell must say so
+    Yw = (U2u @ np.array([0.1, 0.02]))[:, None] \
+        + 0.0115 / ku * rngu.standard_normal((9, 200))
+    cw = consensus_solve(U2u, Yw, 0.0115, ku, seed=0)
+    assert not cw["regime_valid"], cw
+    assert cw["tol_m"] <= WRAP_TOL_FRAC * np.pi / ku + 1e-12, cw
     # (6) alpha exactness: noise-free drop-z error equals alpha*K*dz
     U = np.array([los_from_azel(a, e)
                   for a, e in zip(truth["anchors_az"],
@@ -747,9 +929,14 @@ def _self_test(tmp_root: str) -> None:
     pred = alpha * d[:, 2]
     assert np.max(np.abs(err_t - pred)) < 1e-9, "alpha law violated"
     print(f"exp5b self_test OK: co-range flagged {len(flagged_r)}, "
-          f"consensus excluded {out['consensus_excluded']}, holdout "
-          f"{out['holdout_um_plain']:.1f} -> "
-          f"{out['holdout_um_consensus']:.1f} um, IMU integer agreement "
+          f"consensus excluded G2 (tight tol: ghost out + "
+          f"{out_tight['consensus_excluded'] - 1} good over-excluded — "
+          f"the C.5 trade), baseline "
+          f"holdout {out_b['holdout_um_plain']:.1f} vs pre-filtered "
+          f"{out['holdout_um_plain']:.1f} -> consensus "
+          f"{out['holdout_um_consensus']:.1f} um, inc err "
+          f"{max(out['inc_err_rms_mm_consensus'])*1e3:.0f} um, DC-ghost + "
+          f"wrap-regime estimator checks OK, IMU integer agreement "
           f"{out_imu['int_agreement_vs_gt']*100:.1f}%, alpha "
           f"{alpha:+.4f} exact")
 
@@ -764,6 +951,9 @@ def main() -> None:
     ap.add_argument("--n-anchors", type=int, default=9)
     ap.add_argument("--holdout", type=int, default=3)
     ap.add_argument("--seed-mode", choices=["gt", "imu"], default="gt")
+    ap.add_argument("--baseline", action="store_true",
+                    help="exp5-equivalent picker: no co-range pre-filter, "
+                         "no D_A gate (the ablation arm)")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args()
@@ -777,12 +967,15 @@ def main() -> None:
         out = run_sequence(args.root, args.sequence, frames=args.frames,
                            n_anchors=args.n_anchors,
                            n_holdout=args.holdout,
-                           seed_mode=args.seed_mode)
-        json_path = os.path.join(RESULTS_DIR,
-                                 f"exp5b_{args.sequence}.json")
-        fig_path = os.path.join(RESULTS_DIR,
-                                f"fig_rbec_exp5b_{args.sequence}.png")
-        data = {"gt_seeded": out}
+                           seed_mode=args.seed_mode,
+                           baseline=args.baseline)
+        tag = args.sequence + ("_baseline" if args.baseline else "") \
+            + f"_{args.seed_mode}" \
+            + (f"_{args.frames.replace(':', '-')}" if args.frames else "")
+        json_path = os.path.join(RESULTS_DIR, f"exp5b_{tag}.json")
+        fig_path = os.path.join(RESULTS_DIR, f"fig_rbec_exp5b_{tag}.png")
+        data = {"run": out, "seed_mode": args.seed_mode,
+                "baseline": bool(args.baseline)}
         with open(json_path, "w") as fh:
             json.dump(data, fh, indent=1)
         print(f"wrote {json_path}")
