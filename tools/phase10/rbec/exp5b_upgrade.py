@@ -951,6 +951,10 @@ def main() -> None:
     ap.add_argument("--n-anchors", type=int, default=9)
     ap.add_argument("--holdout", type=int, default=3)
     ap.add_argument("--seed-mode", choices=["gt", "imu"], default="gt")
+    ap.add_argument("--dwell-s", type=float, default=30.0,
+                    help="dwell length in seconds (default 30; the hover-"
+                         "regime ASPEN windows are shorter than 30 s, so "
+                         "they need dwells sized to the still stretch)")
     ap.add_argument("--baseline", action="store_true",
                     help="exp5-equivalent picker: no co-range pre-filter, "
                          "no D_A gate (the ablation arm)")
@@ -965,6 +969,7 @@ def main() -> None:
         return
     if args.root:
         out = run_sequence(args.root, args.sequence, frames=args.frames,
+                           dwell_s=args.dwell_s,
                            n_anchors=args.n_anchors,
                            n_holdout=args.holdout,
                            seed_mode=args.seed_mode,

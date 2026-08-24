@@ -1,0 +1,108 @@
+{
+ "run": {
+  "sequence": "2_24_2021_aspen_run2",
+  "gt_source": "vicon",
+  "n_frames": 65,
+  "frame_dt_s": 0.2000124454498291,
+  "n_dwells": 1,
+  "n_dwells_ok": 1,
+  "frames_dropped_tail": 5,
+  "holdout_um_plain_mean": 548.1569006692415,
+  "holdout_um_consensus_mean": 511.3347305902026,
+  "dwells": [
+   {
+    "f0": 411,
+    "f1": 471,
+    "anchors": [
+     [
+      -7.499999999999999,
+      174
+     ],
+     [
+      -12.5,
+      174
+     ],
+     [
+      -2.5,
+      172
+     ],
+     [
+      52.50000000000001,
+      4
+     ],
+     [
+      -17.5,
+      175
+     ],
+     [
+      -42.5,
+      111
+     ],
+     [
+      -25.0,
+      173
+     ],
+     [
+      -52.50000000000001,
+      4
+     ],
+     [
+      47.5,
+      4
+     ]
+    ],
+    "flagged_corange": [],
+    "d_a": [
+     0.04736989975372632,
+     0.02986950330008155,
+     0.03393592327493723,
+     0.010993244913135292,
+     0.021322642808016837,
+     0.14217272970893552,
+     0.010661620277788544,
+     0.03953369850648583,
+     0.004152589926767856
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.04034027200379364,
+     "alpha_abs_max": 0.061995366601499055,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 3,
+    "consensus_excluded": 6,
+    "consensus_excluded_az_deg": [
+     -12.5,
+     -2.5,
+     52.50000000000001,
+     -17.5,
+     -52.50000000000001,
+     47.5
+    ],
+    "consensus_tol_um": 478.82807212888395,
+    "consensus_tol_model_um": 27043.355845855247,
+    "consensus_regime_valid": false,
+    "int_seed_mode": "imu",
+    "int_agreement_vs_gt": 0.0,
+    "gt_inc_rms_mm": [
+     0.08060658454965508,
+     0.08593270388348886
+    ],
+    "inc_err_rms_mm_plain": [
+     271.45192133243717,
+     6.636474134558769
+    ],
+    "inc_err_rms_mm_consensus": [
+     271.4810623211744,
+     6.748509078590759
+    ],
+    "holdout_um_plain": 548.1569006692415,
+    "holdout_um_consensus": 511.3347305902026
+   }
+  ]
+ },
+ "seed_mode": "imu",
+ "baseline": true
+}

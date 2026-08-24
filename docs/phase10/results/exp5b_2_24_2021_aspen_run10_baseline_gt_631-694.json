@@ -1,0 +1,106 @@
+{
+ "run": {
+  "sequence": "2_24_2021_aspen_run10",
+  "gt_source": "vicon",
+  "n_frames": 63,
+  "frame_dt_s": 0.2000138759613037,
+  "n_dwells": 1,
+  "n_dwells_ok": 1,
+  "frames_dropped_tail": 3,
+  "holdout_um_plain_mean": 46.20120774319877,
+  "holdout_um_consensus_mean": 79.46313186134748,
+  "dwells": [
+   {
+    "f0": 631,
+    "f1": 691,
+    "anchors": [
+     [
+      -10.0,
+      174
+     ],
+     [
+      -5.0,
+      174
+     ],
+     [
+      -20.0,
+      174
+     ],
+     [
+      0.0,
+      173
+     ],
+     [
+      52.50000000000001,
+      4
+     ],
+     [
+      -14.999999999999998,
+      173
+     ],
+     [
+      -52.50000000000001,
+      4
+     ],
+     [
+      47.5,
+      4
+     ],
+     [
+      -45.0,
+      4
+     ]
+    ],
+    "flagged_corange": [],
+    "d_a": [
+     0.039036931378554934,
+     0.1473314152664231,
+     0.11992699097349792,
+     0.06193182394744179,
+     0.016974373761075513,
+     0.1128577876972488,
+     0.0473297537637781,
+     0.026396325499446645,
+     0.055425829069314925
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.0404524431507404,
+     "alpha_abs_max": 0.06133342913162067,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 5,
+    "consensus_excluded": 4,
+    "consensus_excluded_az_deg": [
+     -5.0,
+     0.0,
+     -52.50000000000001,
+     -45.0
+    ],
+    "consensus_tol_um": 20.210714613296794,
+    "consensus_tol_model_um": 20.210714613296794,
+    "consensus_regime_valid": true,
+    "int_seed_mode": "gt",
+    "int_agreement_vs_gt": 1.0,
+    "gt_inc_rms_mm": [
+     0.10644100171128146,
+     0.13552677789978593
+    ],
+    "inc_err_rms_mm_plain": [
+     0.125192411264761,
+     0.12893908886861388
+    ],
+    "inc_err_rms_mm_consensus": [
+     0.15087964815519914,
+     0.13910348719861532
+    ],
+    "holdout_um_plain": 46.20120774319877,
+    "holdout_um_consensus": 79.46313186134748
+   }
+  ]
+ },
+ "seed_mode": "gt",
+ "baseline": true
+}

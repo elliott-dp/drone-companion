@@ -1,0 +1,105 @@
+{
+ "run": {
+  "sequence": "2_24_2021_aspen_run3",
+  "gt_source": "vicon",
+  "n_frames": 51,
+  "frame_dt_s": 0.1999959945678711,
+  "n_dwells": 1,
+  "n_dwells_ok": 1,
+  "frames_dropped_tail": 0,
+  "holdout_um_plain_mean": 63.55635206430417,
+  "holdout_um_consensus_mean": 74.84437082708291,
+  "dwells": [
+   {
+    "f0": 533,
+    "f1": 584,
+    "anchors": [
+     [
+      -5.0,
+      174
+     ],
+     [
+      -17.5,
+      175
+     ],
+     [
+      -10.0,
+      174
+     ],
+     [
+      0.0,
+      172
+     ],
+     [
+      50.0,
+      4
+     ],
+     [
+      -42.5,
+      111
+     ],
+     [
+      -55.0,
+      89
+     ],
+     [
+      12.5,
+      185
+     ],
+     [
+      5.0,
+      175
+     ]
+    ],
+    "flagged_corange": [],
+    "d_a": [
+     0.17591362902849572,
+     0.17392838862913063,
+     0.11144482552690678,
+     0.08433812621252011,
+     0.018833287068848535,
+     0.02888561649345353,
+     0.015074818621266719,
+     0.06796086419415506,
+     0.0470284312262695
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.03679202835867892,
+     "alpha_abs_max": 0.059634576841874204,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 6,
+    "consensus_excluded": 3,
+    "consensus_excluded_az_deg": [
+     50.0,
+     -42.5,
+     -55.0
+    ],
+    "consensus_tol_um": 20.576796139229106,
+    "consensus_tol_model_um": 20.576796139229106,
+    "consensus_regime_valid": true,
+    "int_seed_mode": "gt",
+    "int_agreement_vs_gt": 1.0,
+    "gt_inc_rms_mm": [
+     0.09263617144277847,
+     0.16172366460461995
+    ],
+    "inc_err_rms_mm_plain": [
+     0.11190467743681527,
+     0.1672360983275741
+    ],
+    "inc_err_rms_mm_consensus": [
+     0.1265850490394625,
+     0.18210230869436325
+    ],
+    "holdout_um_plain": 63.55635206430417,
+    "holdout_um_consensus": 74.84437082708291
+   }
+  ]
+ },
+ "seed_mode": "gt",
+ "baseline": true
+}
