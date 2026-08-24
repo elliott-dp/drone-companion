@@ -1,0 +1,199 @@
+{
+ "run": {
+  "sequence": "ec_hallways_run4",
+  "gt_source": "pose-graph",
+  "n_frames": 227,
+  "frame_dt_s": 0.20000600814819336,
+  "n_dwells": 2,
+  "n_dwells_ok": 2,
+  "frames_dropped_tail": 0,
+  "holdout_um_plain_mean": 543.1909208489626,
+  "holdout_um_consensus_mean": 547.6346639741922,
+  "dwells": [
+   {
+    "f0": 72,
+    "f1": 222,
+    "anchors": [
+     [
+      50.0,
+      4
+     ],
+     [
+      -55.0,
+      4
+     ],
+     [
+      -42.5,
+      4
+     ],
+     [
+      -50.0,
+      4
+     ],
+     [
+      -12.5,
+      4
+     ],
+     [
+      40.0,
+      45
+     ],
+     [
+      35.0,
+      45
+     ],
+     [
+      14.999999999999998,
+      4
+     ],
+     [
+      10.0,
+      4
+     ]
+    ],
+    "flagged_corange": [],
+    "d_a": [
+     0.0010353215042877882,
+     0.0014897380148286578,
+     0.0020225960861021386,
+     0.0020002967614778187,
+     0.0014092867681874677,
+     1.3442728093635565,
+     2.216324016619068,
+     0.003121946468591323,
+     0.003011702691328851
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.03873756313888688,
+     "alpha_abs_max": 0.055968328474632296,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 3,
+    "consensus_excluded": 6,
+    "consensus_excluded_az_deg": [
+     -55.0,
+     -42.5,
+     -50.0,
+     -12.5,
+     14.999999999999998,
+     10.0
+    ],
+    "consensus_tol_um": 478.82807212888395,
+    "consensus_tol_model_um": 208834.32195147363,
+    "consensus_regime_valid": false,
+    "int_seed_mode": "imu",
+    "int_agreement_vs_gt": 0.0,
+    "gt_inc_rms_mm": [
+     77.60889382890022,
+     72.03204366469623
+    ],
+    "inc_err_rms_mm_plain": [
+     1796.0159861843013,
+     112.74881581229779
+    ],
+    "inc_err_rms_mm_consensus": [
+     1796.019329660374,
+     112.84602610042148
+    ],
+    "holdout_um_plain": 525.3090289365522,
+    "holdout_um_consensus": 538.2014809643301
+   },
+   {
+    "f0": 222,
+    "f1": 299,
+    "anchors": [
+     [
+      47.5,
+      13
+     ],
+     [
+      -52.50000000000001,
+      9
+     ],
+     [
+      52.50000000000001,
+      4
+     ],
+     [
+      -12.5,
+      4
+     ],
+     [
+      42.5,
+      13
+     ],
+     [
+      -42.5,
+      4
+     ],
+     [
+      -47.5,
+      4
+     ],
+     [
+      -27.5,
+      20
+     ],
+     [
+      14.999999999999998,
+      4
+     ]
+    ],
+    "flagged_corange": [],
+    "d_a": [
+     2.272620724453862,
+     1.6325801421946902,
+     0.06411639390399122,
+     0.15425559173557546,
+     2.2813915888152425,
+     0.24619829151806388,
+     0.10290627602578742,
+     1.0288207114396895,
+     0.04986894129474031
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.04316168204618788,
+     "alpha_abs_max": 0.06218967278278442,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 3,
+    "consensus_excluded": 6,
+    "consensus_excluded_az_deg": [
+     47.5,
+     52.50000000000001,
+     42.5,
+     -47.5,
+     -27.5,
+     14.999999999999998
+    ],
+    "consensus_tol_um": 478.82807212888395,
+    "consensus_tol_model_um": 84159.91393619393,
+    "consensus_regime_valid": false,
+    "int_seed_mode": "imu",
+    "int_agreement_vs_gt": 0.0,
+    "gt_inc_rms_mm": [
+     92.3021650378592,
+     56.93683993562421
+    ],
+    "inc_err_rms_mm_plain": [
+     716.574205376029,
+     75.39431866846556
+    ],
+    "inc_err_rms_mm_consensus": [
+     716.6494429621804,
+     75.30417044543577
+    ],
+    "holdout_um_plain": 561.072812761373,
+    "holdout_um_consensus": 557.0678469840543
+   }
+  ]
+ },
+ "seed_mode": "imu",
+ "baseline": true
+}
