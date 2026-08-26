@@ -4,8 +4,9 @@
 > comes from outside the array.** Propagating α's input uncertainties
 > (module `tools/phase10/rbec/exp8_alpha_budget.py`, bundle
 > `results/exp8.json`, `--check`-reproducible) shows the target-elevation
-> sensitivity is dα/d el_t = −cos(el_t) + O(g) ≈ −1: casualty-elevation
-> error maps ~1:1 into α and does not average down with anchor count.
+> sensitivity is dα/d el_t = −cos(el_t) − sin(el_t)(û·g), i.e. ≥ 1 in
+> magnitude on every scene measured: casualty-elevation error maps
+> ≥ 1:1 into α and does not average down with anchor count.
 > The elevation aperture's achievable 1.75° (exp6) therefore busts the
 > 0.02 gate on its own — p95 |α| ≈ 0.061 with *perfect* anchors — while
 > a known target elevation certifies every hallway-class scene at
@@ -54,9 +55,17 @@ python3 -m tools.phase10.rbec.exp8_alpha_budget --check
 | e6 hover_elevated (nominal −0.022) | 0 | 0 | 0 |
 | e6 hover_ground (nominal −0.319) | 0 | 0 | 0 |
 
+*(p95 is the gate statistic, matching exp5b's per-dwell report. A
+certified cell is not exceedance-free: at the marginal cells 2–3.6 % of
+draws still land above the gate — p99 reaches ~0.022–0.024 at the 2° /
+known and 1° / 0.5° cells. Quote certification as "p95-certified" with
+that fraction, or apply a p99 criterion and lose the run10/hallway 2°
+cells.)*
+
 Readings, in order of doctrine weight:
 
-1. **The irreducible term.** dα/d el_t = −cos(el_t) + O(g): measured
+1. **The irreducible term.** dα/d el_t = −cos(el_t) − sin(el_t)(û·g):
+   measured
    −1.000 on every el_t = 0 scene, −1.168/−1.339 on the hover scenes
    (the O(g) part grows with the anchors' z-content). At the reference
    config the target-el term carries ~70 % of α's variance. No anchor
@@ -70,8 +79,12 @@ Readings, in order of doctrine weight:
    the anchor part averages down as ~1/√N (measured p95 over N = 6→36:
    0.048 → 0.018; ratio at 6→24 is 0.48 vs √(6/24) = 0.50) — more
    anchors are a real lever for this term only.
-3. **Azimuth is negligible, measured**: the grid-quantization σ
-   contributes < 1 % of the variance on every scene.
+3. **Azimuth is negligible — by MC, not by the linear shares**: on the
+   real (el0 = 0) scenes the azimuth Jacobian is identically zero at the
+   expansion point (α ≡ 0 in az there), so the panel-(b) zeros are
+   structural; an independent MC with/without azimuth noise puts its
+   true contribution at 0.01–0.02 % of the variance. Negligible either
+   way, stated for the right reason.
 4. **Hover scenes never certify — for the right reason.** Their
    *nominal* α (−0.022, −0.319) already violates the gate before any
    uncertainty: the gate's job there was done by exp6 (constrain z);

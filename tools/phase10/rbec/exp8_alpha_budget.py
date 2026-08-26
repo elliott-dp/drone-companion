@@ -18,14 +18,22 @@ ASPEN still-window anchor sets from the committed exp5b guard-8 bundles
 (elevations unknown -> bound-only, exactly as exp5b reports them).
 
 Questions answered, each a figure panel / bundle key:
-  1. **Certification map**: per scene, the largest anchor-elevation bound
-     that keeps p95 |alpha| under the 0.02 gate, for target elevation
-     known exactly / to 0.5 deg / to the elevation-aperture's 1.75 deg.
-  2. **The irreducible term**: d alpha / d el_target = -cos(el_t) - O(g)
-     ~ -1, so target-elevation uncertainty maps ~1:1 into alpha and does
-     NOT average down with anchor count — the elevation aperture alone
-     (1.75 deg ~ 0.031 rad p95 ~ 0.029) busts the 0.02 gate with no help
-     from the anchors.
+  1. **Certification map**: per scene, the largest anchor-elevation
+     bound (on the EL_BOUNDS_DEG grid, requiring every smaller grid
+     bound to pass too) that keeps p95 |alpha| under the 0.02 gate, for
+     target elevation known exactly / to 0.5 deg / to the
+     elevation-aperture's 1.75 deg. p95 is the gate statistic
+     (exp5b-consistent); certified cells still carry 2-3.6 % of draws
+     above the gate at the marginal cells (p99 up to ~0.024) — quoted,
+     never hidden.
+  2. **The irreducible term**: d alpha / d el_target =
+     -cos(el_t) - sin(el_t) (u_hat . g) — measured -1.000 at el_t = 0,
+     -1.17/-1.34 on the hover scenes (the second term is 35-55 % of the
+     first there, geometry-signed). Target-elevation uncertainty maps
+     >= 1:1 into alpha and does NOT average down with anchor count: the
+     elevation aperture alone (1.75 deg = 0.031 rad -> p95 |alpha| ~
+     1.96 sigma ~ 0.060) busts the 0.02 gate with no help from the
+     anchors.
   3. **N-scaling**: the anchor-elevation part of alpha's spread shrinks
      ~1/sqrt(N) (it is a weighted mean of independent sin(el_k) draws);
      measured over N = 6..36.
@@ -174,8 +182,9 @@ def certification_bound(az, el0, t_az, t_el, sig_az_rad, sig_tel_rad,
     for b in EL_BOUNDS_DEG:
         r = mc_alpha(az, el0, t_az, t_el, np.deg2rad(b), sig_az_rad,
                      sig_tel_rad, seed=seed)
-        if r["within_gate"]:
-            best = b
+        if not r["within_gate"]:
+            break            # certificate = contiguous passes from below
+        best = b
     return float(best)
 
 
