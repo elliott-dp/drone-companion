@@ -110,6 +110,17 @@ def run_dwell(n_anchors: int = 9, n_ghost: int = 0,
     wrap = lambda x: (x + np.pi) % (2 * np.pi) - np.pi
     imu_err = imu_sigma_m * rng.standard_normal((F, 3))
 
+    # D.9 subset pool: drawn once per dwell, inverses precomputed
+    rs = np.random.default_rng(seed * 100003 + 1)
+    subsets = np.empty((0, 3), dtype=int)
+    if d9:
+        cand = np.array([rs.choice(N, size=3, replace=False)
+                         for _ in range(D9_DRAWS)])
+        dets = np.abs(np.linalg.det(U_est[cand]))
+        cand = cand[dets > 1e-3]
+        subsets = cand
+        sub_inv = np.linalg.inv(U_est[subsets])
+
     # seam chain: anchor tracks then target, per frame
     out_a = np.empty((N, F))
     out_a[:, 0] = phi[:, 0]
@@ -139,26 +150,25 @@ def run_dwell(n_anchors: int = 9, n_ghost: int = 0,
         keep = np.ones(N, dtype=bool)
         if d9:
             # robust consensus over minimal 3-subsets of the innovations:
-            # innov_k ~ -K (err . u_k); inliers agree with the common err
-            best_in, best_score = None, -1
-            rs = np.random.default_rng(seed * 100003 + f)
-            for _ in range(D9_DRAWS):
-                idx = rs.choice(N, size=3, replace=False)
-                sub = A3[idx]
-                if abs(np.linalg.det(sub)) < 1e-3:
-                    continue
-                err = np.linalg.solve(sub, -innov[idx] / K_DISP)
-                r = innov + K_DISP * (A3 @ err)
-                inl = np.abs(wrap(r)) < tol_innov
-                if inl.sum() > best_score:
-                    best_score, best_in = int(inl.sum()), inl.copy()
-            if best_in is not None and best_in.sum() >= 3:
+            # innov_k ~ -K (err . u_k); inliers agree with the common
+            # err. Subsets are drawn once per dwell and their inverses
+            # precomputed (batched); the RAW residual is deliberately
+            # unwrapped — a slipped anchor sits at r ~ 2*pi*m, which a
+            # wrapped statistic would alias back into the inlier set and
+            # feed its raw -2*pi-offset innovation to the LS.
+            errs = -np.einsum("dij,dj->di", sub_inv,
+                              innov[subsets]) / K_DISP     # (D, 3)
+            r_all = innov[None, :] \
+                + K_DISP * (errs @ A3.T)                   # (D, N)
+            scores = (np.abs(r_all) < tol_innov).sum(axis=1)
+            bi = int(np.argmax(scores))
+            best_in = np.abs(r_all[bi]) < tol_innov
+            if best_in.sum() >= 3:
                 err0, *_ = np.linalg.lstsq(A3[best_in],
                                            -innov[best_in] / K_DISP,
                                            rcond=None)
                 r = innov + K_DISP * (A3 @ err0)
                 m = np.round(r / (2 * np.pi))
-                resid = np.abs(wrap(r))
                 # slipped good anchor: residual is ~2*pi*m from consensus
                 # -> snap the chain back (de-absorb); continuous outlier
                 # (ghost): exclude from the shared-error solve
@@ -316,17 +326,23 @@ def _self_test() -> None:
     assert 0.12 < r2["seam_excl_mean"] < 0.4, r2["seam_excl_mean"]
     r2p = run_dwell(9, 2, 150e-6, False, seed=0)
     assert r2p["seam_excl_mean"] == 0.0
-    # (3) D.9 actually snaps (de-absorbs) at the anchors' own wall
-    r = run_dwell(9, 0, 450e-6, True, seed=1)
-    assert r["snaps"] > 0, r
+    # (3) D.9 snaps isolated slips at moderate sigma (its design case);
+    # at the 450 um wall anchors wrap COHERENTLY and the shared error's
+    # 2*pi branch ambiguity defeats innovation-only RAIM — asserted as
+    # the honest boundary (few/no snaps, poor availability, both arms)
+    snaps = sum(run_dwell(9, 0, 300e-6, True, seed=s)["snaps"]
+                for s in range(6))
+    assert snaps > 0, snaps
+    rw = run_dwell(9, 0, 450e-6, True, seed=1)
+    assert not rw["available"], rw
     # (4) determinism
     a = run_dwell(9, 1, 300e-6, True, seed=3)
     b = run_dwell(9, 1, 300e-6, True, seed=3)
     assert a == b
     print(f"exp9 self_test OK: clean available, ghost err_hat "
           f"plain/d9 {eh_p:.0f}/{eh_d:.0f} um, seam exclusion "
-          f"{r2['seam_excl_mean']:.2f}, snaps at wall {r['snaps']}, "
-          f"deterministic")
+          f"{r2['seam_excl_mean']:.2f}, snaps at 300 um {snaps}, "
+          f"wall unavailable as expected, deterministic")
 
 
 def main() -> None:

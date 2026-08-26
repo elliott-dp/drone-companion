@@ -59,6 +59,11 @@ shown?" — pointers in §3):
   the elevation aperture (four distinct rows) cannot support a 3-D solve
   (achievable 1.75° RMS vs 0.94° budget).
   [`radar_rbec_validation_exp67.md`](radar_rbec_validation_exp67.md) B.
+  Error bar closed by exp8 (P2): the gate is quotable only as
+  *conditionally certified* — casualty elevation from outside the array
+  (≤ 0.5–1°) plus anchor-elevation bounds ≤ 1–2°; the elevation aperture
+  can never certify it.
+  [`radar_rbec_validation_exp8.md`](radar_rbec_validation_exp8.md).
 - **C5 — The ghost-anchor error class**: amplitude-dispersion gates are
   structurally blind to coherent ghosts; per-frame residual tests are the
   wrong statistic; subset consensus holds to the 50 % theoretical breakdown.
@@ -139,7 +144,8 @@ yet run.
 | Seam-RAIM removes the unwrap cliff; per-gap IMU need | ≲ 300 µm / 47 ms (wall ~450 µm) | [meas-sim] | validation E2 | P3 joint availability with consensus |
 | Correlated cal → discrete spurs at map angles; separation rule | spur 2.6°; rule ≥ 3°/4° | [meas-sim]+[prim] | validation B, §E2 | bench E-series phase-cal report |
 | True CMRR of the common-mode step train | 26–29 dB (geometric ceiling) | [meas-sim] | validation §E2 | **E10 on hardware** — the single most valuable bench number |
-| α decides drop-z vs constrain-z; closed form exact | hallway +0.006 / ground −0.319; <1e-9 | [meas-sim] | exp67 B | P2 α error bar |
+| α decides drop-z vs constrain-z; closed form exact | hallway +0.006 / ground −0.319; <1e-9 | [meas-sim] | exp67 B | — (error bar closed by exp8) |
+| α gate certifiable only with external target elevation (p95-certified, 2–3.6 % p99 exceedance disclosed) | el-aperture alone p95 0.061; known-target + ≤2° anchor bounds certify; anchor part ~1/√N | [meas-sim]+[calc] | exp8 | correlated-tilt variant (exp8 D.1) |
 | Elevation aperture cannot carry a 3-D solve | 1.75° achievable vs 0.94° budget | [meas-sim] | exp67 B | bench V2 two-ray measurement (D.4) |
 | D_A is ghost-blind; consensus breakdown | D_A 0.031 = parent; holds to 6/12 | [meas-sim] | exp67 C | P1 wires consensus into exp5 |
 | Anchor solve, hover regime (ASPEN still windows, Vicon-surveyed, integer-free, guard-robust) | held-out 28.6–110 µm, 5–19× below wrap floor | [meas-real] | exp5b Part F2 | full-hover after attitude-rotated IMU (D.7); ghost-bearing real scene for the picker claim |
@@ -170,7 +176,7 @@ calib · bench analysis stack + manual (protocols ready).
 | P# | Experiment | Feeds | Cost | Blocked on | What it buys |
 |----|-----------|-------|------|-----------|--------------|
 | P1 | exp5 upgrade run: per-dwell α report, co-range structural pre-filter, subset-consensus solve, IMU-seeded integers, full 2192-frame sequence. **Harness done 2026-08-22** (`exp5b_upgrade.py`, fixture-proven + adversarially reviewed — [`radar_rbec_validation_exp5b.md`](radar_rbec_validation_exp5b.md)); only the data run remains | Ch6 | run: hours | **sequence archive** (Globus is interactive-only; see exp5b doc Part C) | Turns C6 from "quick harness" to defensible chapter core. Prediction on record: the 555 µm improves, or the identical-range clusters weren't ghosts — informative either way; the `--baseline` arm now attributes the change |
-| P2 | Propagate α's own uncertainty (casualty elevation measured by the same weak aperture) | Ch5/Ch4 | hours | nothing | Closes the one open caveat on C4 before it is quoted |
+| P2 | Propagate α's own uncertainty — **done 2026-08** (`exp8_alpha_budget.py`, adversarially reviewed; [`radar_rbec_validation_exp8.md`](radar_rbec_validation_exp8.md)) | Ch5/Ch4 | — | — | Caveat closed, and sharpened into doctrine: the gate is certifiable only with the casualty's elevation from outside the array (dα/del_t ≥ 1 in magnitude; the 1.75° el aperture alone gives p95 \|α\| ≈ 0.061 = 3× the gate); with target el known, 1–2° anchor-el bounds certify hallway-class scenes and the anchor part averages down ~1/√N |
 | P3 | Consensus × seam-RAIM joint availability (both consume anchor redundancy; combined anchor-count requirement unknown, may exceed 9) | Ch5 | ~1 day | nothing | Doctrine-level number: minimum anchor count for the full estimator |
 | P4 | aspen Vicon runs — **done 2026-08** (still + sway windows incl. run9, `fetch_coloradar_v1.py`; D.7 rotated-IMU matrix in exp5b Part G). ColoRadar's 0.2 s frame gap caps what sway segments can show — further gains need 47 ms-gap payload data, not more reruns | Ch6 | — | — | Upgraded C6's GT to mm-class Vicon; delivered C-grade IMU-seeding evidence and the attitude-leak budget |
 | P5 | Hover ULogs → `hover_ingest` → exp3/exp4 on measured sway | Ch5 | ½ day + flights | **user: fly the flight card** | Replaces the last synthetic input (0.3 Hz-knee sway model) with the real platform spectrum |
