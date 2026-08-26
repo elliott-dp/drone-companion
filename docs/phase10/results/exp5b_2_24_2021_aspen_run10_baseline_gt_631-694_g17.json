@@ -1,0 +1,108 @@
+{
+ "run": {
+  "sequence": "2_24_2021_aspen_run10",
+  "gt_source": "vicon",
+  "guard_bins": 17,
+  "n_frames": 63,
+  "frame_dt_s": 0.2000138759613037,
+  "n_dwells": 1,
+  "n_dwells_ok": 1,
+  "frames_dropped_tail": 3,
+  "holdout_um_plain_mean": 83.1964885768281,
+  "holdout_um_consensus_mean": 109.98078163078819,
+  "dwells": [
+   {
+    "f0": 631,
+    "f1": 691,
+    "anchors": [
+     [
+      -10.0,
+      174
+     ],
+     [
+      -5.0,
+      174
+     ],
+     [
+      -20.0,
+      174
+     ],
+     [
+      0.0,
+      173
+     ],
+     [
+      -14.999999999999998,
+      173
+     ],
+     [
+      14.999999999999998,
+      186
+     ],
+     [
+      -42.5,
+      111
+     ],
+     [
+      -27.5,
+      174
+     ],
+     [
+      -55.0,
+      89
+     ]
+    ],
+    "flagged_corange": [],
+    "d_a": [
+     0.039036931378554934,
+     0.1473314152664231,
+     0.11992699097349792,
+     0.06193182394744179,
+     0.1128577876972488,
+     0.261009308932303,
+     0.1765621462925811,
+     0.22457956869794687,
+     0.09555474883345613
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.04341921514883412,
+     "alpha_abs_max": 0.06223379622874062,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 4,
+    "consensus_excluded": 5,
+    "consensus_excluded_az_deg": [
+     -10.0,
+     14.999999999999998,
+     -42.5,
+     -27.5,
+     -55.0
+    ],
+    "consensus_tol_um": 20.66237496623736,
+    "consensus_tol_model_um": 20.66237496623736,
+    "consensus_regime_valid": true,
+    "int_seed_mode": "gt",
+    "int_agreement_vs_gt": 1.0,
+    "gt_inc_rms_mm": [
+     0.10644100171128146,
+     0.13552677789978593
+    ],
+    "inc_err_rms_mm_plain": [
+     0.1427689207614812,
+     0.17163741393775248
+    ],
+    "inc_err_rms_mm_consensus": [
+     0.12127192336542414,
+     0.4216671024683903
+    ],
+    "holdout_um_plain": 83.1964885768281,
+    "holdout_um_consensus": 109.98078163078819
+   }
+  ]
+ },
+ "seed_mode": "gt",
+ "baseline": true
+}

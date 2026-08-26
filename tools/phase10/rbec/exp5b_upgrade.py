@@ -207,7 +207,8 @@ def pick_anchors_v2(seq: CascadeSequence, n_anchors: int, n_holdout: int,
                     max_range_m: float = 15.0, min_sep_deg: float = 4.0,
                     corange_tol_bins: int | None = 1,
                     da_gate: float | None = DA_GATE,
-                    f_end: int | None = None) -> dict:
+                    f_end: int | None = None,
+                    guard_bins: int = 4) -> dict:
     """exp5's energy-ranked picker + the co-range pre-filter + D_A.
     Returns admitted anchors, holdout cells, flagged co-range ghosts, and
     the diagnostics the per-dwell report carries."""
@@ -218,7 +219,12 @@ def pick_anchors_v2(seq: CascadeSequence, n_anchors: int, n_holdout: int,
     hi = seq.n_frames() if f_end is None else min(f_end, seq.n_frames())
     wf = range(f_start, min(f_start + warmup_frames, hi))
     emap = energy_map_fast(seq, wf, az_grid, max_bin)
-    emap[:, :4] = 0.0                        # near-field/leakage guard
+    # near-field/leakage guard; the measured cascade coupling residue on
+    # ASPEN still frames is >= +20 dB over the mid-range background at
+    # bin 4 and only falls below it from bin 7-8 (0.42-0.47 m), so the
+    # default guard of 4 admits the residue as a candidate (D.6 probes 8
+    # and 17)
+    emap[:, :guard_bins] = 0.0
     order = np.argsort(emap.ravel())[::-1]
     cands = []
     for idx in order:
@@ -442,7 +448,8 @@ def run_dwell_real(seq: CascadeSequence, f0: int, f1: int, n_anchors: int,
                    n_holdout: int, seed: int, target_az_deg: float = 0.0,
                    sigma_phi: float = 0.0115,
                    sigma_theta_deg: float = SIGMA_THETA_DEG,
-                   seed_mode: str = "gt", baseline: bool = False) -> dict:
+                   seed_mode: str = "gt", baseline: bool = False,
+                   guard_bins: int = 4) -> dict:
     """One dwell of the upgraded pipeline; returns a JSON-ready dict.
 
     ``baseline=True`` disables the co-range pre-filter and the D_A gate —
@@ -454,7 +461,8 @@ def run_dwell_real(seq: CascadeSequence, f0: int, f1: int, n_anchors: int,
     pick = pick_anchors_v2(
         seq, n_anchors, n_holdout, f0, f_end=f1,
         corange_tol_bins=None if baseline else 1,
-        da_gate=None if baseline else DA_GATE)
+        da_gate=None if baseline else DA_GATE,
+        guard_bins=guard_bins)
     anchors, holdout = pick["anchors"], pick["holdout"]
     az = np.array([a for a, _ in anchors])
     U2 = np.stack([np.cos(az), np.sin(az)], axis=1)
@@ -525,7 +533,8 @@ def run_dwell_real(seq: CascadeSequence, f0: int, f1: int, n_anchors: int,
 def run_sequence(root: str, sequence: str, frames: str | None = None,
                  dwell_s: float = 30.0, n_anchors: int = 9,
                  n_holdout: int = 3, seed: int = 0,
-                 seed_mode: str = "gt", baseline: bool = False) -> dict:
+                 seed_mode: str = "gt", baseline: bool = False,
+                 guard_bins: int = 4) -> dict:
     calib = CascadeCalib(os.path.join(root, "calib"))
     seq = CascadeSequence(os.path.join(root, "kitti", sequence), calib)
     f0, f1 = 0, seq.n_frames()
@@ -544,7 +553,8 @@ def run_sequence(root: str, sequence: str, frames: str | None = None,
             dwells.append(run_dwell_real(seq, s, e, n_anchors, n_holdout,
                                          seed + len(dwells),
                                          seed_mode=seed_mode,
-                                         baseline=baseline))
+                                         baseline=baseline,
+                                         guard_bins=guard_bins))
         except ValueError as err:
             # one thin dwell must not discard the rest of a long run
             print(f"  dwell failed: {err}")
@@ -562,6 +572,7 @@ def run_sequence(root: str, sequence: str, frames: str | None = None,
     hc = [d["holdout_um_consensus"] for d in ok]
     return {
         "sequence": sequence, "gt_source": seq.gt_source,
+        "guard_bins": guard_bins,
         "n_frames": int(f1 - f0), "frame_dt_s": frame_dt,
         "n_dwells": len(dwells), "n_dwells_ok": len(ok),
         "frames_dropped_tail": dropped_tail,
@@ -955,6 +966,11 @@ def main() -> None:
                     help="dwell length in seconds (default 30; the hover-"
                          "regime ASPEN windows are shorter than 30 s, so "
                          "they need dwells sized to the still stretch)")
+    ap.add_argument("--guard-bins", type=int, default=4,
+                    help="near-field guard: zero the first N range bins of "
+                         "the picker's energy map (default 4 = the exp5 "
+                         "guard, which admits the cascade coupling residue "
+                         "at bin 4; D.6 probes 8 and 17)")
     ap.add_argument("--baseline", action="store_true",
                     help="exp5-equivalent picker: no co-range pre-filter, "
                          "no D_A gate (the ablation arm)")
@@ -973,10 +989,12 @@ def main() -> None:
                            n_anchors=args.n_anchors,
                            n_holdout=args.holdout,
                            seed_mode=args.seed_mode,
-                           baseline=args.baseline)
+                           baseline=args.baseline,
+                           guard_bins=args.guard_bins)
         tag = args.sequence + ("_baseline" if args.baseline else "") \
             + f"_{args.seed_mode}" \
-            + (f"_{args.frames.replace(':', '-')}" if args.frames else "")
+            + (f"_{args.frames.replace(':', '-')}" if args.frames else "") \
+            + (f"_g{args.guard_bins}" if args.guard_bins != 4 else "")
         json_path = os.path.join(RESULTS_DIR, f"exp5b_{tag}.json")
         fig_path = os.path.join(RESULTS_DIR, f"fig_rbec_exp5b_{tag}.png")
         data = {"run": out, "seed_mode": args.seed_mode,
