@@ -49,7 +49,9 @@
   one phase modulation by construction, window/beam leakage among them is
   phase-transparent — leakage robustness on co-located returns that move
   *differently* is not probed here (it is T8's bench question).
-* **IMU is a seeding aid, not an INS.** The synthetic accelerometer is the
+* **IMU is a seeding aid, not an INS** *(the naive world-aligned mode
+  described here remains the fixture's arm; Part G adds the
+  frame-correct rotated modes that real data requires)*. The synthetic accelerometer is the
   true second derivative of band-limited (0.12–2.2 Hz) sway plus bias and
   noise; dead-reckoning assumes world-aligned attitude and takes the
   dwell-start velocity from a GT central difference. The measured
@@ -284,6 +286,74 @@ Consequences, both quotable:
   cascade data, integer-free and Vicon-surveyed. The code default is now
   guard 8 (fixture-verified bit-identical; bundle regolded).
 
+## Part G — D.7: attitude-rotated IMU seeding **[meas-real]**
+
+The machinery (author's machine, 2026-08, commit 3dca33e): the bridge
+now loads `calib/transforms/*.txt` (vendored by the fetch script;
+`base_to_imu` is a ~180° flip about (1,1,0) — the z-down mounting that
+silently killed the naive arm in Part F — and `base_to_cascade` a ~90°
+yaw plus a 15.3 cm lever arm), and three seed modes join the harness:
+`gt-rot` (cascade-point reference: base GT + rotated lever arm,
+increments expressed in the cascade frame the steering vectors live in),
+`imu-rot` (ZUPT-bias-calibrated open-loop dead reckoning), and
+`imu-rot-track` (per-pair velocity re-anchoring). `d7_seed_budget.py`
+carries the convention proofs — gravity recovered to +9.79 z after
+rotation; an IMU–Vicon clock offset tested by accel cross-correlation
+and refuted — and the measured seed budgets. All verified against the
+22 committed bundles on this side; cross-platform determinism also
+closed here: the Linux `--check` passes against the macOS-regolded
+fixture bundle, because `_compare`'s rtol 1e-9 already absorbs the
+15th-digit BLAS ULPs (the commit's tolerance caveat needed no code).
+
+**The frame fix is a finding of its own.** On the run1 still window,
+`gt-rot` reads 18.1 µm plain / **11.4 µm consensus** vs 89.6/90.7 for
+Part F2's base-referenced control — the cascade antenna wobbles on its
+15.3 cm lever arm even when the base is "still", and referencing the
+right point removes that from the residual. Best real-data holdout on
+record, quotable only with its conditions: GT-attitude-aided,
+cascade-referenced, still window, guard 8.
+
+**Still windows — the unlock, validated where GT can referee.**
+`imu-rot-track` integer agreement vs the GT-seeded fix: **0.989 /
+0.983 / 0.984 / 0.951** (runs 1/2/3/10), holdouts within ~2× of the
+`gt-rot` floor (12.8 vs 18.1, 55.6 vs 58.1, 113.5 vs 66.8, 97.0 vs
+90.0 µm). run0 (0.625 — its sway grazes λ/4; median seed error 248 µm)
+is the consensus solve's **first real-data save**: plain 462.5 µm with
+37 % wrong integers poisoning LS → 139.2 µm by excluding the
+wrong-integer anchors — the designed role, finally observed on real
+data.
+
+**Sway windows — not unlocked, and the cause is measured.** Open-loop
+agreement 0.005–0.073 (INS physics: the ~4e-3 m/s² post-ZUPT residual
+double-integrates past λ/4 within ~1 s); tracked agreement 0.023–0.544
+with holdouts at or near the 548 µm wrap floor. The per-pair bridge
+error is 248 µm median on still vs 1.5–10 mm on sway — it scales with
+motion, attributed to ~0.2–0.6° effective attitude error leaking
+gravity (~0.05 m/s²); conventions are proven, bias is ZUPTed, clock
+offset is refuted. The same leak term (∝Δt²) extrapolates to **~55 µm
+at the flight design's 47 ms inter-burst gap** — ColoRadar's 0.2 s
+frame gap, not the mechanism, is the limiter. Two sway windows
+(run1 370:420, run3 5:55) pool-collapsed thin and produced no bundles;
+recorded here for window-list completeness.
+
+**Qualifications adopted from the run's adversarial review**, kept
+verbatim in spirit: `imu-rot-track` as scored is an optimistic
+single-gap bound (the carrier is the true previous increment, excluding
+the tracker's own ~0.3–0.6 mm solve error), and integer misses are
+**absorbing** — one miss injects λ/2 into the next seed, so
+0.95⁴⁹–0.99⁴⁹ gives only an 8–61 % chance of an error-free 50-pair
+dwell; RAIM-style integer-chain detection is load-bearing, not
+optional (D.9). All IMU arms are conditional on externally supplied
+attitude; the claim demonstrated is exactly "known attitude + measured
+accel suffice", no more. And `int_agreement` is agreement with the
+GT-seeded fix, not with truth.
+
+**Verdict:** frame-correct IMU pair-bridging replaces GT integer
+seeding on hover-regime data; the reference-point correction alone was
+worth up to 5× on still-window residuals; the remaining flight-design
+risk is the absorbing integer chain — precisely the RAIM item the plan
+already carries.
+
 ## Part C — Remaining runs
 
 ```bash
@@ -293,9 +363,10 @@ python3 -m tools.phase10.rbec.exp5b_upgrade --root <root> \
     --sequence 2_24_2021_aspen_run9 --dwell-s 12
 ```
 
-Full-hover segments need the attitude-rotated IMU seed (D.7) first —
-per-frame motion there exceeds λ/4, and Part E shows what GT-seeded
-statistics are worth in that regime.
+The attitude-rotated seed (D.7) exists now — Part G shows it unlocks
+still windows but not 0.2 s-gap sway segments; full-hover progress runs
+through the D.9 integer-chain RAIM and, ultimately, 47 ms-gap data from
+the actual payload, not through more ColoRadar reruns.
 
 ## Part D — Follow-ups
 
@@ -317,8 +388,13 @@ statistics are worth in that regime.
    regolded with `guard_bins` recorded; pass `--guard-bins 4` to
    reproduce exp5-era behavior). Remaining: a ghost-bearing real scene
    to restore a real-data basis for the picker's anti-ghost claim.
-7. **Attitude-rotated IMU seed** (extrinsics + quaternion rotation) — the
-   world-aligned assumption is measured broken (Part F caveat 2); needed
-   for any beyond-still-window hover work.
+7. ~~Attitude-rotated IMU seed~~ **done** (Part G): still windows seed
+   at 95–99 %, sway stays locked by the attitude leak; ~55 µm at the
+   design's 47 ms gap by extrapolation of the leak term only.
+9. **D.9 — integer-chain RAIM**: misses are absorbing (Part G), so
+   per-seam detection via anchor-redundancy (the seam-RAIM machinery of
+   exp4, applied to pair seeding) is the load-bearing next mechanism —
+   merges naturally into P3's consensus × seam-RAIM availability
+   question.
 8. Vitals-bank D_A note: D_A under *walking* decorrelates real anchors
    (Part E) — the gate's validity is regime-dependent; document in C.4.

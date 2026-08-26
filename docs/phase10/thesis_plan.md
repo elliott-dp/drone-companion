@@ -144,6 +144,9 @@ yet run.
 | D_A is ghost-blind; consensus breakdown | D_A 0.031 = parent; holds to 6/12 | [meas-sim] | exp67 C | P1 wires consensus into exp5 |
 | Anchor solve, hover regime (ASPEN still windows, Vicon-surveyed, integer-free, guard-robust) | held-out 28.6–110 µm, 5–19× below wrap floor | [meas-real] | exp5b Part F2 | full-hover after attitude-rotated IMU (D.7); ghost-bearing real scene for the picker claim |
 | All anchor-quality gates biased toward platform-fixed returns (honest negative) | bin-4 cell passed energy/co-range/D_A/consensus; leave-one-out ±37 µm | [meas-real] | exp5b Part F2 | guard ≥ 8 bins on real cascades |
+| Frame-correct IMU pair-bridging replaces GT integer seeding, hover regime | agreement 95–99 %; holdouts ≤2× the GT floor; consensus rescues a 37 %-miss dwell 462→139 µm | [meas-real] | exp5b Part G | D.9 integer-chain RAIM; 47 ms-gap payload data |
+| Cascade-point referencing (15.3 cm lever arm) on still windows | up to 5×; best-on-record holdout 11.4 µm (gt-rot, still, guard 8) | [meas-real] | exp5b Part G | — |
+| Sway bridging fails at 0.2 s gaps via ~0.2–0.6° attitude leak; ∝Δt² → ~55 µm at 47 ms | open-loop 0.5–7 %, tracked 2–54 % | [meas-real]+[calc] | exp5b Part G, d7_seed_budget | payload-gap data (bench/flight) |
 | Walking-pace F.4 numbers are floor/seed artifacts (honest negative) | 555 µm = π/√3/K saturation; 0.2–0.3 mm seed-circular | [meas-real] | exp5b Part E | — (documented re-tiering) |
 | Conf-gated HR meets D3 when confident | MAE 3.05 BPM @ 30 % coverage | [meas-clin] | vitals doc | P6 subjects 11–30 + scenarios |
 | Cardiac band must reach below 0.8 Hz | GDN0010 @ 46 BPM | [meas-clin] | vitals doc | — (documented tradeoff) |
@@ -169,7 +172,7 @@ calib · bench analysis stack + manual (protocols ready).
 | P1 | exp5 upgrade run: per-dwell α report, co-range structural pre-filter, subset-consensus solve, IMU-seeded integers, full 2192-frame sequence. **Harness done 2026-08-22** (`exp5b_upgrade.py`, fixture-proven + adversarially reviewed — [`radar_rbec_validation_exp5b.md`](radar_rbec_validation_exp5b.md)); only the data run remains | Ch6 | run: hours | **sequence archive** (Globus is interactive-only; see exp5b doc Part C) | Turns C6 from "quick harness" to defensible chapter core. Prediction on record: the 555 µm improves, or the identical-range clusters weren't ghosts — informative either way; the `--baseline` arm now attributes the change |
 | P2 | Propagate α's own uncertainty (casualty elevation measured by the same weak aperture) | Ch5/Ch4 | hours | nothing | Closes the one open caveat on C4 before it is quoted |
 | P3 | Consensus × seam-RAIM joint availability (both consume anchor redundancy; combined anchor-count requirement unknown, may exceed 9) | Ch5 | ~1 day | nothing | Doctrine-level number: minimum anchor count for the full estimator |
-| P4 | aspen Vicon runs — **largely done 2026-08** (still windows of runs 0/1/2/3/10 via `fetch_coloradar_v1.py`, OneDrive route, no Globus needed). Remaining: full-hover segments (e.g. run9) | Ch6 | ½ day compute | attitude-rotated IMU seed (exp5b D.7) | Done part upgraded C6's GT to mm-class Vicon; full-hover part needs the IMU seed first |
+| P4 | aspen Vicon runs — **done 2026-08** (still + sway windows incl. run9, `fetch_coloradar_v1.py`; D.7 rotated-IMU matrix in exp5b Part G). ColoRadar's 0.2 s frame gap caps what sway segments can show — further gains need 47 ms-gap payload data, not more reruns | Ch6 | — | — | Upgraded C6's GT to mm-class Vicon; delivered C-grade IMU-seeding evidence and the attitude-leak budget |
 | P5 | Hover ULogs → `hover_ingest` → exp3/exp4 on measured sway | Ch5 | ½ day + flights | **user: fly the flight card** | Replaces the last synthetic input (0.3 Hz-knee sway model) with the real platform spectrum |
 | P6 | Erlangen subjects 11–30, Valsalva/Tilt scenarios, tail forensics (GDN0002/0008/0010), harmonic-aware joint estimation | Ch7 | 1–2 days | nothing (public data) | Coverage + the identified next lever on the tail |
 | P7 | LCMV anchor→target null; RAIM behaviour when an anchor itself slips | Ch5 | 1 day | nothing | Completeness of the mitigation story |
@@ -286,7 +289,11 @@ generated with the chapter skeletons and the §3 register pre-imported.
   **28.6–110 µm (guard-8)**, never the retracted guard-4 figures, and
   never a real-data picker-advantage claim — on ghost-free scenes the
   pickers are indistinguishable; the anti-ghost case rests on the
-  fixture until a ghost-bearing real scene is run. (b) The 3.05 BPM clinical number is
+  fixture until a ghost-bearing real scene is run. Quote 11.4 µm only
+  with its conditions (GT-attitude-aided, cascade-referenced, still
+  window, guard 8), and IMU-seeding percentages only as single-gap
+  agreement vs the GT fix — the integer chain is absorbing, so
+  per-dwell success needs the D.9 RAIM before it can be claimed. (b) The 3.05 BPM clinical number is
   *at 30 % coverage* — always quote coverage with accuracy, or an examiner
   will.
 - **Multi-session git hazard** (operational): the branch is pushed from
