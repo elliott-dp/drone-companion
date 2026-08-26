@@ -275,6 +275,24 @@ def build() -> dict:
                   if row[str(n)]["availability"] >= 0.99), None)
         min_n[key] = -1 if m is None else int(m)
     out["min_n_99"] = min_n
+    # deep pass at the design point (100 um = the F-series budget; Part G
+    # projects ~55 um at the 47 ms gap): 1000 dwells per cell so the
+    # doctrine numbers carry a real confidence bound (availability 1.000
+    # at n=1000 bounds the failure rate below ~0.3 % at 95 %)
+    deep = {}
+    for g in GHOSTS:
+        deep[f"g{g}"] = {str(n): cell(n, g, 100, True,
+                                      seeds=range(1000))["availability"]
+                         for n in N_GRID}
+        print(f"deep g{g}: " + " ".join(
+            f"N{n}={deep[f'g{g}'][str(n)]:.3f}" for n in N_GRID))
+    out["deep_100um_d9"] = deep
+    min_deep = {}
+    for g in GHOSTS:
+        m = next((n for n in N_GRID
+                  if deep[f"g{g}"][str(n)] >= 0.99), None)
+        min_deep[f"g{g}"] = -1 if m is None else int(m)
+    out["min_n_99_deep"] = min_deep
     return out
 
 
