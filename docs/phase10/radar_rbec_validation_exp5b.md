@@ -5,8 +5,13 @@
 > author's machine, 2026-08) then delivered the P1 verdict on
 > ec_hallways_run4 — **the 555 µm was the wrap-saturation floor, not a
 > tracking result** — and, on Vicon-surveyed ASPEN still windows, the
-> first hover-regime numbers: **held-out 14.5–23.4 µm, with the pre-filter
-> + D_A gate attributed at 3–5×.** This pass implements every item of thesis_plan §4 P1 —
+> hover-regime numbers. The D.6 guard rerun (Part F2) then corrected
+> Part F's first headline: the 14.5–23.4 µm figures rode on a coupling
+> cell acting as a zero-motion regularizer; **the surviving claim is
+> held-out 28.6–110 µm across all five windows, 5–19× below the wrap
+> floor, robust to the guard choice** — and a new honest negative:
+> every anchor-quality gate is structurally biased toward
+> platform-fixed returns. This pass implements every item of thesis_plan §4 P1 —
 > per-dwell α report, co-range structural pre-filter, subset-consensus
 > solve, IMU-seeded integers, full-sequence dwell processing — as
 > `tools/phase10/rbec/exp5b_upgrade.py`, against the specs in
@@ -192,38 +197,93 @@ bridge) of all twelve v1 aspen runs found five ≥40-frame still stretches
 each, GT-seeded, both pickers (bundles
 `results/exp5b_2_24_2021_aspen_run*_*.json`):
 
-| Window | Baseline plain [µm] | Upgraded plain [µm] | Gain |
+> **Superseded in part by Part F2:** the table below is the guard-4
+> (exp5-default near-field guard) result; its "Gain" column did not
+> survive the D.6 leakage exclusion. Kept because the *mechanism* of the
+> correction is itself a result.
+
+| Window | Baseline plain [µm] | Upgraded plain [µm] | Gain (guard 4 — retracted in F2) |
 |---|---|---|---|
-| run1 408:458 | 73.7 | **14.5** | 5.1× |
-| run2 411:476 | 58.6 | **16.7** | 3.5× |
-| run3 533:584 | 63.6 | **23.4** | 2.7× |
+| run1 408:458 | 73.7 | 14.5 | 5.1× |
+| run2 411:476 | 58.6 | 16.7 | 3.5× |
+| run3 533:584 | 63.6 | 23.4 | 2.7× |
 | run0 1:42 | 64.3 | 56.1 | 1.1× |
-| run10 631:694 | 46.2 | pool collapse (co-range flags 11/19 — that viewpoint's wall arc is genuinely equidistant) | — |
+| run10 631:694 | 46.2 | pool collapse (co-range flags 11/19) | — |
 
 * **Non-circular by measurement:** GT seeding fixed 0–0.4 % of integers
   to nonzero wraps in these windows (integer-free regime), so the solve
   is pure radar phase; `consensus_regime_valid` holds on every GT-arm
   dwell; the holdout reads 7–38× below the saturation floor that pegged
   Part E.
-* **The P1 prediction, settled with attribution:** the co-range
-  pre-filter + D_A gate deliver the 3–5×; the identical-range clusters
-  *were* structural (upgraded anchors occupy distinct bins vs the
-  baseline's co-range triples plus 2–4 bin-4 leakage cells).
+* **The P1 prediction at guard 4, as first read:** the co-range
+  pre-filter + D_A gate appeared to deliver 3–5×. Part F2 shows the gain
+  was contingent on the bin-4 coupling cell; what stands from this table
+  is the regime demonstration, not the picker attribution.
 * **Consensus as-tuned gives part of it back** (14.5→38.9 µm etc.): at
   ~0.1 mm sway the tolerance sits at its ~21 µm noise floor and
   over-excludes an already-clean pool — the C.5 trade, now measured on
   real data. Tolerance refinement (Part D.5) is the fix; the exclusions
   are availability loss, not error.
-* **Two caveats carried honestly:** (1) every upgraded arm still admits
-  one bin-4 near-field leakage cell as an anchor (platform-fixed, D_A ≈
-  0.001 — the stability gate *likes* it); a platform-fixed cell votes
-  "zero motion" on its LOS, which plausibly contributes to solve RMS
-  reading below Vicon RMS in these windows. Extend the near-field guard
-  and re-run (Part D.6). (2) The IMU arms failed outright
-  (0 % integer agreement, inc-err 10²–10³ mm): the world-aligned-attitude
-  dead reckoning fails on the real handheld/hover attitude profile, as
-  its own honesty note predicted — the extrinsics/attitude TODO is now
-  load-bearing, not cosmetic.
+* **Two caveats carried honestly at the time:** (1) every upgraded arm
+  admitted one bin-4 near-field leakage cell as an anchor — flagged here
+  as a bias suspect and confirmed load-bearing by the D.6 rerun (Part
+  F2). (2) The IMU arms failed outright (0 % integer agreement, inc-err
+  10²–10³ mm): the world-aligned-attitude dead reckoning fails on the
+  real attitude profile, as its own honesty note predicted — the
+  extrinsics/attitude TODO (D.7) is load-bearing, not cosmetic.
+
+## Part F2 — D.6: the guard rerun corrects the headline **[meas-real]**
+
+`--guard-bins` was added to the harness (default 4 = exp5 behavior;
+recorded in every bundle). Measured coupling residue on ASPEN still
+frames: +20 dB at bin 4, +14 at bin 5, +5–7 at bin 6, background from
+bin 7 — guards 8 (0.47 m) and 17 (1.0 m) were run on all five windows,
+both GT arms (20 bundles, `_g8`/`_g17`), plus a matched-holdout
+leave-one-out probe (`tools/phase10/rbec/d6_leaveoneout.py`).
+**Guard 8 and guard 17 agree to the last bit in every cell** (verified
+field-by-field over all ten pairs; only the recorded `guard_bins`
+differs) — the entire effect is the single bin-4 cell.
+
+| Window | Baseline plain/cons, g4 → g8 [µm] | Upgraded plain/cons, g4 → g8 [µm] |
+|---|---|---|
+| run0 | 64.3/65.4 → 52.6/59.9 | 56.1/133.6 → 51.2/67.3 |
+| run1 | 73.7/116.4 → 37.4/77.0 | 14.5/38.9 → 89.6/90.7 |
+| run2 | 58.6/32.8 → 61.4/28.6 | 16.7/29.6 → 73.3/37.2 |
+| run3 | 63.6/74.8 → 65.5/80.8 | 23.4/41.6 → 63.6/33.3 |
+| run10 | 46.2/79.5 → 83.2/110.0 | collapse → 82.7/96.6 |
+
+The mechanism, triangulated three ways (run notes, b11e31c): the
+matched leave-one-out shows dropping the bin-4 cell moves holdout by
+−8.6…+37.3 µm while any real-anchor drop stays within ±10 µm — the
+coupling cell (same ~+50° azimuth in every run: the array's own
+coupling direction) acted as an **unintentional zero-motion
+regularizer**; the cross-arm control shows leakage-as-anchor alone is
+not sufficient (the baseline arm carried bin-4 cells too and scored
+only 46–74 µm); and the matched ablation reaches only 25–61 µm vs the
+full repick's 51–90 µm — the remainder is pool/holdout reshuffle.
+
+Consequences, both quotable:
+
+* **Retraction with mechanism:** the 14.5–23.4 µm figures and the
+  "pre-filter 3–5×" attribution do not survive leakage exclusion. The
+  deeper finding: **every anchor-quality gate — energy rank, co-range
+  uniqueness, D_A, even consensus (which kept bin-4 while excluding four
+  real anchors) — is structurally biased toward a platform-fixed
+  return**, because zero motion is maximally coherent and maximally
+  self-consistent. This joins the C9 honest-negative catalogue beside
+  "D_A cannot gate ghosts." On a ghost-free still scene the two pickers
+  are statistically indistinguishable at guard 8 (run1 even flips 2.4×
+  in the baseline's favor — its co-range front-wall cells were
+  redundant good data, not ghosts); the picker's anti-ghost value rests
+  on the fixture's ghost scene (Part B) until a real ghost-bearing
+  scene is run.
+* **The design-regime claim survives, cleaner:** with leakage excluded
+  at the source, all five windows read **28.6–110.0 µm** (best-arm),
+  5–19× below the 547.8 µm wrap floor, robust to guard choice, run10
+  recovered — hover-regime phase consistency at tens of µm on real
+  cascade data, integer-free and Vicon-surveyed. Recommended
+  real-cascade guard: 8 bins; the code default stays 4 pending a
+  fixture-compatibility check before flipping.
 
 ## Part C — Remaining runs
 
@@ -253,9 +313,12 @@ statistics are worth in that regime.
 5. Tolerance refinement — now urgent, not cosmetic: the C.5 over-exclusion
    is measured on real data (Part F); per-anchor measured-SNR σ_φ + an
    el-leak term.
-6. **Extend the near-field guard** past bin 4 (the cascade coupling
-   residue survives it and gets admitted as an ultra-stable anchor);
-   re-run the ASPEN windows and check the solve-vs-Vicon correlation.
+6. ~~Extend the near-field guard~~ **done** (Part F2) — remaining:
+   flip the code default to guard 8 after a fixture-compatibility check
+   (the fixture's nearest anchor sits at bin 61, so the flip should be
+   safe; verify --check regolds cleanly), and re-run a ghost-bearing
+   real scene to restore a real-data basis for the picker's anti-ghost
+   claim.
 7. **Attitude-rotated IMU seed** (extrinsics + quaternion rotation) — the
    world-aligned assumption is measured broken (Part F caveat 2); needed
    for any beyond-still-window hover work.

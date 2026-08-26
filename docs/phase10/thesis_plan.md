@@ -63,16 +63,19 @@ shown?" — pointers in §3):
   structurally blind to coherent ghosts; per-frame residual tests are the
   wrong statistic; subset consensus holds to the 50 % theoretical breakdown.
   exp67 doc C.
-- **C6 — Real-data validation of the anchor solve**, re-scoped by the
-  exp5b runs (2026-08): on hover-regime ASPEN still windows
-  (Vicon-surveyed, integer-free), held-out residual **14.5–23.4 µm** with
-  the co-range pre-filter + D_A gate attributed at **3–5×** over the
-  exp5-equivalent baseline — and the honest negative that completes it:
-  at walking pace the original F.4 numbers dissolve (555 µm = the
-  wrap-saturation floor π/√3/K; the 0.23/0.35 mm agreement was
-  seed-circular), measured and documented rather than quietly retired.
+- **C6 — Real-data validation of the anchor solve**, re-scoped twice by
+  the exp5b runs (2026-08): on hover-regime ASPEN still windows
+  (Vicon-surveyed, integer-free), held-out residual **28.6–110 µm across
+  all five windows — 5–19× below the wrap-saturation floor — robust to
+  the near-field guard choice** (the D.6 rerun retracted an earlier
+  14.5–23.4 µm / "pre-filter 3–5×" reading that rode on a coupling cell
+  acting as a zero-motion regularizer). The honest negatives that
+  complete it: at walking pace the original F.4 numbers dissolve (555 µm
+  = the π/√3/K saturation floor; the 0.23/0.35 mm agreement was
+  seed-circular), and every anchor-quality gate is structurally biased
+  toward platform-fixed returns.
   [`radar_rbec_validation_exp5b.md`](radar_rbec_validation_exp5b.md)
-  Parts E–F.
+  Parts E–F2.
 - **C7 — The confidence-gated estimator bank on clinical truth**: six
   cardiac estimators + fusion; at confidence ≥ 0.5, HR MAE 3.05 BPM (p90
   6.37) at 30 % coverage on Erlangen ECG-referenced recordings — the
@@ -88,7 +91,10 @@ shown?" — pointers in §3):
   chapter): WLS gains nothing under systematic angle errors; the chest
   prior degrades seam-RAIM; post-hoc slip repair is impossible at the
   cliff; D_A cannot gate ghosts; elevation super-resolution cannot rescue
-  the 3-D solve. Examiners probe exactly here — surface these
+  the 3-D solve; every anchor-quality gate is structurally biased toward
+  platform-fixed returns (exp5b F2); held-out residuals saturate at
+  π/√3/K under phase wrap, so they cannot certify tracking outside the
+  design regime (exp5b E). Examiners probe exactly here — surface these
   deliberately.
 
 ---
@@ -136,7 +142,8 @@ yet run.
 | α decides drop-z vs constrain-z; closed form exact | hallway +0.006 / ground −0.319; <1e-9 | [meas-sim] | exp67 B | P2 α error bar |
 | Elevation aperture cannot carry a 3-D solve | 1.75° achievable vs 0.94° budget | [meas-sim] | exp67 B | bench V2 two-ray measurement (D.4) |
 | D_A is ghost-blind; consensus breakdown | D_A 0.031 = parent; holds to 6/12 | [meas-sim] | exp67 C | P1 wires consensus into exp5 |
-| Anchor solve, hover regime (ASPEN still windows, Vicon-surveyed, integer-free) | held-out 14.5–23.4 µm; pre-filter+D_A gain 3–5× | [meas-real] | exp5b Parts E–F | near-field guard rerun (D.6); full-hover after attitude-rotated IMU (D.7) |
+| Anchor solve, hover regime (ASPEN still windows, Vicon-surveyed, integer-free, guard-robust) | held-out 28.6–110 µm, 5–19× below wrap floor | [meas-real] | exp5b Part F2 | full-hover after attitude-rotated IMU (D.7); ghost-bearing real scene for the picker claim |
+| All anchor-quality gates biased toward platform-fixed returns (honest negative) | bin-4 cell passed energy/co-range/D_A/consensus; leave-one-out ±37 µm | [meas-real] | exp5b Part F2 | guard ≥ 8 bins on real cascades |
 | Walking-pace F.4 numbers are floor/seed artifacts (honest negative) | 555 µm = π/√3/K saturation; 0.2–0.3 mm seed-circular | [meas-real] | exp5b Part E | — (documented re-tiering) |
 | Conf-gated HR meets D3 when confident | MAE 3.05 BPM @ 30 % coverage | [meas-clin] | vitals doc | P6 subjects 11–30 + scenarios |
 | Cardiac band must reach below 0.8 Hz | GDN0010 @ 46 BPM | [meas-clin] | vitals doc | — (documented tradeoff) |
@@ -274,10 +281,12 @@ generated with the chapter skeletons and the §3 register pre-imported.
   future-work material for Ch10.
 - **The two fragile claims to guard**: (a) **resolved the hard way** —
   exp5b Part E showed the hallway numbers were saturation/seed artifacts,
-  and Part F replaced them with hover-regime numbers that are honestly
-  attributed; present C6 exclusively from exp5b Parts E–F now. New guard:
-  the 14.5–23.4 µm holdouts carry the bin-4 leakage-anchor caveat (exp5b
-  Part F) until the D.6 rerun clears it. (b) The 3.05 BPM clinical number is
+  and Parts F–F2 replaced them with guard-robust hover-regime numbers;
+  present C6 exclusively from exp5b Part F2 now. New guard: quote
+  **28.6–110 µm (guard-8)**, never the retracted guard-4 figures, and
+  never a real-data picker-advantage claim — on ghost-free scenes the
+  pickers are indistinguishable; the anti-ghost case rests on the
+  fixture until a ghost-bearing real scene is run. (b) The 3.05 BPM clinical number is
   *at 30 % coverage* — always quote coverage with accuracy, or an examiner
   will.
 - **Multi-session git hazard** (operational): the branch is pushed from
