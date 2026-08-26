@@ -391,10 +391,12 @@ the actual payload, not through more ColoRadar reruns.
 7. ~~Attitude-rotated IMU seed~~ **done** (Part G): still windows seed
    at 95–99 %, sway stays locked by the attitude leak; ~55 µm at the
    design's 47 ms gap by extrapolation of the leak term only.
-9. **D.9 — integer-chain RAIM**: misses are absorbing (Part G), so
-   per-seam detection via anchor-redundancy (the seam-RAIM machinery of
-   exp4, applied to pair seeding) is the load-bearing next mechanism —
-   merges naturally into P3's consensus × seam-RAIM availability
-   question.
+9. ~~D.9 — integer-chain RAIM~~ **done** (exp9,
+   [`radar_rbec_validation_exp9.md`](radar_rbec_validation_exp9.md)):
+   built, measured jointly with consensus + seam-RAIM; snaps isolated
+   slips (~8/dwell at 300 µm) and keeps the ghost-excluded shared-error
+   estimate ~17× cleaner; the raw-residual statistic is the load-bearing
+   implementation note. Doctrine: min-N 5/6/9 at the ≤100 µm budget;
+   no anchor count rescues dwells above it.
 8. Vitals-bank D_A note: D_A under *walking* decorrelates real anchors
    (Part E) — the gate's validity is regime-dependent; document in C.4.
