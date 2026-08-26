@@ -1,0 +1,144 @@
+{
+ "run": {
+  "sequence": "2_24_2021_aspen_run2",
+  "gt_source": "vicon",
+  "guard_bins": 8,
+  "n_frames": 50,
+  "frame_dt_s": 0.2000124454498291,
+  "n_dwells": 1,
+  "n_dwells_ok": 1,
+  "frames_dropped_tail": 0,
+  "holdout_um_plain_mean": 447.7180214310055,
+  "holdout_um_consensus_mean": 447.7180214310055,
+  "dwells": [
+   {
+    "f0": 5,
+    "f1": 55,
+    "anchors": [
+     [
+      -5.0,
+      174
+     ],
+     [
+      -10.0,
+      172
+     ],
+     [
+      -40.0,
+      111
+     ],
+     [
+      -50.0,
+      89
+     ],
+     [
+      12.5,
+      183
+     ],
+     [
+      20.0,
+      189
+     ],
+     [
+      -45.0,
+      219
+     ],
+     [
+      27.5,
+      197
+     ],
+     [
+      32.5,
+      156
+     ]
+    ],
+    "flagged_corange": [
+     [
+      0.0,
+      173
+     ],
+     [
+      -17.5,
+      175
+     ],
+     [
+      5.0,
+      174
+     ],
+     [
+      -55.0,
+      89
+     ],
+     [
+      -22.5,
+      172
+     ],
+     [
+      -27.5,
+      184
+     ],
+     [
+      -32.5,
+      174
+     ],
+     [
+      37.5,
+      155
+     ],
+     [
+      47.5,
+      174
+     ],
+     [
+      55.0,
+      174
+     ]
+    ],
+    "d_a": [
+     0.004088662849821999,
+     0.0008273394254057912,
+     0.0015436689536808363,
+     0.001928670526406494,
+     0.004146245886556696,
+     0.0036949613197191553,
+     0.0011865179613486708,
+     0.0018486019677970116,
+     0.004949457179067927
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.038089926618434196,
+     "alpha_abs_max": 0.059202108681827896,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 9,
+    "consensus_excluded": 0,
+    "consensus_excluded_az_deg": [],
+    "consensus_tol_um": 125.49704559608499,
+    "consensus_tol_model_um": 125.49704559608499,
+    "consensus_regime_valid": true,
+    "int_seed_mode": "gt",
+    "seed_frame": "world-naive",
+    "int_agreement_vs_gt": 1.0,
+    "gt_inc_rms_mm": [
+     1.6140593385794764,
+     1.8437790610036129
+    ],
+    "inc_err_rms_mm_plain": [
+     0.19823562022477745,
+     0.4561810852932318
+    ],
+    "inc_err_rms_mm_consensus": [
+     0.19823562022477745,
+     0.4561810852932318
+    ],
+    "holdout_um_plain": 447.7180214310055,
+    "holdout_um_consensus": 447.7180214310055
+   }
+  ]
+ },
+ "seed_mode": "gt",
+ "baseline": false
+}

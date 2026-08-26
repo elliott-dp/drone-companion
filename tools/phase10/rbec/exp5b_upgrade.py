@@ -87,8 +87,9 @@ import sys
 
 import numpy as np
 
-from .coloradar_bridge import (CascadeCalib, CascadeSequence, range_fft,
-                               steer_beam, write_fixture)
+from .coloradar_bridge import (CascadeCalib, CascadeSequence, quat_continuous,
+                               quat_mats, range_fft, steer_beam,
+                               write_fixture)
 from .core import los_from_azel
 
 RESULTS_DIR = os.path.normpath(os.path.join(
@@ -373,6 +374,172 @@ def gt_positions(seq: CascadeSequence) -> np.ndarray:
                      for i in range(3)], axis=1)
 
 
+def gt_attitude(seq: CascadeSequence, times: np.ndarray) -> np.ndarray:
+    """GT quaternions (x y z w), hemisphere-continuous, component-lerped to
+    ``times`` and renormalized (adequate at vicon rates)."""
+    q = quat_continuous(seq.gt_poses[:, 3:7])
+    qi = np.stack([np.interp(times, seq.gt_times, q[:, i])
+                   for i in range(4)], axis=1)
+    return qi / np.linalg.norm(qi, axis=1, keepdims=True)
+
+
+def cascade_track(seq: CascadeSequence) -> tuple[np.ndarray, np.ndarray]:
+    """The point the radar phase actually measures: cascade antenna world
+    positions (base GT + attitude-rotated base_to_cascade lever arm) and
+    R world<-cascade per frame. D.7: at the rig's 15.3 cm lever arm even
+    0.1 deg of attitude wobble moves the cascade ~270 um relative to the
+    base — first-order against lambda/4."""
+    tf = seq.calib.transforms
+    t_bc, R_bc = tf["base_to_cascade"]
+    R_wb = quat_mats(gt_attitude(seq, seq.times))
+    p_c = gt_positions(seq) + R_wb @ t_bc
+    return p_c, R_wb @ R_bc
+
+
+def cascade_frame_increments(p_c: np.ndarray,
+                             R_wc: np.ndarray) -> np.ndarray:
+    """Per-frame-pair displacement increments of the cascade point,
+    expressed in the CASCADE frame at each pair's start — the frame the
+    steering vectors live in. (The naive modes project world-frame
+    increments onto cascade-frame steering vectors; base_to_cascade is a
+    ~90 deg yaw, so that mismatch is first-order once integers are live.)"""
+    dinc_w = np.diff(p_c, axis=0)
+    return np.einsum("nji,nj->ni", R_wc[:-1], dinc_w)
+
+
+def imu_bias_body(imu_t: np.ndarray, accel: np.ndarray,
+                  seq: CascadeSequence, window_s: float = 5.0,
+                  gravity: float = 9.80665) -> np.ndarray:
+    """ZUPT-style body-frame accel bias, self-contained: over the quietest
+    ``window_s`` of the log (minimum rolling std of the accel magnitude),
+    b = mean(a_body) - R_bw [0, 0, g]. Attitude is only needed to place
+    gravity; in flight a pre-flight still calibration or EKF plays this
+    role. Without it the measured 0.2-0.65 m/s^2 residual double-integrates
+    to 100s of mm per pair over a dwell (D.7 probe)."""
+    n = max(int(round(window_s / max(np.median(np.diff(imu_t)), 1e-4))), 10)
+    mag = np.linalg.norm(accel, axis=1)
+    c1 = np.cumsum(np.insert(mag, 0, 0.0))
+    c2 = np.cumsum(np.insert(mag * mag, 0, 0.0))
+    m = (c1[n:] - c1[:-n]) / n
+    var = np.maximum((c2[n:] - c2[:-n]) / n - m * m, 0.0)
+    s = int(np.argmin(var))
+    _, R_bi = seq.calib.transforms["base_to_imu"]
+    R_wi = quat_mats(gt_attitude(seq, imu_t[s:s + n])) @ R_bi
+    g_imu = np.einsum("nji,j->ni", R_wi, np.array([0.0, 0.0, gravity]))
+    return accel[s:s + n].mean(axis=0) - g_imu.mean(axis=0)
+
+
+def imu_increments_rotated(imu_t: np.ndarray, accel: np.ndarray,
+                           seq: CascadeSequence, p_ref: np.ndarray,
+                           R_wc: np.ndarray, dwell_start: int,
+                           gravity: float = 9.80665,
+                           zupt: bool = True) -> np.ndarray | None:
+    """D.7 dead-reckoning: body accel rotated to world via GT attitude
+    (interpolated to IMU sample times) composed with base_to_imu, gravity
+    subtracted in the world frame, double-integrated from a GT central-
+    difference v0 of the CASCADE point; the base->cascade lever-arm delta
+    is added from GT attitude, and the result is expressed in the cascade
+    frame like the reference increments. Attitude comes from GT, not gyro
+    integration — the claim tested is 'known attitude + measured accel
+    suffice to seed integers', the EKF-attitude analogue for a drone.
+    Returns None when the IMU log does not cover the radar window."""
+    tf = seq.calib.transforms
+    _, R_bi = tf["base_to_imu"]
+    radar_times = seq.times
+    t0 = radar_times[dwell_start]
+    k = dwell_start
+    if 0 < k < radar_times.size - 1:
+        dt0 = radar_times[k + 1] - radar_times[k - 1]
+        v0 = (p_ref[k + 1] - p_ref[k - 1]) / max(dt0, 1e-9)
+    elif k + 1 < radar_times.size:
+        dt0 = radar_times[k + 1] - radar_times[k]
+        v0 = (p_ref[k + 1] - p_ref[k]) / max(dt0, 1e-9)
+    else:
+        v0 = np.zeros(3)
+    if zupt:
+        accel = accel - imu_bias_body(imu_t, accel, seq, gravity=gravity)
+    R_wb_imu = quat_mats(gt_attitude(seq, imu_t))
+    a = np.einsum("nij,nj->ni", R_wb_imu, accel @ R_bi.T)
+    a[:, 2] -= gravity
+    sel = imu_t >= t0
+    ts, asel = imu_t[sel], a[sel]
+    if ts.size < 2 or ts[-1] < radar_times[-1] - 0.5:
+        return None
+    ts = np.concatenate([[t0], ts])
+    aseg = np.vstack([asel[:1], asel])
+    dt = np.diff(ts)
+    v = np.concatenate([[v0], v0 + np.cumsum(aseg[:-1] * dt[:, None],
+                                             axis=0)])
+    p = np.concatenate([[np.zeros(3)],
+                        np.cumsum(v[:-1] * dt[:, None], axis=0)])
+    pr = np.stack([np.interp(radar_times, ts, p[:, i]) for i in range(3)],
+                  axis=1)
+    # dead reckoning tracks the IMU point (base: base_to_imu translation is
+    # zero); the cascade lever-arm delta comes from GT attitude
+    lever = p_ref - gt_positions(seq)
+    dinc_w = np.diff(pr, axis=0) + np.diff(lever, axis=0)
+    return np.einsum("nji,nj->ni", R_wc[:-1], dinc_w)
+
+
+def imu_pair_bridge(imu_t: np.ndarray, accel: np.ndarray,
+                    seq: CascadeSequence, p_ref: np.ndarray,
+                    R_wc: np.ndarray, gravity: float = 9.80665,
+                    zupt: bool = True) -> np.ndarray | None:
+    """D.7 tracker-anchored seeding: the F-series design never dead-reckons
+    a dwell — the IMU bridges one inter-measurement gap with velocity
+    re-anchored by the radar's own track. Discrete form, exact for
+    piecewise-integrable accel: with per-pair integrals I1_j = int a dt
+    and I2_j = int int a dt^2 (velocity zeroed at each pair start),
+
+        seed_i = dp_{i-1} + I1_{i-1} * dt_i + I2_i - I2_{i-1}
+
+    where dp_{i-1} is the PREVIOUS pair's increment — in operation the
+    tracker's last solved increment (error ~ the solve error), here the GT
+    increment stands in for it and is labeled as such. The first pair uses
+    the GT central-difference v0. Open-loop error therefore never
+    accumulates beyond one 0.2 s frame gap — the ColoRadar analogue of the
+    47 ms inter-burst budget, 4x the gap the design assumed."""
+    tf = seq.calib.transforms
+    _, R_bi = tf["base_to_imu"]
+    radar_times = seq.times
+    if zupt:
+        accel = accel - imu_bias_body(imu_t, accel, seq, gravity=gravity)
+    if imu_t[0] > radar_times[0] + 0.5 or imu_t[-1] < radar_times[-1] - 0.5:
+        return None
+    R_wb_imu = quat_mats(gt_attitude(seq, imu_t))
+    a = np.einsum("nij,nj->ni", R_wb_imu, accel @ R_bi.T)
+    a[:, 2] -= gravity
+    n = radar_times.size
+    I1 = np.zeros((n - 1, 3))
+    I2 = np.zeros((n - 1, 3))
+    for i in range(n - 1):
+        t0, t1 = radar_times[i], radar_times[i + 1]
+        s = (imu_t >= t0) & (imu_t <= t1)
+        if s.sum() < 2:
+            continue
+        ts = np.concatenate([[t0], imu_t[s], [t1]])
+        aa = np.vstack([a[s][:1], a[s], a[s][-1:]])
+        dt = np.diff(ts)
+        I1[i] = (aa[:-1] * dt[:, None]).sum(axis=0)
+        v = np.concatenate([[np.zeros(3)],
+                            np.cumsum(aa[:-1] * dt[:, None], axis=0)])
+        I2[i] = (v[:-1] * dt[:, None]).sum(axis=0)
+    dp = np.diff(p_ref, axis=0)                    # true previous increments
+    seed = np.empty_like(dp)
+    ddt = np.diff(radar_times)
+    if radar_times.size > 2:
+        v0 = (p_ref[2] - p_ref[0]) / max(radar_times[2] - radar_times[0],
+                                         1e-9)
+    else:
+        v0 = np.zeros(3)
+    seed[0] = v0 * ddt[0] + I2[0]
+    seed[1:] = dp[:-1] + I1[:-1] * ddt[1:, None] + I2[1:] - I2[:-1]
+    # dp tracks the cascade point, so the carried-forward term already
+    # holds the lever arm; only its intra-pair change (second-order in
+    # attitude rate) is missed by the base-frame accel integrals
+    return np.einsum("nji,nj->ni", R_wc[:-1], seed)
+
+
 def read_imu(seq_dir: str):
     """ColoRadar imu/ reader: rows 'ax ay az gx gy gz' + timestamps.txt.
     Returns (times, accel) or None when absent/malformed."""
@@ -474,14 +641,37 @@ def run_dwell_real(seq: CascadeSequence, f0: int, f1: int, n_anchors: int,
     ph_h = track_phases(seq, holdout, f0, f1)
 
     gpos = gt_positions(seq)
-    dinc_gt = np.diff(gpos, axis=0)[f0:f1 - 1]
+    rot_ok = seed_mode in ("gt-rot", "imu-rot", "imu-rot-track")
+    if rot_ok and not ({"base_to_cascade", "base_to_imu"}
+                       <= set(seq.calib.transforms)):
+        print("  calib/transforms missing -- naive-frame fallback "
+              "(seed_frame will say so)")
+        rot_ok = False
+        seed_mode = {"gt-rot": "gt", "imu-rot": "imu",
+                     "imu-rot-track": "imu"}[seed_mode]
+    if rot_ok:
+        # D.7 frame-correct path: reference and seed increments for the
+        # cascade point, expressed in the cascade frame
+        p_ref, R_wc = cascade_track(seq)
+        dinc_all = cascade_frame_increments(p_ref, R_wc)
+    else:
+        p_ref, R_wc = gpos, None
+        dinc_all = np.diff(gpos, axis=0)
+    dinc_gt = dinc_all[f0:f1 - 1]
     imu_used = False
     dinc_seed = dinc_gt
-    if seed_mode == "imu":
+    if seed_mode in ("imu", "imu-rot", "imu-rot-track"):
         seq_root = os.path.dirname(os.path.dirname(seq.dir.rstrip("/")))
         imu = read_imu(seq_root)
-        inc = None if imu is None else imu_increments(
-            imu[0], imu[1], seq.times, gpos, f0)
+        if imu is None:
+            inc = None
+        elif seed_mode == "imu-rot-track":
+            inc = imu_pair_bridge(imu[0], imu[1], seq, p_ref, R_wc)
+        elif seed_mode == "imu-rot":
+            inc = imu_increments_rotated(imu[0], imu[1], seq, p_ref, R_wc,
+                                         f0)
+        else:
+            inc = imu_increments(imu[0], imu[1], seq.times, gpos, f0)
         if inc is None:
             print("  IMU unavailable or not covering the radar window -- "
                   "GT seeding (int_seed_mode will say so)")
@@ -518,7 +708,9 @@ def run_dwell_real(seq: CascadeSequence, f0: int, f1: int, n_anchors: int,
         "consensus_tol_um": cons["tol_m"] * 1e6,
         "consensus_tol_model_um": cons["tol_model_m"] * 1e6,
         "consensus_regime_valid": cons["regime_valid"],
-        "int_seed_mode": "imu" if imu_used else "gt",
+        "int_seed_mode": seed_mode if imu_used
+        else ("gt-rot" if rot_ok else "gt"),
+        "seed_frame": "cascade" if rot_ok else "world-naive",
         "int_agreement_vs_gt": int_agree,
         "gt_inc_rms_mm": [float(x * 1e3)
                           for x in dinc_gt[:, :2].std(axis=0)],
@@ -962,16 +1154,27 @@ def main() -> None:
     ap.add_argument("--frames", default=None)
     ap.add_argument("--n-anchors", type=int, default=9)
     ap.add_argument("--holdout", type=int, default=3)
-    ap.add_argument("--seed-mode", choices=["gt", "imu"], default="gt")
+    ap.add_argument("--seed-mode",
+                    choices=["gt", "imu", "gt-rot", "imu-rot",
+                             "imu-rot-track"],
+                    default="gt",
+                    help="gt/imu are the naive world-frame modes; the -rot "
+                         "modes (D.7) use GT attitude + the base_to_imu / "
+                         "base_to_cascade extrinsics for frame-correct "
+                         "cascade-point seeding; imu-rot dead-reckons the "
+                         "dwell open-loop (ZUPT bias-calibrated), "
+                         "imu-rot-track re-anchors velocity per frame pair "
+                         "from the previous increment (the tracker bound)")
     ap.add_argument("--dwell-s", type=float, default=30.0,
                     help="dwell length in seconds (default 30; the hover-"
                          "regime ASPEN windows are shorter than 30 s, so "
                          "they need dwells sized to the still stretch)")
     ap.add_argument("--guard-bins", type=int, default=8,
                     help="near-field guard: zero the first N range bins of "
-                         "the picker's energy map (default 4 = the exp5 "
-                         "guard, which admits the cascade coupling residue "
-                         "at bin 4; D.6 probes 8 and 17)")
+                         "the picker's energy map (default 8 per the D.6 "
+                         "verdict; pass 4 to reproduce the exp5-era guard, "
+                         "which admits the cascade coupling residue at "
+                         "bin 4)")
     ap.add_argument("--baseline", action="store_true",
                     help="exp5-equivalent picker: no co-range pre-filter, "
                          "no D_A gate (the ablation arm)")

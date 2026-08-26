@@ -1,0 +1,147 @@
+{
+ "run": {
+  "sequence": "2_24_2021_aspen_run0",
+  "gt_source": "vicon",
+  "guard_bins": 8,
+  "n_frames": 50,
+  "frame_dt_s": 0.19998443126678467,
+  "n_dwells": 1,
+  "n_dwells_ok": 1,
+  "frames_dropped_tail": 0,
+  "holdout_um_plain_mean": 365.1668295007523,
+  "holdout_um_consensus_mean": 365.0612102607431,
+  "dwells": [
+   {
+    "f0": 365,
+    "f1": 415,
+    "anchors": [
+     [
+      -5.0,
+      174
+     ],
+     [
+      -40.0,
+      112
+     ],
+     [
+      14.999999999999998,
+      187
+     ],
+     [
+      -55.0,
+      89
+     ],
+     [
+      -45.0,
+      220
+     ],
+     [
+      20.0,
+      189
+     ],
+     [
+      27.5,
+      196
+     ],
+     [
+      -22.5,
+      178
+     ],
+     [
+      10.0,
+      181
+     ]
+    ],
+    "flagged_corange": [
+     [
+      0.0,
+      173
+     ],
+     [
+      -17.5,
+      175
+     ],
+     [
+      -12.5,
+      174
+     ],
+     [
+      5.0,
+      173
+     ],
+     [
+      -50.0,
+      90
+     ],
+     [
+      -27.5,
+      173
+     ],
+     [
+      -35.0,
+      174
+     ],
+     [
+      55.0,
+      112
+     ],
+     [
+      42.5,
+      178
+     ]
+    ],
+    "d_a": [
+     0.24141186407326834,
+     0.08333032550330942,
+     0.07955752424169425,
+     0.046619300058184175,
+     0.19956733117531494,
+     0.1833590405082462,
+     0.24635142987215886,
+     0.13154203829096764,
+     0.04188816355311296
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.039771283251513384,
+     "alpha_abs_max": 0.06074754663972473,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 3,
+    "consensus_excluded": 6,
+    "consensus_excluded_az_deg": [
+     -5.0,
+     -40.0,
+     -45.0,
+     20.0,
+     27.5,
+     -22.5
+    ],
+    "consensus_tol_um": 66.89497570387353,
+    "consensus_tol_model_um": 66.89497570387353,
+    "consensus_regime_valid": true,
+    "int_seed_mode": "gt",
+    "seed_frame": "world-naive",
+    "int_agreement_vs_gt": 1.0,
+    "gt_inc_rms_mm": [
+     0.6470919865610483,
+     1.123745570818211
+    ],
+    "inc_err_rms_mm_plain": [
+     0.24545781480353793,
+     0.38690882517676434
+    ],
+    "inc_err_rms_mm_consensus": [
+     0.32460562390513376,
+     0.5244369194595316
+    ],
+    "holdout_um_plain": 365.1668295007523,
+    "holdout_um_consensus": 365.0612102607431
+   }
+  ]
+ },
+ "seed_mode": "gt",
+ "baseline": false
+}

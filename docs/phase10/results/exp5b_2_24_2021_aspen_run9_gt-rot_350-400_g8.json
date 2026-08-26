@@ -1,0 +1,136 @@
+{
+ "run": {
+  "sequence": "2_24_2021_aspen_run9",
+  "gt_source": "vicon",
+  "guard_bins": 8,
+  "n_frames": 50,
+  "frame_dt_s": 0.20000600814819336,
+  "n_dwells": 1,
+  "n_dwells_ok": 1,
+  "frames_dropped_tail": 0,
+  "holdout_um_plain_mean": 346.4588800773389,
+  "holdout_um_consensus_mean": 346.4588800773389,
+  "dwells": [
+   {
+    "f0": 350,
+    "f1": 400,
+    "anchors": [
+     [
+      -7.499999999999999,
+      174
+     ],
+     [
+      -17.5,
+      177
+     ],
+     [
+      14.999999999999998,
+      186
+     ],
+     [
+      27.5,
+      196
+     ],
+     [
+      -52.50000000000001,
+      89
+     ],
+     [
+      -40.0,
+      112
+     ],
+     [
+      -45.0,
+      220
+     ],
+     [
+      -29.999999999999996,
+      84
+     ],
+     [
+      20.0,
+      184
+     ]
+    ],
+    "flagged_corange": [
+     [
+      -12.5,
+      174
+     ],
+     [
+      -2.5,
+      173
+     ],
+     [
+      10.0,
+      89
+     ],
+     [
+      -22.5,
+      178
+     ],
+     [
+      2.5,
+      174
+     ],
+     [
+      -35.0,
+      111
+     ],
+     [
+      55.0,
+      112
+     ],
+     [
+      42.5,
+      178
+     ]
+    ],
+    "d_a": [
+     0.060016597822088937,
+     0.1284429800448973,
+     0.07189783575804902,
+     0.17459673148082908,
+     0.07451740732618477,
+     0.09458407150858095,
+     0.11092431559094726,
+     0.0944628992011503,
+     0.06985697359462505
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.03904455460957304,
+     "alpha_abs_max": 0.05941561928892743,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 9,
+    "consensus_excluded": 0,
+    "consensus_excluded_az_deg": [],
+    "consensus_tol_um": 91.0495213514197,
+    "consensus_tol_model_um": 91.0495213514197,
+    "consensus_regime_valid": true,
+    "int_seed_mode": "gt-rot",
+    "seed_frame": "cascade",
+    "int_agreement_vs_gt": 1.0,
+    "gt_inc_rms_mm": [
+     1.2555427208458356,
+     1.10374335453944
+    ],
+    "inc_err_rms_mm_plain": [
+     0.31750804814209865,
+     0.5096316462730264
+    ],
+    "inc_err_rms_mm_consensus": [
+     0.31750804814209865,
+     0.5096316462730264
+    ],
+    "holdout_um_plain": 346.4588800773389,
+    "holdout_um_consensus": 346.4588800773389
+   }
+  ]
+ },
+ "seed_mode": "gt-rot",
+ "baseline": false
+}

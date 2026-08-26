@@ -1,0 +1,141 @@
+{
+ "run": {
+  "sequence": "2_24_2021_aspen_run3",
+  "gt_source": "vicon",
+  "guard_bins": 8,
+  "n_frames": 51,
+  "frame_dt_s": 0.1999959945678711,
+  "n_dwells": 1,
+  "n_dwells_ok": 1,
+  "frames_dropped_tail": 0,
+  "holdout_um_plain_mean": 113.48835697572616,
+  "holdout_um_consensus_mean": 72.67155080592069,
+  "dwells": [
+   {
+    "f0": 533,
+    "f1": 584,
+    "anchors": [
+     [
+      -5.0,
+      174
+     ],
+     [
+      0.0,
+      172
+     ],
+     [
+      -42.5,
+      111
+     ],
+     [
+      -55.0,
+      89
+     ],
+     [
+      12.5,
+      185
+     ],
+     [
+      17.5,
+      187
+     ],
+     [
+      27.5,
+      196
+     ],
+     [
+      -25.0,
+      177
+     ],
+     [
+      22.5,
+      124
+     ]
+    ],
+    "flagged_corange": [
+     [
+      -17.5,
+      175
+     ],
+     [
+      -10.0,
+      174
+     ],
+     [
+      5.0,
+      175
+     ],
+     [
+      -50.0,
+      90
+     ],
+     [
+      -37.5,
+      112
+     ],
+     [
+      -29.999999999999996,
+      174
+     ],
+     [
+      55.0,
+      174
+     ],
+     [
+      42.5,
+      178
+     ]
+    ],
+    "d_a": [
+     0.17591362902849572,
+     0.08433812621252011,
+     0.02888561649345353,
+     0.015074818621266719,
+     0.06796086419415506,
+     0.21579296117851796,
+     0.20530471608525272,
+     0.12539907677316325,
+     0.03350576654173669
+    ],
+    "alpha": {
+     "alpha_nominal": null,
+     "el_known": false,
+     "alpha_abs_p95": 0.03738094239477526,
+     "alpha_abs_max": 0.05190752374503682,
+     "el_bound_deg": 5.0,
+     "within_gate": false
+    },
+    "consensus_set_size": 5,
+    "consensus_excluded": 4,
+    "consensus_excluded_az_deg": [
+     -42.5,
+     -55.0,
+     27.5,
+     -25.0
+    ],
+    "consensus_tol_um": 26.399730696614863,
+    "consensus_tol_model_um": 26.399730696614863,
+    "consensus_regime_valid": true,
+    "int_seed_mode": "imu-rot-track",
+    "seed_frame": "cascade",
+    "int_agreement_vs_gt": 0.9844444444444445,
+    "gt_inc_rms_mm": [
+     0.1739476493746358,
+     0.24041097454653973
+    ],
+    "inc_err_rms_mm_plain": [
+     0.30748156826457945,
+     0.3301829658492947
+    ],
+    "inc_err_rms_mm_consensus": [
+     0.3548785999597883,
+     0.22816035045093633
+    ],
+    "holdout_um_plain": 113.48835697572616,
+    "holdout_um_consensus": 72.67155080592069
+   }
+  ]
+ },
+ "seed_mode": "imu-rot-track",
+ "baseline": false
+}

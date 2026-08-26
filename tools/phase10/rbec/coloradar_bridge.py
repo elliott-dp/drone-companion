@@ -124,9 +124,62 @@ class CascadeCalib:
         rx_el = self.rxl[:, 2][None, :]
         self.virt_el = (tx_el + rx_el).astype(float)
 
+        # rig extrinsics (calib/transforms/*.txt): {} when not vendored —
+        # callers needing them must fall back to identity and say so
+        self.transforms = load_transforms(calib_dir)
+
     def range_axis(self) -> np.ndarray:
         rres = C0 * self.fs / (2 * self.slope * self.num_samples)
         return np.arange(self.num_samples) * rres
+
+
+# --------------------------------------------------------------------------
+# rig extrinsics + quaternion helpers (ColoRadar transforms convention:
+# line 1 'x y z' translation, line 2 quaternion 'x y z w')
+# --------------------------------------------------------------------------
+
+def quat_mats(q: np.ndarray) -> np.ndarray:
+    """(n, 4) xyzw quaternions -> (n, 3, 3) rotation matrices (world<-body
+    for a pose quaternion, i.e. R @ v_body = v_world)."""
+    q = np.atleast_2d(q)
+    q = q / np.linalg.norm(q, axis=1, keepdims=True)
+    x, y, z, w = q[:, 0], q[:, 1], q[:, 2], q[:, 3]
+    return np.stack([
+        np.stack([1 - 2 * (y * y + z * z), 2 * (x * y - z * w),
+                  2 * (x * z + y * w)], -1),
+        np.stack([2 * (x * y + z * w), 1 - 2 * (x * x + z * z),
+                  2 * (y * z - x * w)], -1),
+        np.stack([2 * (x * z - y * w), 2 * (y * z + x * w),
+                  1 - 2 * (x * x + y * y)], -1),
+    ], axis=1)
+
+
+def quat_continuous(q: np.ndarray) -> np.ndarray:
+    """Fix hemisphere flips along a quaternion time series so component-wise
+    interpolation stays valid (q and -q are the same rotation)."""
+    q = q.copy()
+    flip = np.cumsum(np.sum(q[1:] * q[:-1], axis=1) < 0) % 2
+    q[1:][flip == 1] *= -1
+    return q
+
+
+def load_transforms(calib_dir: str) -> dict:
+    """Read calib/transforms/*.txt into {name: (t (3,), R (3, 3))} with R
+    mapping child-frame vectors into the base frame. Empty dict when the
+    directory is absent."""
+    d = os.path.join(calib_dir, "transforms")
+    out = {}
+    if not os.path.isdir(d):
+        return out
+    for fn in os.listdir(d):
+        if not fn.endswith(".txt"):
+            continue
+        with open(os.path.join(d, fn)) as fh:
+            lines = [ln.split() for ln in fh if ln.strip()]
+        t = np.array([float(x) for x in lines[0][:3]])
+        q = np.array([float(x) for x in lines[1][:4]])
+        out[fn[:-4]] = (t, quat_mats(q[None])[0])
+    return out
 
 
 # --------------------------------------------------------------------------
