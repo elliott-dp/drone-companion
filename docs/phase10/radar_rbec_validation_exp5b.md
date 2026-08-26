@@ -1,25 +1,33 @@
-# RBEC exp5b — the P1 upgrade harness, built, adversarially reviewed, fixture-proven
+# RBEC exp5b — the P1 upgrade pass: harness, fixture proof, and the real-data verdicts
 
-> **Status: P1's machinery is implemented, survived an adversarial review
-> pass, and is validated end-to-end on a seeded synthetic fixture; the
-> real-data rerun is one command away, blocked only on the sequence
-> archive.** This pass implements every item of thesis_plan §4 P1 —
+> **Status: complete.** The harness (Parts A–B2) was built, adversarially
+> reviewed, and fixture-proven in-sandbox; the real-data runs (Parts E–F,
+> author's machine, 2026-08) then delivered the P1 verdict on
+> ec_hallways_run4 — **the 555 µm was the wrap-saturation floor, not a
+> tracking result** — and, on Vicon-surveyed ASPEN still windows, the
+> first hover-regime numbers: **held-out 14.5–23.4 µm, with the pre-filter
+> + D_A gate attributed at 3–5×.** This pass implements every item of thesis_plan §4 P1 —
 > per-dwell α report, co-range structural pre-filter, subset-consensus
 > solve, IMU-seeded integers, full-sequence dwell processing — as
 > `tools/phase10/rbec/exp5b_upgrade.py`, against the specs in
 > [`radar_rbec_validation.md`](radar_rbec_validation.md) §F.4 and
 > [`radar_rbec_validation_exp67.md`](radar_rbec_validation_exp67.md)
-> §B.4/§C.4/§D. Everything measured here is **[meas]** on the synthetic
-> fixture (committed bundle `results/exp5b.json`, regenerated exactly by
-> `--check`); **no number here supersedes F.4's** — the 0.23/0.35 mm /
-> 555 µm real-data results stand untouched until the rerun.
+> §B.4/§C.4/§D. Parts B–B2 are **[meas]** on the synthetic fixture
+> (committed bundle `results/exp5b.json`, regenerated exactly by
+> `--check`); Parts E–F are **[meas-real]** on ColoRadar v1 data and
+> **supersede F.4's interpretation**: the 555 µm and the 0.23/0.35 mm
+> increment agreement are re-read as saturation-floor and seed-circular
+> artifacts of the walking regime (Part E), replaced by the hover-regime
+> numbers of Part F.
 
 ## Part A — Models and their deliberate boundaries
 
 * **The fixture, not the hallway.** ec_hallways_run4 could not be obtained
-  in this environment: ColoRadar+ is Globus-only (interactive login), the
-  v1 SharePoint/Drive routes are gone, and no public mirror of the raw ADC
-  exists (checked: GitHub code/LFS/releases, reachable S3/GCS hosts). The
+  from the sandbox: ColoRadar+ is Globus-only (interactive login) and the
+  v1 hosts are proxy-blocked there. (Correction from the real-data pass:
+  the v1 OneDrive share IS alive from a browser, no login —
+  `fetch_coloradar_v1.py` now pulls windowed cascade frames + vicon/imu
+  from it via HTTP Range requests, ~1 GB instead of ~50 GB.) The
   fixture is a 10-anchor hallway-like scene written in the ColoRadar
   on-disk layout — 3,145,728-byte frames, the vendored calib's waveform
   constants, **1-indexed frame filenames as ColoRadar+ ships them** (so
@@ -146,35 +154,110 @@ have. The substantive corrections, all now in the code and re-validated:
    instead of crashing; short frame windows raise instead of emitting NaN
    means; the dropped tail is counted (`frames_dropped_tail`).
 
-## Part C — The rerun, when data lands
+## Part E — Real data I: ec_hallways_run4 says no, and says why **[meas-real]**
+
+Both arms ran on the author's machine over the GT-covered local frames
+(72:299, walking motion ~126 mm/frame ≈ 66 half-wavelengths per frame;
+bundles `results/exp5b_ec_hallways_run4_baseline_{gt,imu}_72-299.json`).
+
+* **The holdout statistic pegs the saturation floor, and F.4's number
+  dissolves.** Held-out residual 543–556 µm across all four arms — GT- or
+  IMU-seeded, either picker — against the analytic wrapped-uniform floor
+  π/√3 / K = 547.8 µm. The seeding doesn't matter (IMU arms fixed 0 % of
+  integers to the GT values and read the *same* holdout), so the metric is
+  measuring phase-wrap saturation, not tracking. Direct anchor probes
+  agree: the real wall cells' wrapped Δphase std sits at 1.76/1.86 rad vs
+  the 1.814 saturation constant. **F.4's "555 µm held-out" is therefore
+  re-tiered: it was the floor of a saturated statistic at walking pace,
+  not evidence of sub-mm tracking.** The GT-arm's 0.20–0.32 mm increment
+  "agreement" is seed-circular in this regime (integers carry the GT;
+  the fractional phase underneath is aliased or near-field leakage).
+* **The upgraded picker refused to run — correctly.** Its pool collapsed:
+  12/20 candidates sit in range bin 4 (0.24 m — cascade coupling residue
+  just past the `emap[:, :4]` near-field guard), and the four real wall
+  cells fail D_A (1.3–2.0 vs 0.25) under walking decorrelation. Nothing
+  in the scene passes an honest gate at this platform speed.
+* **`consensus_regime_valid` = False on every dwell**, exactly as the
+  B2.1 clamp predicted for this regime; the consensus exclusions there
+  (set-size 3, worse inc-err than plain) are noise and are not quoted.
+
+Verdict: at walking speed the sequence is outside RBEC's hover design
+regime, and the harness's own statistics say so instead of flattering it.
+
+## Part F — Real data II: ASPEN still windows — the hover-regime result **[meas-real]**
+
+A Vicon survey (98 Hz mm-class mocap, preferred automatically by the
+bridge) of all twelve v1 aspen runs found five ≥40-frame still stretches
+(median 95–124 µm/frame — inside λ/4, the design regime). One 12 s dwell
+each, GT-seeded, both pickers (bundles
+`results/exp5b_2_24_2021_aspen_run*_*.json`):
+
+| Window | Baseline plain [µm] | Upgraded plain [µm] | Gain |
+|---|---|---|---|
+| run1 408:458 | 73.7 | **14.5** | 5.1× |
+| run2 411:476 | 58.6 | **16.7** | 3.5× |
+| run3 533:584 | 63.6 | **23.4** | 2.7× |
+| run0 1:42 | 64.3 | 56.1 | 1.1× |
+| run10 631:694 | 46.2 | pool collapse (co-range flags 11/19 — that viewpoint's wall arc is genuinely equidistant) | — |
+
+* **Non-circular by measurement:** GT seeding fixed 0–0.4 % of integers
+  to nonzero wraps in these windows (integer-free regime), so the solve
+  is pure radar phase; `consensus_regime_valid` holds on every GT-arm
+  dwell; the holdout reads 7–38× below the saturation floor that pegged
+  Part E.
+* **The P1 prediction, settled with attribution:** the co-range
+  pre-filter + D_A gate deliver the 3–5×; the identical-range clusters
+  *were* structural (upgraded anchors occupy distinct bins vs the
+  baseline's co-range triples plus 2–4 bin-4 leakage cells).
+* **Consensus as-tuned gives part of it back** (14.5→38.9 µm etc.): at
+  ~0.1 mm sway the tolerance sits at its ~21 µm noise floor and
+  over-excludes an already-clean pool — the C.5 trade, now measured on
+  real data. Tolerance refinement (Part D.5) is the fix; the exclusions
+  are availability loss, not error.
+* **Two caveats carried honestly:** (1) every upgraded arm still admits
+  one bin-4 near-field leakage cell as an anchor (platform-fixed, D_A ≈
+  0.001 — the stability gate *likes* it); a platform-fixed cell votes
+  "zero motion" on its LOS, which plausibly contributes to solve RMS
+  reading below Vicon RMS in these windows. Extend the near-field guard
+  and re-run (Part D.6). (2) The IMU arms failed outright
+  (0 % integer agreement, inc-err 10²–10³ mm): the world-aligned-attitude
+  dead reckoning fails on the real handheld/hover attitude profile, as
+  its own honesty note predicted — the extrinsics/attitude TODO is now
+  load-bearing, not cosmetic.
+
+## Part C — Remaining runs
 
 ```bash
-./tools/phase10/rbec/fetch_coloradar_calib.sh <root>       # calib: works now
-# place kitti/ec_hallways_run4/ under <root> (Globus: arpg.colorado.edu/coloradarplus)
+# full-hover (non-still) ASPEN segments, e.g. aspen_run9, via the v1 fetcher:
+python3 -m tools.phase10.rbec.fetch_coloradar_v1 <root> 2_24_2021_aspen_run9
 python3 -m tools.phase10.rbec.exp5b_upgrade --root <root> \
-    --sequence ec_hallways_run4 --baseline          # exp5-equivalent arm
-python3 -m tools.phase10.rbec.exp5b_upgrade --root <root> \
-    --sequence ec_hallways_run4 --seed-mode imu     # upgraded arm
+    --sequence 2_24_2021_aspen_run9 --dwell-s 12
 ```
 
-Each writes `results/exp5b_<sequence>_<mode>….json` + figure over the full
-2192 frames in 30 s dwells. The baseline-vs-upgraded holdout comparison
-settles the prediction with attribution; watch `consensus_regime_valid`
-per dwell (Part B2.1) before quoting consensus verdicts.
+Full-hover segments need the attitude-rotated IMU seed (D.7) first —
+per-frame motion there exceeds λ/4, and Part E shows what GT-seeded
+statistics are worth in that regime.
 
 ## Part D — Follow-ups
 
-1. Real-data rerun (above) — the only remaining P1 item, blocked on the
-   archive. Highest-value user action alongside P4/P5 (thesis_plan §4).
-2. Stride-reduced consensus scoring for the saturated regime (B2.1): score
-   agreement on k-frame strides sized so σ_θ·d_stride ≪ λ/4, keeping the
-   solve per-pair. Needed before consensus verdicts on walking-pace data
-   are quotable.
-3. Extrinsics: `gt_increments`/`imu_increments` still use GT world axes
-   (exp5's documented TODO); the mm3DGS mirror also vendors
-   `transforms/base_to_{cascade,imu}.txt` — wire before the rerun if
-   increment-axis fidelity matters beyond magnitude scoring.
-4. The α-bound negative feeds P2 directly: propagate per-anchor elevation
-   uncertainty instead of a uniform bound.
-5. Tolerance refinement (B's C.5 trade): per-anchor measured-SNR σ_φ and
-   an el-leak term sin(el_bound)·|dz| in the consensus variance model.
+1. ~~Real-data rerun~~ **done** (Parts E–F). Remaining P1-adjacent items
+   below.
+2. Stride-reduced consensus scoring for the saturated regime (B2.1) —
+   still open, though Part E suggests walking-pace data is better simply
+   ruled out of regime than rescued.
+3. **α on all five real windows reads p95 ≈ 0.037–0.043 — above the 0.02
+   gate everywhere** (bound-only, ±5° el). Real-data confirmation of the
+   fixture's negative; P2 must propagate per-anchor elevation before any
+   2-D certification claim.
+4. (unchanged) P2 α-uncertainty propagation.
+5. Tolerance refinement — now urgent, not cosmetic: the C.5 over-exclusion
+   is measured on real data (Part F); per-anchor measured-SNR σ_φ + an
+   el-leak term.
+6. **Extend the near-field guard** past bin 4 (the cascade coupling
+   residue survives it and gets admitted as an ultra-stable anchor);
+   re-run the ASPEN windows and check the solve-vs-Vicon correlation.
+7. **Attitude-rotated IMU seed** (extrinsics + quaternion rotation) — the
+   world-aligned assumption is measured broken (Part F caveat 2); needed
+   for any beyond-still-window hover work.
+8. Vitals-bank D_A note: D_A under *walking* decorrelates real anchors
+   (Part E) — the gate's validity is regime-dependent; document in C.4.

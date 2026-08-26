@@ -63,10 +63,16 @@ shown?" — pointers in §3):
   structurally blind to coherent ghosts; per-frame residual tests are the
   wrong statistic; subset consensus holds to the 50 % theoretical breakdown.
   exp67 doc C.
-- **C6 — Real-data validation of the anchor solve**: on 4×AWR2243 cascade
-  raw ADC (ColoRadar+), increment agreement 0.23/0.35 mm RMS (x/y) against
-  50/68 mm of true motion; 555 µm held-out static-cell residual — the
-  no-ground-truth metric. Validation F.4.
+- **C6 — Real-data validation of the anchor solve**, re-scoped by the
+  exp5b runs (2026-08): on hover-regime ASPEN still windows
+  (Vicon-surveyed, integer-free), held-out residual **14.5–23.4 µm** with
+  the co-range pre-filter + D_A gate attributed at **3–5×** over the
+  exp5-equivalent baseline — and the honest negative that completes it:
+  at walking pace the original F.4 numbers dissolve (555 µm = the
+  wrap-saturation floor π/√3/K; the 0.23/0.35 mm agreement was
+  seed-circular), measured and documented rather than quietly retired.
+  [`radar_rbec_validation_exp5b.md`](radar_rbec_validation_exp5b.md)
+  Parts E–F.
 - **C7 — The confidence-gated estimator bank on clinical truth**: six
   cardiac estimators + fusion; at confidence ≥ 0.5, HR MAE 3.05 BPM (p90
   6.37) at 30 % coverage on Erlangen ECG-referenced recordings — the
@@ -130,7 +136,8 @@ yet run.
 | α decides drop-z vs constrain-z; closed form exact | hallway +0.006 / ground −0.319; <1e-9 | [meas-sim] | exp67 B | P2 α error bar |
 | Elevation aperture cannot carry a 3-D solve | 1.75° achievable vs 0.94° budget | [meas-sim] | exp67 B | bench V2 two-ray measurement (D.4) |
 | D_A is ghost-blind; consensus breakdown | D_A 0.031 = parent; holds to 6/12 | [meas-sim] | exp67 C | P1 wires consensus into exp5 |
-| Anchor solve tracks real cascade data | 0.23/0.35 mm vs 50/68 mm; 555 µm held-out | [meas-real] | validation F.4 | P1 (quality-gated), P4 (Vicon GT) |
+| Anchor solve, hover regime (ASPEN still windows, Vicon-surveyed, integer-free) | held-out 14.5–23.4 µm; pre-filter+D_A gain 3–5× | [meas-real] | exp5b Parts E–F | near-field guard rerun (D.6); full-hover after attitude-rotated IMU (D.7) |
+| Walking-pace F.4 numbers are floor/seed artifacts (honest negative) | 555 µm = π/√3/K saturation; 0.2–0.3 mm seed-circular | [meas-real] | exp5b Part E | — (documented re-tiering) |
 | Conf-gated HR meets D3 when confident | MAE 3.05 BPM @ 30 % coverage | [meas-clin] | vitals doc | P6 subjects 11–30 + scenarios |
 | Cardiac band must reach below 0.8 Hz | GDN0010 @ 46 BPM | [meas-clin] | vitals doc | — (documented tradeoff) |
 | 76–81 GHz airborne prohibited (US, EU); 60–64 GHz lawful route | §95.3333; EN 305 550 | [prim] | findings 2.5/2.6 | — |
@@ -155,7 +162,7 @@ calib · bench analysis stack + manual (protocols ready).
 | P1 | exp5 upgrade run: per-dwell α report, co-range structural pre-filter, subset-consensus solve, IMU-seeded integers, full 2192-frame sequence. **Harness done 2026-08-22** (`exp5b_upgrade.py`, fixture-proven + adversarially reviewed — [`radar_rbec_validation_exp5b.md`](radar_rbec_validation_exp5b.md)); only the data run remains | Ch6 | run: hours | **sequence archive** (Globus is interactive-only; see exp5b doc Part C) | Turns C6 from "quick harness" to defensible chapter core. Prediction on record: the 555 µm improves, or the identical-range clusters weren't ghosts — informative either way; the `--baseline` arm now attributes the change |
 | P2 | Propagate α's own uncertainty (casualty elevation measured by the same weak aperture) | Ch5/Ch4 | hours | nothing | Closes the one open caveat on C4 before it is quoted |
 | P3 | Consensus × seam-RAIM joint availability (both consume anchor redundancy; combined anchor-count requirement unknown, may exceed 9) | Ch5 | ~1 day | nothing | Doctrine-level number: minimum anchor count for the full estimator |
-| P4 | aspen_run9 rerun (Vicon mm-class GT) | Ch6 | ½ day compute | **user: Globus download** | Upgrades C6's GT from interpolated 1.3 Hz pose to mm-class — the rigorous error bound |
+| P4 | aspen Vicon runs — **largely done 2026-08** (still windows of runs 0/1/2/3/10 via `fetch_coloradar_v1.py`, OneDrive route, no Globus needed). Remaining: full-hover segments (e.g. run9) | Ch6 | ½ day compute | attitude-rotated IMU seed (exp5b D.7) | Done part upgraded C6's GT to mm-class Vicon; full-hover part needs the IMU seed first |
 | P5 | Hover ULogs → `hover_ingest` → exp3/exp4 on measured sway | Ch5 | ½ day + flights | **user: fly the flight card** | Replaces the last synthetic input (0.3 Hz-knee sway model) with the real platform spectrum |
 | P6 | Erlangen subjects 11–30, Valsalva/Tilt scenarios, tail forensics (GDN0002/0008/0010), harmonic-aware joint estimation | Ch7 | 1–2 days | nothing (public data) | Coverage + the identified next lever on the tail |
 | P7 | LCMV anchor→target null; RAIM behaviour when an anchor itself slips | Ch5 | 1 day | nothing | Completeness of the mitigation story |
@@ -259,14 +266,18 @@ generated with the chapter skeletons and the §3 register pre-imported.
 
 - **Hardware schedule** (P9): mitigated — thesis stands on sim + real-data
   + clinical tiers; Ch9 is written as protocol either way.
-- **aspen_run9 access** (P4): Globus route is live but manual; if it dies,
-  Ch6 stands on ec_hallways + the P1 upgrade; state the GT limitation.
+- **aspen access** (P4): resolved — the v1 OneDrive route is alive and
+  `fetch_coloradar_v1.py` window-fetches it (~1 GB per campaign); Globus
+  no longer on the critical path.
 - **Scope creep**: the follow-up lists total far more than a thesis needs.
   The gate is §4's "no-hardware minimum" — everything else is
   future-work material for Ch10.
-- **The two fragile claims to guard**: (a) exp5's sub-mm agreement is a
-  2-D, hallway-geometry result — exp6's α analysis is the *reason* it
-  held; always present them together. (b) The 3.05 BPM clinical number is
+- **The two fragile claims to guard**: (a) **resolved the hard way** —
+  exp5b Part E showed the hallway numbers were saturation/seed artifacts,
+  and Part F replaced them with hover-regime numbers that are honestly
+  attributed; present C6 exclusively from exp5b Parts E–F now. New guard:
+  the 14.5–23.4 µm holdouts carry the bin-4 leakage-anchor caveat (exp5b
+  Part F) until the D.6 rerun clears it. (b) The 3.05 BPM clinical number is
   *at 30 % coverage* — always quote coverage with accuracy, or an examiner
   will.
 - **Multi-session git hazard** (operational): the branch is pushed from
