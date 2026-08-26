@@ -281,9 +281,8 @@ Consequences, both quotable:
   at the source, all five windows read **28.6–110.0 µm** (best-arm),
   5–19× below the 547.8 µm wrap floor, robust to guard choice, run10
   recovered — hover-regime phase consistency at tens of µm on real
-  cascade data, integer-free and Vicon-surveyed. Recommended
-  real-cascade guard: 8 bins; the code default stays 4 pending a
-  fixture-compatibility check before flipping.
+  cascade data, integer-free and Vicon-surveyed. The code default is now
+  guard 8 (fixture-verified bit-identical; bundle regolded).
 
 ## Part C — Remaining runs
 
@@ -313,12 +312,11 @@ statistics are worth in that regime.
 5. Tolerance refinement — now urgent, not cosmetic: the C.5 over-exclusion
    is measured on real data (Part F); per-anchor measured-SNR σ_φ + an
    el-leak term.
-6. ~~Extend the near-field guard~~ **done** (Part F2) — remaining:
-   flip the code default to guard 8 after a fixture-compatibility check
-   (the fixture's nearest anchor sits at bin 61, so the flip should be
-   safe; verify --check regolds cleanly), and re-run a ghost-bearing
-   real scene to restore a real-data basis for the picker's anti-ghost
-   claim.
+6. ~~Extend the near-field guard~~ **done** (Part F2), and the code
+   default is now 8 (fixture-verified: numbers bit-identical, bundle
+   regolded with `guard_bins` recorded; pass `--guard-bins 4` to
+   reproduce exp5-era behavior). Remaining: a ghost-bearing real scene
+   to restore a real-data basis for the picker's anti-ghost claim.
 7. **Attitude-rotated IMU seed** (extrinsics + quaternion rotation) — the
    world-aligned assumption is measured broken (Part F caveat 2); needed
    for any beyond-still-window hover work.
