@@ -393,10 +393,12 @@ the actual payload, not through more ColoRadar reruns.
    design's 47 ms gap by extrapolation of the leak term only.
 9. ~~D.9 — integer-chain RAIM~~ **done** (exp9,
    [`radar_rbec_validation_exp9.md`](radar_rbec_validation_exp9.md)):
-   built, measured jointly with consensus + seam-RAIM; snaps isolated
-   slips (~8/dwell at 300 µm) and keeps the ghost-excluded shared-error
-   estimate ~17× cleaner; the raw-residual statistic is the load-bearing
-   implementation note. Doctrine: min-N 5/6/9 at the ≤100 µm budget;
-   no anchor count rescues dwells above it.
+   built two-pass (the per-seam statistic is blind to correlated
+   ghosts — exp9 Part A), measured jointly with consensus + seam-RAIM;
+   snaps isolated slips (~6/dwell at 300 µm) and keeps the contaminated
+   shared-error estimate 593 → 17 µm; raw-residual statistic and the
+   dwell-verdict second pass are the load-bearing implementation notes.
+   Doctrine: min-N 5/6/9 at the ≤100 µm budget; above it anchor count
+   helps but never restores ≥99 % (estimator-scoped at the wall).
 8. Vitals-bank D_A note: D_A under *walking* decorrelates real anchors
    (Part E) — the gate's validity is regime-dependent; document in C.4.
