@@ -99,8 +99,10 @@ shown?" — pointers in §3):
   the 3-D solve; every anchor-quality gate is structurally biased toward
   platform-fixed returns (exp5b F2); held-out residuals saturate at
   π/√3/K under phase wrap, so they cannot certify tracking outside the
-  design regime (exp5b E). Examiners probe exactly here — surface these
-  deliberately.
+  design regime (exp5b E); per-seam innovation RAIM is structurally blind
+  to correlated ghost mis-attribution — it absorbs it as common-mode
+  shared error (exp9, forcing D.9's two-pass architecture). Examiners
+  probe exactly here — surface these deliberately.
 
 ---
 
@@ -142,7 +144,8 @@ yet run.
 |---|---|---|---|---|
 | Cardiac budget closes, worst-realistic | 0.095 vs 0.110 rad | [meas-sim] | validation D | P5 measured hover sway; bench V2 |
 | Seam-RAIM removes the unwrap cliff; per-gap IMU need | ≲ 300 µm / 47 ms (wall ~450 µm) | [meas-sim] | validation E2 | — (joint availability closed by exp9) |
-| Anchor budget for the full estimator (consensus + seam-RAIM + D.9) | min-N 5/6/9 @ 0/1/2 ghosts, ≤100 µm gap; N=12 → 99.9 %; wall dead at any N | [meas-sim] | exp9 | LAMBDA-class joint integer solve at the wall (exp9 D.1) |
+| Anchor budget for the full estimator (consensus + seam-RAIM + two-pass D.9) | min-N 5/6/9 @ 0/1/2 ghosts, ≤100 µm gap (deep 0.994/0.995/0.999); N=12 → ≥99.7 %; 450 µm wall dead at any N for the estimators tested | [meas-sim] | exp9 | LAMBDA-class joint integer solve at the wall (exp9 D.1) |
+| Per-seam innovation RAIM is blind to correlated ghosts (honest negative → two-pass D.9) | ghosts ride as inliers (EMA ~0.9), shared error corrupts 593 µm; two-pass restores 17 µm | [meas-sim] | exp9 Part A | uncorrelated-ghost topologies (exp9 D.2) |
 | Correlated cal → discrete spurs at map angles; separation rule | spur 2.6°; rule ≥ 3°/4° | [meas-sim]+[prim] | validation B, §E2 | bench E-series phase-cal report |
 | True CMRR of the common-mode step train | 26–29 dB (geometric ceiling) | [meas-sim] | validation §E2 | **E10 on hardware** — the single most valuable bench number |
 | α decides drop-z vs constrain-z; closed form exact | hallway +0.006 / ground −0.319; <1e-9 | [meas-sim] | exp67 B | — (error bar closed by exp8) |
@@ -178,7 +181,7 @@ calib · bench analysis stack + manual (protocols ready).
 |----|-----------|-------|------|-----------|--------------|
 | P1 | exp5 upgrade run: per-dwell α report, co-range structural pre-filter, subset-consensus solve, IMU-seeded integers, full 2192-frame sequence. **Harness done 2026-08-22** (`exp5b_upgrade.py`, fixture-proven + adversarially reviewed — [`radar_rbec_validation_exp5b.md`](radar_rbec_validation_exp5b.md)); only the data run remains | Ch6 | run: hours | **sequence archive** (Globus is interactive-only; see exp5b doc Part C) | Turns C6 from "quick harness" to defensible chapter core. Prediction on record: the 555 µm improves, or the identical-range clusters weren't ghosts — informative either way; the `--baseline` arm now attributes the change |
 | P2 | Propagate α's own uncertainty — **done 2026-08** (`exp8_alpha_budget.py`, adversarially reviewed; [`radar_rbec_validation_exp8.md`](radar_rbec_validation_exp8.md)) | Ch5/Ch4 | — | — | Caveat closed, and sharpened into doctrine: the gate is certifiable only with the casualty's elevation from outside the array (dα/del_t ≥ 1 in magnitude; the 1.75° el aperture alone gives p95 \|α\| ≈ 0.061 = 3× the gate); with target el known, 1–2° anchor-el bounds certify hallway-class scenes and the anchor part averages down ~1/√N |
-| P3 | Consensus × seam-RAIM × D.9 integer-chain joint availability — **done 2026-08** (`exp9_availability.py`; [`radar_rbec_validation_exp9.md`](radar_rbec_validation_exp9.md)) | Ch5 | — | — | Doctrine numbers delivered: min-N **5/6/9** for 0/1/2 ghosts at the ≤100 µm design budget (1000-dwell confirmed; N=12 for three-nines); above the budget no anchor count helps — redundancy cannot substitute for seed accuracy (450 µm wall dead at any N, coherent-wrap branch ambiguity) |
+| P3 | Consensus × seam-RAIM × D.9 integer-chain joint availability — **done 2026-08** (`exp9_availability.py`, adversarially reviewed → two-pass D.9; [`radar_rbec_validation_exp9.md`](radar_rbec_validation_exp9.md)) | Ch5 | — | — | Doctrine: min-N **5/6/9** for 0/1/2 ghosts at the ≤100 µm budget, arm-independent, deep point estimates 0.994/0.995/0.999 (Wilson-95 lower 0.987/0.989/0.994); N=12 → ≥99.7 %. Honest negatives: per-seam innovation RAIM is blind to correlated ghosts (two-pass is mandatory); at the 450 µm wall no N ≤ 15 helps *for the estimators tested* (oracle probe: estimator-limited — LAMBDA is the open counter-candidate) |
 | P4 | aspen Vicon runs — **done 2026-08** (still + sway windows incl. run9, `fetch_coloradar_v1.py`; D.7 rotated-IMU matrix in exp5b Part G). ColoRadar's 0.2 s frame gap caps what sway segments can show — further gains need 47 ms-gap payload data, not more reruns | Ch6 | — | — | Upgraded C6's GT to mm-class Vicon; delivered C-grade IMU-seeding evidence and the attitude-leak budget |
 | P5 | Hover ULogs → `hover_ingest` → exp3/exp4 on measured sway | Ch5 | ½ day + flights | **user: fly the flight card** | Replaces the last synthetic input (0.3 Hz-knee sway model) with the real platform spectrum |
 | P6 | Erlangen subjects 11–30, Valsalva/Tilt scenarios, tail forensics (GDN0002/0008/0010), harmonic-aware joint estimation | Ch7 | 1–2 days | nothing (public data) | Coverage + the identified next lever on the tail |
